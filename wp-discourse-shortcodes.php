@@ -40,32 +40,57 @@ class WPDiscourseShortcodes {
 
 	}
 
+	protected function get_topic_by_slug( $slug ) {
+		$base_url = $this->base_url . "/t/{$slug}.json";
+		$response = wp_remote_get( $base_url );
+
+		if ( ! DiscourseUtilities::validate( $response ) ) {
+
+			return null;
+		}
+		$topic = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		return $topic;
+	}
+
+	protected function get_group_description( $group_name ) {
+		$group_name = str_replace( '_', '-', $group_name );
+		$topic_slug = 'about-the-' . $group_name . '-group';
+		$group_description = $this->get_topic_by_slug( $topic_slug )['post_stream']['posts'][0]['cooked'];
+
+		return $group_description;
+	}
+
 	protected function format_groups( $groups ) {
 		$output = '<div class="discourse-shortcode-groups">';
 		foreach ( $groups as $group ) {
 			if ( ! $group['automatic'] && $group['visible'] ) {
-				$group_name = str_replace( '_', ' ', $group['name'] );
+				$pretty_group_name = str_replace( '_', ' ', $group['name'] );
 				$user_count = $group['user_count'];
-				$flair_url = $group['flair_url'];
-				if ( $flair_url ) {
-					$image = '<img src="' . $flair_url . '">';
-					$group_image = '<div class="discourse-shortcode-group-image">' . $image . '</div>';
-				} else {
-					$group_image = '';
-				}
+//				$flair_url = $group['flair_url'];
+//				if ( $flair_url ) {
+//					$image = '<img src="' . $flair_url . '">';
+//					$group_image = '<div class="discourse-shortcode-group-image">' . $image . '</div>';
+//				} else {
+//					$group_image = '';
+//				}
 
 
 				$output .= '<div class="discourse-shortcode-group clearfix">';
-				$output .= '<div class="discourse-shortcode-image-container">';
-				$output .= $group_image;
-				$output .= '</div>';
-				$output .= '<h3 class="discourse-shortcode-groupname">' . $group_name . '</h3>';
+//				$output .= '<div class="discourse-shortcode-image-container">';
+//				$output .= $group_image;
+//				$output .= '</div>';
+				$output .= '<h3 class="discourse-shortcode-groupname">' . $pretty_group_name . '</h3>';
 				$output .= '<span class="discourse-shortcode-groupcount">';
 				$output .= 1 === intval( $user_count ) ? '1 member' : intval( $user_count ) . ' members';
 				$output .= '</span>';
+				$output .= '<div class="discourse-shortcode-group-description">';
+				$output .= $group['description'];
+
+				$output .= '</div>';
 				$request_args = array(
-					'link_text' => 'Request to join the ' . $group_name . ' group',
-					'title' => 'A request to join the ' . $group_name . ' group',
+					'link_text' => 'Request to join the ' . $pretty_group_name . ' group',
+					'title' => 'A request to join the ' . $pretty_group_name . ' group',
 					'username' => 'scossar',
 					'classes' => 'discourse-button',
 				);
@@ -100,6 +125,11 @@ class WPDiscourseShortcodes {
 			}
 
 			$groups = json_decode( wp_remote_retrieve_body( $response ), true );
+
+			foreach ( $groups as $key => $group ) {
+				$groups[$key]['description'] = $this->get_group_description( $group['name'] );
+			}
+
 			set_transient( 'discourse_groups', $groups, HOUR_IN_SECONDS );
 		}
 
