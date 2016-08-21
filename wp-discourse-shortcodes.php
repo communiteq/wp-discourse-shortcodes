@@ -60,7 +60,16 @@ class WPDiscourseShortcodes {
 				$output .= $group_image;
 				$output .= '</div>';
 				$output .= '<h3 class="discourse-shortcode-groupname">' . $group_name . '</h3>';
+				$output .= '<span class="discourse-shortcode-groupcount">';
 				$output .= 1 === intval( $user_count ) ? '1 member' : intval( $user_count ) . ' members';
+				$output .= '</span>';
+				$request_args = array(
+					'link_text' => 'Request to join the ' . $group_name . ' group',
+					'title' => 'A request to join the ' . $group_name . ' group',
+					'username' => 'scossar',
+					'classes' => 'discourse-button',
+				);
+				$output .= $this->discourse_message( $request_args );
 				$output .= '</div>';
 			}
 
