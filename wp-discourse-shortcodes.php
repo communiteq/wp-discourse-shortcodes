@@ -80,6 +80,35 @@ class WPDiscourseShortcodes {
 		return $category_badge;
 	}
 
+	protected function calculate_last_activity( $last_activity ) {
+		$now = time();
+		$last_activity = strtotime( $last_activity );
+		$seconds = $now - $last_activity;
+
+		$minutes = intval( $seconds / 60 );
+		if ( $minutes < 60 ) {
+			return 1 === $minutes ? '1 minute ago' : $minutes . ' minutes ago';
+		}
+
+		$hours = intval( $minutes / 60 );
+		if ( $hours < 24 ) {
+			return 1 === $hours ? '1 hour ago' : $hours . ' hours ago';
+		}
+
+		$days = intval( $hours / 24 );
+		if ( $days < 30 ) {
+			return 1 === $days ? '1 day ago' : $days . ' days ago';
+		}
+
+		$months = intval( $days / 30 );
+		if ( $months < 12 ) {
+			return 1 === $months ? '1 month ago' : $months . ' months ago';
+		}
+
+		$years = intval( $months / 12 );
+		return 1 === $years ? '1 year ago' : $years . ' years ago';
+	}
+
 	protected function format_topics( $args, $topics_array ) {
 		$output = '<ul class="discourse-topiclist">';
 		$topics = array_slice( $topics_array['topic_list']['topics'], 0, $args['max_topics'] );
@@ -89,8 +118,9 @@ class WPDiscourseShortcodes {
 				$topic_url               = esc_url_raw( $this->base_url . "/t/{$topic['slug']}/{$topic['id']}" );
 				$created_at              = date_create( get_date_from_gmt( $topic['created_at'] ) );
 				$created_at_formatted    = date_format( $created_at, 'F j, Y' );
-				$last_activity           = date_create( get_date_from_gmt( $topic['last_posted_at'] ) );
-				$last_activity_formatted = date_format( $last_activity, 'F j, Y' );
+//				$last_activity           = date_create( get_date_from_gmt( $topic['last_posted_at'] ) );
+				$last_activity = $topic['last_posted_at'];
+//				$last_activity_formatted = date_format( $last_activity, 'F j, Y' );
 				$category                = $this->find_discourse_category( $topic );
 				$posters                 = $topic['posters'];
 				foreach ( $posters as $poster ) {
@@ -116,7 +146,7 @@ class WPDiscourseShortcodes {
 				$output .= '<h3 class="discourse-topic-title">' . $topic['title'] . '</h3>';
 				$output .= '</a>';
 				$output .= '<div class="discourse-topic-activity-meta">';
-				$output .= 'replies <span class="discourse-num-replies">' . ( $topic['posts_count'] - 1 ) . '</span> last activity <span class="discourse-last-activity">' . $last_activity_formatted . '</span>';
+				$output .= 'replies <span class="discourse-num-replies">' . ( $topic['posts_count'] - 1 ) . '</span> last activity <span class="discourse-last-activity">' . $this->calculate_last_activity( $last_activity ) . '</span>';
 				$output .= '</div>';
 				$output .= '</li>';
 			}
