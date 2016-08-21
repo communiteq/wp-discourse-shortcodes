@@ -34,13 +34,13 @@ class WPDiscourseShortcodes {
 		$parsed_attributes = shortcode_atts( array(
 			'max_topics' => 5,
 		), $atts );
-		$latest_topics     = $this->latest_topics( $parsed_attributes );
-		$formatted_topics  = $this->format_topics( $latest_topics );
+		$latest_topics     = $this->latest_topics();
+		$formatted_topics  = $this->format_topics( $parsed_attributes, $latest_topics );
 
 		return $formatted_topics;
 	}
 
-	protected function latest_topics( $args ) {
+	protected function latest_topics() {
 		$latest_url = esc_url_raw( $this->base_url . '/latest.json' );
 
 		$latest_topics = get_transient( 'wp_discourse_latest_topics' );
@@ -51,20 +51,15 @@ class WPDiscourseShortcodes {
 			}
 
 			$latest_topics = json_decode( wp_remote_retrieve_body( $remote ), true );
-//			if ( array_key_exists( 'topic_list', $remote ) ) {
-//				$topic_list    = $remote['topic_list'];
-//				$latest_topics = array_slice( $topic_list['topics'], 0, $args['max_topics'] );
-//				set_transient( 'wp_discourse_latest_topics', $latest_topics, 1 * MINUTE_IN_SECONDS );
-//			}
 			set_transient( 'wp_discourse_latest_topics', $latest_topics );
 		}
 
 		return $latest_topics;
 	}
 
-	protected function format_topics( $topics_array ) {
+	protected function format_topics( $args, $topics_array ) {
 		$output = '<ul class="discourse-topiclist">';
-		$topics = $topics_array['topic_list']['topics'];
+		$topics = array_slice( $topics_array['topic_list']['topics'], 0, $args['max_topics'] );
 		$users  = $topics_array['users'];
 		foreach ( $topics as $topic ) {
 			if ( ! $topic['pinned'] ) {
