@@ -30,6 +30,71 @@ class WPDiscourseShortcodes {
 		add_shortcode( 'discourse_topic', array( $this, 'discourse_topic' ) );
 		add_shortcode( 'discourse_message', array( $this, 'discourse_message' ) );
 		add_shortcode( 'discourse_latest', array( $this, 'discourse_latest' ) );
+		add_shortcode( 'discourse_groups', array( $this, 'discourse_groups' ) );
+	}
+
+	public function discourse_groups() {
+		$groups = $this->get_discourse_groups();
+		$formatted_groups = $this->format_groups( $groups );
+		return $formatted_groups;
+
+	}
+
+	protected function format_groups( $groups ) {
+		$output = '<div class="discourse-shortcode-groups">';
+		foreach ( $groups as $group ) {
+			if ( ! $group['automatic'] && $group['visible'] ) {
+				$group_name = str_replace( '_', ' ', $group['name'] );
+				$user_count = $group['user_count'];
+				$flair_url = $group['flair_url'];
+				if ( $flair_url ) {
+					$image = '<img src="' . $flair_url . '">';
+					$group_image = '<div class="discourse-shortcode-group-image">' . $image . '</div>';
+				} else {
+					$group_image = '';
+				}
+
+
+				$output .= '<div class="discourse-shortcode-group clearfix">';
+				$output .= '<div class="discourse-shortcode-image-container">';
+				$output .= $group_image;
+				$output .= '</div>';
+				$output .= '<h3 class="discourse-shortcode-groupname">' . $group_name . '</h3>';
+				$output .= 1 === intval( $user_count ) ? '1 member' : intval( $user_count ) . ' members';
+				$output .= '</div>';
+			}
+
+		}
+
+		$output .= '</div>';
+
+		return $output;
+	}
+
+	protected function get_discourse_groups() {
+		$options = $this->options;
+
+		$groups = get_transient( 'discourse_groups' );
+
+		if ( empty( $groups ) ) {
+			$url = array_key_exists( 'url', $options ) ? $options['url'] : '';
+			$url = add_query_arg( array(
+				'api_key'      => array_key_exists( 'api-key', $options ) ? $options['api-key'] : '',
+				'api_username' => array_key_exists( 'publish-username', $options ) ? $options['publish-username'] : '',
+			), $url . '/admin/groups.json' );
+
+			$url      = esc_url_raw( $url );
+			$response = wp_remote_get( $url );
+
+			if ( ! DiscourseUtilities::validate( $response ) ) {
+				return null;
+			}
+
+			$groups = json_decode( wp_remote_retrieve_body( $response ), true );
+			set_transient( 'discourse_groups', $groups, HOUR_IN_SECONDS );
+		}
+
+		return $groups;
 	}
 
 	public function discourse_latest( $atts ) {
@@ -60,7 +125,7 @@ class WPDiscourseShortcodes {
 	}
 
 	protected function find_discourse_category( $topic ) {
-		$categories = DiscourseUtilities::get_discourse_categories();
+		$categories  = DiscourseUtilities::get_discourse_categories();
 		$category_id = $topic['category_id'];
 
 		foreach ( $categories as $category ) {
@@ -73,7 +138,7 @@ class WPDiscourseShortcodes {
 	}
 
 	protected function discourse_category_badge( $category ) {
-		$category_name = $category['name'];
+		$category_name  = $category['name'];
 		$category_color = '#' . $category['color'];
 		$category_badge = '<span class="discourse-shortcode-category-badge" style="width: 8px; height: 8px; background-color: ' . $category_color . '; display: inline-block;"></span><span class="discourse-category-name"> ' . $category_name . '</span>';
 
@@ -81,9 +146,9 @@ class WPDiscourseShortcodes {
 	}
 
 	protected function calculate_last_activity( $last_activity ) {
-		$now = time();
+		$now           = time();
 		$last_activity = strtotime( $last_activity );
-		$seconds = $now - $last_activity;
+		$seconds       = $now - $last_activity;
 
 		$minutes = intval( $seconds / 60 );
 		if ( $minutes < 60 ) {
@@ -106,6 +171,7 @@ class WPDiscourseShortcodes {
 		}
 
 		$years = intval( $months / 12 );
+
 		return 1 === $years ? '1 year ago' : $years . ' years ago';
 	}
 
@@ -115,14 +181,14 @@ class WPDiscourseShortcodes {
 		$users  = $topics_array['users'];
 		foreach ( $topics as $topic ) {
 			if ( ! $topic['pinned'] ) {
-				$topic_url               = esc_url_raw( $this->base_url . "/t/{$topic['slug']}/{$topic['id']}" );
-				$created_at              = date_create( get_date_from_gmt( $topic['created_at'] ) );
-				$created_at_formatted    = date_format( $created_at, 'F j, Y' );
+				$topic_url            = esc_url_raw( $this->base_url . "/t/{$topic['slug']}/{$topic['id']}" );
+				$created_at           = date_create( get_date_from_gmt( $topic['created_at'] ) );
+				$created_at_formatted = date_format( $created_at, 'F j, Y' );
 //				$last_activity           = date_create( get_date_from_gmt( $topic['last_posted_at'] ) );
 				$last_activity = $topic['last_posted_at'];
 //				$last_activity_formatted = date_format( $last_activity, 'F j, Y' );
-				$category                = $this->find_discourse_category( $topic );
-				$posters                 = $topic['posters'];
+				$category = $this->find_discourse_category( $topic );
+				$posters  = $topic['posters'];
 				foreach ( $posters as $poster ) {
 					if ( preg_match( '/Original Poster/', $poster['description'] ) ) {
 						$original_poster_id = $poster['user_id'];
