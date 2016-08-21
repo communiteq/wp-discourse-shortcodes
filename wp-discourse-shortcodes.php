@@ -8,6 +8,8 @@
 
 namespace WPDiscourseShortcodes\Shortcodes;
 
+use \WPDiscourse\Utilities\Utilities as DiscourseUtilities;
+
 add_action( 'plugins_loaded', __NAMESPACE__ . '\\init' );
 
 function init() {
@@ -57,18 +59,40 @@ class WPDiscourseShortcodes {
 		return $latest_topics;
 	}
 
+	protected function find_discourse_category( $topic ) {
+		$categories = DiscourseUtilities::get_discourse_categories();
+		$category_id = $topic['category_id'];
+
+		foreach ( $categories as $category ) {
+			if ( $category_id === $category['id'] ) {
+				return $category;
+			}
+		}
+
+		return null;
+	}
+
+	protected function discourse_category_badge( $category ) {
+		$category_name = $category['name'];
+		$category_color = '#' . $category['color'];
+		$category_badge = '<span class="discourse-shortcode-category-badge" style="width: 8px; height: 8px; background-color: ' . $category_color . '; display: inline-block;"></span><span class="discourse-category-name"> ' . $category_name . '</span>';
+
+		return $category_badge;
+	}
+
 	protected function format_topics( $args, $topics_array ) {
 		$output = '<ul class="discourse-topiclist">';
 		$topics = array_slice( $topics_array['topic_list']['topics'], 0, $args['max_topics'] );
 		$users  = $topics_array['users'];
 		foreach ( $topics as $topic ) {
 			if ( ! $topic['pinned'] ) {
-				$topic_url = esc_url_raw( $this->base_url . "/t/{$topic['slug']}/{$topic['id']}" );
-				$created_at = date_create( get_date_from_gmt( $topic['created_at'] ) );
-				$created_at_formatted = date_format( $created_at, 'F j, Y' );
-				$last_activity = date_create( get_date_from_gmt( $topic['last_posted_at'] ) );
+				$topic_url               = esc_url_raw( $this->base_url . "/t/{$topic['slug']}/{$topic['id']}" );
+				$created_at              = date_create( get_date_from_gmt( $topic['created_at'] ) );
+				$created_at_formatted    = date_format( $created_at, 'F j, Y' );
+				$last_activity           = date_create( get_date_from_gmt( $topic['last_posted_at'] ) );
 				$last_activity_formatted = date_format( $last_activity, 'F j, Y' );
-				$posters   = $topic['posters'];
+				$category                = $this->find_discourse_category( $topic );
+				$posters                 = $topic['posters'];
 				foreach ( $posters as $poster ) {
 					if ( preg_match( '/Original Poster/', $poster['description'] ) ) {
 						$original_poster_id = $poster['user_id'];
@@ -85,13 +109,14 @@ class WPDiscourseShortcodes {
 				$output .= '<li class="discourse-topic">';
 				$output .= '<div class="discourse-topic-poster-meta">';
 				$output .= '<img class="discourse-latest-avatar" src="' . $poster_avatar_url . '">';
-				$output .=  '<span class="discourse-username">' . $poster_username . '</span>' . ' posted on ' . '<span class="discourse-created-at">' . $created_at_formatted . ':</span>';
+				$output .= '<span class="discourse-username">' . $poster_username . '</span>' . ' posted on ' . '<span class="discourse-created-at">' . $created_at_formatted . '</span><br>';
+				$output .= 'in <span class="discourse-shortcode-category" >' . $this->discourse_category_badge( $category ) . '</span>';
 				$output .= '</div>';
 				$output .= '<a href="' . $topic_url . '">';
 				$output .= '<h3 class="discourse-topic-title">' . $topic['title'] . '</h3>';
 				$output .= '</a>';
 				$output .= '<div class="discourse-topic-activity-meta">';
-				$output .= 'replies: <span class="discourse-num-replies">' . ( $topic['posts_count'] - 1 ) . '</span>, last activity: <span class="discourse-last-activity">' . $last_activity_formatted . '</span>';
+				$output .= 'replies <span class="discourse-num-replies">' . ( $topic['posts_count'] - 1 ) . '</span> last activity <span class="discourse-last-activity">' . $last_activity_formatted . '</span>';
 				$output .= '</div>';
 				$output .= '</li>';
 			}
