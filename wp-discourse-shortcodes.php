@@ -92,11 +92,7 @@ class WPDiscourseShortcodes {
 				$output .= '</a>';
 				$output .= '<div class="discourse-topic-activity-meta">';
 				$output .= 'replies: <span class="discourse-num-replies">' . ( $topic['posts_count'] - 1 ) . '</span>, last activity: <span class="discourse-last-activity">' . $last_activity_formatted . '</span>';
-
-
 				$output .= '</div>';
-
-
 				$output .= '</li>';
 			}
 		}
@@ -104,8 +100,6 @@ class WPDiscourseShortcodes {
 		$output .= '</ul>';
 
 		return $output;
-
-
 	}
 
 	public function discourse_link( $atts ) {
