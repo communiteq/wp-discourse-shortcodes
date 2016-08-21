@@ -51,7 +51,7 @@ class WPDiscourseShortcodes {
 			}
 
 			$latest_topics = json_decode( wp_remote_retrieve_body( $remote ), true );
-			set_transient( 'wp_discourse_latest_topics', $latest_topics );
+			set_transient( 'wp_discourse_latest_topics', $latest_topics, 10 * MINUTE_IN_SECONDS );
 		}
 
 		return $latest_topics;
