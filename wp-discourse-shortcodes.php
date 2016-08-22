@@ -31,6 +31,58 @@ class WPDiscourseShortcodes {
 		add_shortcode( 'discourse_message', array( $this, 'discourse_message' ) );
 		add_shortcode( 'discourse_latest', array( $this, 'discourse_latest' ) );
 		add_shortcode( 'discourse_groups', array( $this, 'discourse_groups' ) );
+		add_shortcode( 'discourse_categories', array( $this, 'discourse_categories' ) );
+	}
+
+	public function discourse_categories( $atts ) {
+		$atts                 = shortcode_atts( array(
+			'excluded_categories' => 'uncategorized',
+		), $atts );
+		$categories           = DiscourseUtilities::get_discourse_categories();
+		$formatted_categories = $this->format_categories( $atts, $categories );
+
+		return $formatted_categories;
+	}
+
+	protected function format_categories( $atts, $categories ) {
+		$output = '<div class="discourse-shortcode-categories">';
+		foreach ( $categories as $category ) {
+			$category_name = $category['name'];
+			$excluded_categoried = explode( ' ', $atts['excluded_categories'] );
+			$category_surpressed = in_array( $category['slug'], $excluded_categoried );
+
+			if ( ! $category['read_restricted'] && ! $category_surpressed ) {
+				$category_color       = '#' . $category['color'];
+				$category_text_color  = '#' . $category['text_color'];
+				$category_topic_count = $category['topic_count'];
+				$category_post_count  = $category['post_count'];
+				$category_description = $category['description'];
+				$category_topic_url   = $category['topic_url'];
+				$category_logo_url    = $category['logo_url'];
+
+				$output .= '<div class="discourse-shortcode-category clearfix">';
+				$output .= '<div class="discourse-shortcode-category-header" style="background: ' . $category_color . '; color: ' . $category_text_color . '">';
+				$output .= '<header>';
+				$output .= '<img class="discourse-shortcode-category-logo" src="' . $category_logo_url . '">';
+				$output .= "<h3>$category_name</h3>";
+				$output .= '</header>';
+				$output .= '<div class="discourse-shortcode-category-description>"<p>' . $category_description . '</p></div>';
+				$output .= '<div class="discourse-shortcode-category-meta">';
+				$output .= '<span class="discourse-shortcode-meta-heading">topics </span><span class="discourse-shortcode-meta-value">' . $category_topic_count . '</span>';
+				$output .= '<span class="discourse-shortcode-meta-heading">posts </span><span class="discourse-shortcode-meta-value">' . $category_post_count . '</span>';
+				$output .= '</div>';
+
+
+				$output .= '</div>';
+				$output .= '</div>';
+			}
+
+		}
+
+		$output .= '</div>';
+
+		return $output;
+
 	}
 
 	public function discourse_groups() {
@@ -132,7 +184,7 @@ class WPDiscourseShortcodes {
 			$groups = json_decode( wp_remote_retrieve_body( $response ), true );
 
 			foreach ( $groups as $key => $group ) {
-				$groups[$key]['description'] = $this->get_group_description( $group['name'] );
+				$groups[ $key ]['description'] = $this->get_group_description( $group['name'] );
 				$owners                        = $this->get_group_owners( $group['name'] );
 				if ( $owners ) {
 					foreach ( $owners as $owner ) {
@@ -140,7 +192,7 @@ class WPDiscourseShortcodes {
 					}
 					$groups[ $key ]['owners'] = $owner_names[0];
 				} else {
-					$groups[$key]['owners'] = isset( $this->options['publish-username'] ) ? $this->options['publish-username'] : null;
+					$groups[ $key ]['owners'] = isset( $this->options['publish-username'] ) ? $this->options['publish-username'] : null;
 				}
 			}
 
