@@ -34,8 +34,9 @@ class WPDiscourseShortcodes {
 	}
 
 	public function discourse_groups() {
-		$groups = $this->get_discourse_groups();
+		$groups           = $this->get_discourse_groups();
 		$formatted_groups = $this->format_groups( $groups );
+
 		return $formatted_groups;
 
 	}
@@ -54,11 +55,25 @@ class WPDiscourseShortcodes {
 	}
 
 	protected function get_group_description( $group_name ) {
-		$group_name = str_replace( '_', '-', $group_name );
-		$topic_slug = 'about-the-' . $group_name . '-group';
+		$group_name        = str_replace( '_', '-', $group_name );
+		$topic_slug        = 'about-the-' . $group_name . '-group';
 		$group_description = $this->get_topic_by_slug( $topic_slug )['post_stream']['posts'][0]['cooked'];
 
 		return $group_description;
+	}
+
+	protected function get_group_owners( $group_name ) {
+		$base_url = $this->base_url . "/groups/{$group_name}/members.json";
+		$response = wp_remote_get( $base_url );
+
+		if ( ! DiscourseUtilities::validate( $response ) ) {
+			return null;
+		}
+
+		$group_members = json_decode( wp_remote_retrieve_body( $response ), true );
+		$owners        = $group_members['owners'];
+
+		return $owners;
 	}
 
 	protected function format_groups( $groups ) {
@@ -66,44 +81,34 @@ class WPDiscourseShortcodes {
 		foreach ( $groups as $group ) {
 			if ( ! $group['automatic'] && $group['visible'] ) {
 				$pretty_group_name = str_replace( '_', ' ', $group['name'] );
-				$user_count = $group['user_count'];
-//				$flair_url = $group['flair_url'];
-//				if ( $flair_url ) {
-//					$image = '<img src="' . $flair_url . '">';
-//					$group_image = '<div class="discourse-shortcode-group-image">' . $image . '</div>';
-//				} else {
-//					$group_image = '';
-//				}
-
+				$user_count        = $group['user_count'];
+				// For now only the first owner is being selected. Eventually it should be possible to send the
+				// message to all of the group's owners.
+				$owner_names = isset( $group['owners'] ) ? $group['owners'] : null;
 
 				$output .= '<div class="discourse-shortcode-group clearfix">';
-//				$output .= '<div class="discourse-shortcode-image-container">';
-//				$output .= $group_image;
-//				$output .= '</div>';
 				$output .= '<h3 class="discourse-shortcode-groupname">' . $pretty_group_name . '</h3>';
 				$output .= '<span class="discourse-shortcode-groupcount">';
 				$output .= 1 === intval( $user_count ) ? '1 member' : intval( $user_count ) . ' members';
 				$output .= '</span>';
 				$output .= '<div class="discourse-shortcode-group-description">';
 				$output .= $group['description'];
-
 				$output .= '</div>';
 				$request_args = array(
 					'link_text' => 'Request to join the ' . $pretty_group_name . ' group',
-					'title' => 'A request to join the ' . $pretty_group_name . ' group',
-					'username' => 'scossar',
-					'classes' => 'discourse-button',
+					'title'     => 'A request to join the ' . $pretty_group_name . ' group',
+					'username'  => $owner_names,
+					'classes'   => 'discourse-button',
 				);
 				$output .= $this->discourse_message( $request_args );
 				$output .= '</div>';
 			}
-
 		}
-
 		$output .= '</div>';
 
 		return $output;
 	}
+
 
 	protected function get_discourse_groups() {
 		$options = $this->options;
@@ -128,6 +133,15 @@ class WPDiscourseShortcodes {
 
 			foreach ( $groups as $key => $group ) {
 				$groups[$key]['description'] = $this->get_group_description( $group['name'] );
+				$owners                        = $this->get_group_owners( $group['name'] );
+				if ( $owners ) {
+					foreach ( $owners as $owner ) {
+						$owner_names[] = $owner['username'];
+					}
+					$groups[ $key ]['owners'] = $owner_names[0];
+				} else {
+					$groups[$key]['owners'] = isset( $this->options['publish-username'] ) ? $this->options['publish-username'] : null;
+				}
 			}
 
 			set_transient( 'discourse_groups', $groups, HOUR_IN_SECONDS );
@@ -152,7 +166,7 @@ class WPDiscourseShortcodes {
 		$latest_topics = get_transient( 'wp_discourse_latest_topics' );
 		if ( empty( $latest_topics ) ) {
 			$remote = wp_remote_get( $latest_url );
-			if ( ! $this->validate( $remote ) ) {
+			if ( ! DiscourseUtilities::validate( $remote ) ) {
 				return 'We are currently unable to retrieve the latest Discourse topics.';
 			}
 
@@ -223,11 +237,9 @@ class WPDiscourseShortcodes {
 				$topic_url            = esc_url_raw( $this->base_url . "/t/{$topic['slug']}/{$topic['id']}" );
 				$created_at           = date_create( get_date_from_gmt( $topic['created_at'] ) );
 				$created_at_formatted = date_format( $created_at, 'F j, Y' );
-//				$last_activity           = date_create( get_date_from_gmt( $topic['last_posted_at'] ) );
-				$last_activity = $topic['last_posted_at'];
-//				$last_activity_formatted = date_format( $last_activity, 'F j, Y' );
-				$category = $this->find_discourse_category( $topic );
-				$posters  = $topic['posters'];
+				$last_activity        = $topic['last_posted_at'];
+				$category             = $this->find_discourse_category( $topic );
+				$posters              = $topic['posters'];
 				foreach ( $posters as $poster ) {
 					if ( preg_match( '/Original Poster/', $poster['description'] ) ) {
 						$original_poster_id = $poster['user_id'];
@@ -276,8 +288,7 @@ class WPDiscourseShortcodes {
 			$url = esc_url_raw( $this->base_url . '/session/sso?return_path=' . $parsed_attributes['return_path'] );
 		}
 
-		$classes = $parsed_attributes['classes'] ? 'class="' . $parsed_attributes['classes'] . '"' : '';
-
+		$classes        = $parsed_attributes['classes'] ? 'class="' . $parsed_attributes['classes'] . '"' : '';
 		$discourse_link = '<a ' . $classes . ' href="' . $url . '">' . $parsed_attributes['link_text'] . '</a>';
 
 		return $discourse_link;
@@ -300,10 +311,8 @@ class WPDiscourseShortcodes {
 			'category' => $category,
 		), $this->base_url . '/new-topic' ) );
 
-		$topic_url = $sso_url . $return_path;
-
-		$classes = $parsed_attributes['classes'] ? 'class="' . $parsed_attributes['classes'] . '"' : '';
-
+		$topic_url  = $sso_url . $return_path;
+		$classes    = $parsed_attributes['classes'] ? 'class="' . $parsed_attributes['classes'] . '"' : '';
 		$topic_link = '<a ' . $classes . ' href="' . $topic_url . '">' . $parsed_attributes['link_text'] . '</a>';
 
 		return $topic_link;
@@ -326,38 +335,10 @@ class WPDiscourseShortcodes {
 			'body'     => $message,
 		), $this->base_url . '/new-message' ) );
 
-		$topic_url = $sso_url . $return_path;
-
-		$classes = $parsed_attributes['classes'] ? 'class="' . $parsed_attributes['classes'] . '"' : '';
-
+		$topic_url  = $sso_url . $return_path;
+		$classes    = $parsed_attributes['classes'] ? 'class="' . $parsed_attributes['classes'] . '"' : '';
 		$topic_link = '<a ' . $classes . ' href="' . $topic_url . '">' . $parsed_attributes['link_text'] . '</a>';
 
 		return $topic_link;
-	}
-
-	/**
-	 * Validates the response from `wp_remote_get` or `wp_remote_post`.
-	 *
-	 * @param array $response The response from `wp_remote_get` or `wp_remote_post`.
-	 *
-	 * @return int
-	 */
-	protected function validate( $response ) {
-		// There will be a WP_Error if the server can't be accessed.
-		if ( is_wp_error( $response ) ) {
-			error_log( $response->get_error_message() );
-
-			return 0;
-
-			// There is a response from the server, but it's not what we're looking for.
-		} elseif ( intval( wp_remote_retrieve_response_code( $response ) ) !== 200 ) {
-			$error_message = wp_remote_retrieve_response_message( $response );
-			error_log( 'There has been a problem accessing your Discourse forum. Error Message: ' . $error_message );
-
-			return 0;
-		} else {
-			// Valid response.
-			return 1;
-		}
 	}
 }
