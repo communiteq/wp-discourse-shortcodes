@@ -35,9 +35,10 @@ class WPDiscourseShortcodes {
 
 	public function discourse_groups() {
 		$groups           = $this->get_discourse_groups();
-		$formatted_groups = $this->format_groups( $groups );
+//		$formatted_groups = $this->format_groups( $groups );
 
-		return $formatted_groups;
+//		return $formatted_groups;
+		return $groups ? $this->format_groups( $groups ) : '';
 
 	}
 
@@ -155,9 +156,10 @@ class WPDiscourseShortcodes {
 			'max_topics' => 5,
 		), $atts );
 		$latest_topics     = $this->latest_topics();
-		$formatted_topics  = $this->format_topics( $parsed_attributes, $latest_topics );
+//		$formatted_topics  = $this->format_topics( $parsed_attributes, $latest_topics );
 
-		return $formatted_topics;
+//		return $formatted_topics;
+		return $latest_topics ? $this->format_topics( $parsed_attributes, $latest_topics ) : '';
 	}
 
 	protected function latest_topics() {
@@ -167,7 +169,7 @@ class WPDiscourseShortcodes {
 		if ( empty( $latest_topics ) ) {
 			$remote = wp_remote_get( $latest_url );
 			if ( ! DiscourseUtilities::validate( $remote ) ) {
-				return 'We are currently unable to retrieve the latest Discourse topics.';
+				return null;
 			}
 
 			$latest_topics = json_decode( wp_remote_retrieve_body( $remote ), true );
