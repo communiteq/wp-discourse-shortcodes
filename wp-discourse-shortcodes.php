@@ -30,7 +30,9 @@ class WPDiscourseShortcodes {
 		add_shortcode( 'discourse_topic', array( $this, 'discourse_topic' ) );
 		add_shortcode( 'discourse_message', array( $this, 'discourse_message' ) );
 		add_shortcode( 'discourse_latest', array( $this, 'discourse_latest' ) );
-		add_shortcode( 'discourse_groups', array( $this, 'discourse_groups' ) );
+		// Getting the groups is making a Get request with the API key. That's a bad idea.
+		// I'll look for a better way.
+//		add_shortcode( 'discourse_groups', array( $this, 'discourse_groups' ) );
 	}
 
 	public function discourse_groups() {
@@ -257,7 +259,9 @@ class WPDiscourseShortcodes {
 
 				$output .= '<li class="discourse-topic">';
 				$output .= '<div class="discourse-topic-poster-meta">';
-				$output .= '<img class="discourse-latest-avatar" src="' . $poster_avatar_url . '">';
+				$avatar_image = '<img class="discourse-latest-avatar" src="' . $poster_avatar_url . '">';
+				$output .= apply_filters( 'wp_discourse_shorcodes_avatar', $avatar_image, $poster_avatar_url );
+//				$output .= '<img class="discourse-latest-avatar" src="' . $poster_avatar_url . '">';
 				$output .= '<span class="discourse-username">' . $poster_username . '</span>' . ' posted on ' . '<span class="discourse-created-at">' . $created_at_formatted . '</span><br>';
 				$output .= 'in <span class="discourse-shortcode-category" >' . $this->discourse_category_badge( $category ) . '</span>';
 				$output .= '</div>';
