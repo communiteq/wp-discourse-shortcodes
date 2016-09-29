@@ -23,16 +23,14 @@ class WPDiscourseShortcodes {
 	protected $base_url;
 
 	public function __construct() {
-		$this->options  = get_option( 'discourse' );
+		$this->options  = DiscourseUtilities::get_options();
 		$this->base_url = array_key_exists( 'url', $this->options ) ? $this->options['url'] : '';
 
 		add_shortcode( 'discourse_link', array( $this, 'discourse_link' ) );
 		add_shortcode( 'discourse_topic', array( $this, 'discourse_topic' ) );
 		add_shortcode( 'discourse_message', array( $this, 'discourse_message' ) );
 		add_shortcode( 'discourse_latest', array( $this, 'discourse_latest' ) );
-		// Getting the groups is making a Get request with the API key. That's a bad idea.
-		// I'll look for a better way.
-//		add_shortcode( 'discourse_groups', array( $this, 'discourse_groups' ) );
+		add_shortcode( 'discourse_groups', array( $this, 'discourse_groups' ) );
 	}
 
 	public function discourse_groups() {
