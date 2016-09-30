@@ -26,4 +26,30 @@ class Utilities {
 		return $url;
 	}
 
+	public function get_topic_by_slug( $slug, $base_url ) {
+		$topic_url = $base_url . "/t/{$slug}.json";
+		$response = wp_remote_get( $topic_url );
+
+		if ( ! $this->validate( $response ) ) {
+
+			return null;
+		}
+		$topic = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		return $topic;
+	}
+
+
+	// Return WPDiscourse\Utilities functions.
+
+	public function validate( $response ) {
+
+		return DiscourseUtilities::validate( $response );
+	}
+
+	public function get_discourse_categories() {
+
+		return DiscourseUtilities::get_discourse_categories();
+	}
+
 }

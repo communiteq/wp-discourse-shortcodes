@@ -18,13 +18,15 @@ function init() {
 		require_once( __DIR__ . '/lib/discourse-groups.php' );
 		require_once( __DIR__ . '/lib/discourse-message.php' );
 		require_once( __DIR__ . '/lib/discourse-topic.php' );
+		require_once( __DIR__ . '/lib/discourse-email-message.php' );
 
-		$wpdc_shortcodes_utilities = new \WPDiscourseShortcodes\Utilities\Utilities();
-		$wpdc_shortcodes_groups    = new \WPDiscourseShortcodes\DiscourseGroups\DiscourseGroups( $wpdc_shortcodes_utilities );
-		$wpdc_shortcodes_latest    = new \WPDiscourseShortcodes\DiscourseLatest\DiscourseLatest( $wpdc_shortcodes_utilities );
-		$wpdc_shortcodes_link      = new \WPDiscourseShortcodes\DiscourseLink\DiscoureLink( $wpdc_shortcodes_utilities );
-		$wpdc_shortcodes_message   = new \WPDiscourseShortcodes\DiscourseMessage\DiscourseMessage( $wpdc_shortcodes_utilities );
-		$wpdc_shortcodes_topic     = new \WPDiscourseShortcodes\DiscourseTopic\DiscourseTopic( $wpdc_shortcodes_utilities );
+		$wpdc_shortcodes_utilities = new Utilities\Utilities();
+		$wpdc_shortcodes_message   = new DiscourseMessage\DiscourseMessage( $wpdc_shortcodes_utilities );
+		new DiscourseEmailMessage\DiscourseEmailMessage();
+		new DiscourseGroups\DiscourseGroups( $wpdc_shortcodes_utilities, $wpdc_shortcodes_message );
+		new DiscourseLatest\DiscourseLatest( $wpdc_shortcodes_utilities );
+		new DiscourseLink\DiscoureLink( $wpdc_shortcodes_utilities );
+		new DiscourseTopic\DiscourseTopic( $wpdc_shortcodes_utilities );
 	}
 }
 
