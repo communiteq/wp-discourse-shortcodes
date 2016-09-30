@@ -1,14 +1,13 @@
 jQuery(document).ready(function () {
-    jQuery('.discourse-email-message').submit(function (event) {
-        var url = handle_email_submission_script.ajaxurl,
-            action = 'process_discourse_email',
+    jQuery('.discourse-remote-message').submit(function (event) {
+        var url = handle_remote_message_submission_script.ajaxurl,
+            action = 'process_discourse_remote_message',
             $this = jQuery(this),
             formName = $this.find('input[name=discourse_email_form_name]').val(),
             nonce = $this.find('#' + formName).val(),
 
-            to = $this.find('input[name=discourse_to_address]').val(),
-            from = $this.find('input[name=user_email]').val(),
-            subject = $this.find('input[name=discourse_email_subject]').val(),
+            userEmail = $this.find('input[name=user_email]').val(),
+            title = $this.find('input[name=discourse_email_subject]').val(),
             prefilledMessage = $this.find('input[name=discourse_email_message]').val(),
             composedMessage = $this.find('textarea[name=discourse_email_message]').val();
 
@@ -16,9 +15,8 @@ jQuery(document).ready(function () {
                 'formName': formName,
                 'nonce': nonce,
                 'action': action,
-                'to': to,
-                'from': from,
-                'subject': subject,
+                'userEmail': userEmail,
+                'title': title,
                 'prefilledMessage': prefilledMessage,
                 'composedMessage': composedMessage
             };
