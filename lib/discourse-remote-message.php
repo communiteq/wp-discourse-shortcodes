@@ -121,8 +121,8 @@ class DiscourseRemoteMessage {
 					'email'        => $email,
 					'username'     => $username,
 					'name'         => $name,
+					'active' => 'false',
 					'staged'       => 'true',
-					'active'       => 'false',
 				);
 
 				$post_options = array(
@@ -147,7 +147,7 @@ class DiscourseRemoteMessage {
 				'raw'              => $message,
 				'api_username'     => $username,
 				'archetype'        => 'private_message',
-				'target_usernames' => 'scossar,system',
+				'target_usernames' => 'support',
 				'api_key'          => $api_key,
 				'skip_validations' => 'true',
 			);
