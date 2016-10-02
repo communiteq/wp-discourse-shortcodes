@@ -119,6 +119,7 @@ class DiscourseRemoteMessage {
 
 			if ( 1 === count( $response ) && ! empty( $response[0]['username'] ) ) {
 				$discourse_username = $response[0]['username'];
+				$user_id = $response[0]['id'];
 			} else {
 				$password = wp_generate_password( 15 );
 				$email    = $user_email;
@@ -127,31 +128,66 @@ class DiscourseRemoteMessage {
 				$staged   = 'true';
 
 				$create_user_url = $this->base_url . '/users';
-//				$create_user_url = add_query_arg( array(
-//					'api_key' => $api_key,
-//					'api_username' => $api_username,
-//				), $create_user_url );
 
 				$data = array(
-					'api_key' => $api_key,
+					'api_key'      => $api_key,
 					'api_username' => $api_username,
-					'password' => $password,
-					'email'    => $email,
-					'username' => $username,
-					'name'     => $name,
-					'staged' => 'true',
-					'active' => 'false',
+					'password'     => $password,
+					'email'        => $email,
+					'username'     => $username,
+					'name'         => $name,
+					'staged'       => 'true',
+					'active'       => 'false',
 				);
 
 				$post_options = array(
-//					'timeout' => 60,
-//					'method'  => 'PUT',
-					'body'    => $data,
+					'body' => $data,
 				);
 
-				wp_remote_post( $create_user_url, $post_options );
+				$response = wp_remote_post( $create_user_url, $post_options );
 
 				if ( $this->utilities->validate( $response ) ) {
+					$response = json_decode( wp_remote_retrieve_body( $response ), true );
+					$user_id = $response['user_id'];
+
+				}
+
+//				$api_key_url = "$this->base_url/admin/users/{$user_id}/generate_api_key.json";
+//				$api_key_url = add_query_arg( array(
+//					'api_key'      => $api_key,
+//					'api_username' => $api_username,
+//				), $api_key_url );
+
+//				$response = wp_remote_post( $api_key_url );
+
+//				if ( $this->utilities->validate( $response ) ) {
+//					$response = json_decode( wp_remote_retrieve_body( $response ), true );
+//					if ( array_key_exists( 'api_key', $response ) ) {
+//						$user_api_key = $response['api_key']['key'];
+//						write_log($user_api_key);
+//					} else {
+						// Do something.
+//						exit();
+//					}
+//				}
+
+				$message_url = $this->base_url . '/posts';
+				$data = array(
+					'title' => 'This is a test message',
+					'raw' => $message,
+					'api_username' => $username,
+					'archetype' => 'private_message',
+					'target_usernames' => 'scossar,system',
+					'api_key' => $api_key,
+					'skip_validations' => 'true',
+				);
+
+				$response = wp_remote_post( $message_url, array(
+					'body' => $data
+				) );
+
+				if ( $this->utilities->validate( $response ) ) {
+//					$response = json_decode( $response );
 					write_log( $response );
 				}
 
