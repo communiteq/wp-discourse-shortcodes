@@ -33,6 +33,7 @@ class DiscourseRemoteMessage {
 			'title'      => '',
 			'message'    => '',
 			'recipients' => '',
+			'require_name' => false,
 		), $atts, 'discourse_remote_message' );
 
 		return $this->remote_message_form( $attributes );
@@ -45,9 +46,11 @@ class DiscourseRemoteMessage {
 		$title                 = ! empty( $attributes['title'] ) ? $attributes['title'] : null;
 		$message               = ! empty ( $attributes['message'] ) ? $attributes['message'] : null;
 		$recipients            = ! empty( $attributes['recipients'] ) ? $attributes['recipients'] : null;
+		$name_required = ! empty( $attributes['require_name'] ) ? $attributes['require_name'] : false;
 		$user_supplied_title   = '';
-		$user_supplied_subject = '';
 		$user_supplied_message = '';
+		$user_supplied_realname = '';
+		$user_supplied_recipients = '';
 		?>
 
 		<form action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" method="post"
@@ -66,6 +69,13 @@ class DiscourseRemoteMessage {
 					$this->form_errors()->add( $message_error_code, 'You must supply a message.' );
 				} else {
 					$user_supplied_message = urldecode( $_GET['message'] );
+				}
+
+				if ( empty( $_GET['real_name'] ) ) {
+					$realname_error_code = 'missing_realname';
+					$this->form_errors()->add( $realname_error_code, 'You must supply your name.' );
+				} else {
+					$user_supplied_realname = urldecode( $_GET['real_name'] );
 				}
 
 				if ( empty( $_GET['user_email'] ) ) {
@@ -98,13 +108,26 @@ class DiscourseRemoteMessage {
 			<input type="hidden" name="recipients" value="<?php echo $recipients; ?>">
 
 			<?php // Todo: make fields required ?>
+			<?php
+			// Real name field.
+			if ( $name_required ) {
+				$user_supplied_realname = ! empty( $user_supplied_realname ) ? $user_supplied_realname : '';
+				echo '<label for="real_name">Your name: </label>';
+				if ( isset( $realname_error_code ) ) {
+					$error_message = $this->form_errors()->get_error_message( $realname_error_code );
+					echo '<span class="error"><strong>Error</strong>: ' . $error_message . '</span>';
+				}
+				echo '<input type="hidden" name="name_required" value="true">';
+				echo '<input type="text" name="real_name" value="' . $user_supplied_realname . '" >';
+			}
+			?>
+
 			<?php // Email field. ?>
-			<label for="user_email"><?php esc_html_e( 'Your email address:' ); ?></label>
+			<label for="user_email">Your email address: </label>
 			<?php if ( isset( $email_error_code ) ) {
 				$error_message = $this->form_errors()->get_error_message( $email_error_code );
 				echo '<span class="error"><strong>Error</strong>: ' . $error_message . '</span>';
 			} ?>
-			<br>
 			<input type="email" name="user_email"
 			       value="<?php echo ! empty( $user_supplied_email ) ? $user_supplied_email : ''; ?>">
 
@@ -112,7 +135,7 @@ class DiscourseRemoteMessage {
 			<?php if ( $title ) {
 				echo '<input type="hidden" name="title" value="' . sanitize_text_field( $title ) . '">';
 			} else {
-				echo '<label for="title">Subject:</label>';
+				echo '<label for="title">Subject: </label>';
 				if ( isset( $title_error_code ) ) {
 					$error_message = $this->form_errors()->get_error_message( $title_error_code );
 					echo '<span class="error"><strong>Error</strong>: ' . $error_message . '</span>';
@@ -125,7 +148,7 @@ class DiscourseRemoteMessage {
 			if ( $message ) {
 				echo '<input type="hidden" name="message" value="' . esc_textarea( $message ) . '">';
 			} else {
-				echo '<label for="message">Message:</label>';
+				echo '<label for="message">Message: </label>';
 				if ( isset( $message_error_code ) ) {
 					$error_message = $this->form_errors()->get_error_message( $message_error_code );
 					echo '<span class="error"><strong>Error</strong>: ' . $error_message . '</span>';
@@ -165,14 +188,17 @@ class DiscourseRemoteMessage {
 		}
 
 		// Form values.
+		$name_required = ! empty( $_POST['name_required'] ) ? sanitize_text_field( wp_unslash( $_POST['name_required'] ) ) : '';
+		$real_name = ! empty( $_POST['real_name'] ) ? sanitize_text_field( wp_unslash( $_POST['real_name'] ) ) : '';
 		$email      = ! empty( $_POST['user_email'] ) ? sanitize_email( wp_unslash( $_POST['user_email'] ) ) : '';
 		$title      = ! empty( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '';
 		$message    = ! empty( $_POST['message'] ) ? esc_textarea( wp_unslash( $_POST['message'] ) ) : '';
 		$recipients = ! empty( $_POST['recipients'] ) ? sanitize_text_field( wp_unslash( $_POST['recipients'] ) ) : '';
 
-		if ( ! $email || ! $title || ! $message || ! $recipients ) {
+		if ( ! $email || ! $title || ! $message || ! $recipients || ( $name_required && ! $real_name ) ) {
 			$form_url = add_query_arg( array(
 				'form_errors' => true,
+				'real_name' => urlencode( $real_name ),
 				'user_email'  => urlencode( $email ),
 				'title'       => urlencode( $title ),
 				'message'     => urlencode( $message ),
