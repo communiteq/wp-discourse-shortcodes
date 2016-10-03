@@ -56,6 +56,10 @@ class DiscourseRemoteMessage {
 		<form action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" method="post"
 		      class="discourse-remote-message">
 			<?php
+			if ( isset( $_GET['message_created'] ) ) {
+				echo '<div class="success wpdc-shortcodes-success">Your message has been sent!</div>';
+			}
+
 			if ( isset( $_GET['form_errors'] ) ) {
 				if ( empty( $_GET['title'] ) ) {
 					$title_error_code = 'missing_title';
@@ -244,6 +248,10 @@ class DiscourseRemoteMessage {
 			wp_safe_redirect( $form_url );
 			exit;
 		}
+
+		$form_url = add_query_arg( array(
+			'message_created' => true,
+		), $form_url );
 
 		wp_safe_redirect( $form_url );
 		exit;
