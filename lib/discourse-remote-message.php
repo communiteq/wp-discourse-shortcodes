@@ -84,77 +84,51 @@ class DiscourseRemoteMessage {
 			exit();
 		}
 
-		// Get the form values.
+		// Redirection values.
+		$referer_url = explode( '?', wp_get_referer() )[0];
+		$form_url    = home_url( $referer_url );
+
+		// Form values.
 		$email      = ! empty( $_POST['user_email'] ) ? sanitize_email( wp_unslash( $_POST['user_email'] ) ) : null;
 		$title      = ! empty( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '';
 		$message    = ! empty( $_POST['message'] ) ? esc_textarea( wp_unslash( $_POST['message'] ) ) : '';
 		$recipients = ! empty( $_POST['recipients'] ) ? sanitize_text_field( wp_unslash( $_POST['recipients'] ) ) : null;
 
+		if ( ! $email && $title && $message && $recipients ) {
+
+			wp_safe_redirect( $form_url );
+			exit;
+		}
+
+		// Credentials.
 		$api_key      = $this->options['api-key'];
 		$api_username = $this->options['publish-username'];
-
 
 		// Check to see if there is an existing User with that email address.
 		$username = $this->discourse_username_from_email( $email, $api_key, $api_username );
 
 		if ( ! $username ) {
-			// Create a staged User.
-			$password = wp_generate_password( 15 );
 			$username = explode( '@', $email )[0];
-			$name     = $username;
+			$response = $this->create_staged_user( $email, $username, $api_key, $api_username );
 
-			$create_user_url = $this->base_url . '/users';
+			if ( ! $this->utilities->validate( $response ) ) {
 
-			$data = array(
-				'api_key'      => $api_key,
-				'api_username' => $api_username,
-				'password'     => $password,
-				'email'        => $email,
-				'username'     => $username,
-				'name'         => $name,
-				'active'       => 'false',
-				'staged'       => 'true',
-			);
-
-			$post_options = array(
-				'body'    => $data,
-				'timeout' => 30,
-			);
-			$user_response     = wp_remote_post( $create_user_url, $post_options );
-
-			if ( ! $this->utilities->validate( $user_response ) ) {
-
-					$this->redirect_to_referer();
-					exit;
-			}
-
-			// Create the message.
-			$message_url = $this->base_url . '/posts';
-			$data        = array(
-				'title'            => $title,
-				'raw'              => $message,
-				'api_username'     => $username,
-				'archetype'        => 'private_message',
-				'target_usernames' => $recipients,
-				'api_key'          => $api_key,
-				'skip_validations' => 'true',
-			);
-
-			$message_response = wp_remote_post( $message_url, array(
-				'body'    => $data,
-				'timeout' => 30,
-			) );
-
-
-			if ( ! $this->utilities->validate( $message_response ) ) {
-
-				// Change to redirect to error page.
-				$this->redirect_to_referer();
+				wp_safe_redirect( $form_url );
 				exit;
 			}
 		}
 
-		$this->redirect_to_referer();
+		// Create the message.
+		$response = $this->send_message( $title, $message, $username, $recipients, $api_key );
+
+		if ( ! $this->utilities->validate( $response ) ) {
+
+			// Change this to redirect to an error page.
+			wp_safe_redirect( $form_url );
+			exit;
+		}
+
+		wp_safe_redirect( $form_url );
 		exit;
 	}
 
@@ -182,10 +156,49 @@ class DiscourseRemoteMessage {
 		return null;
 	}
 
-	protected function redirect_to_referer() {
-		$referer_url = explode( '?', wp_get_referer() )[0];
-		$form_url    = home_url( $referer_url );
+	protected function create_staged_user( $email, $username, $api_key, $api_username ) {
+		$password = wp_generate_password( 15 );
 
-		wp_safe_redirect( esc_url_raw( $form_url ) );
+		$create_user_url = $this->base_url . '/users';
+
+		$data = array(
+			'api_key'      => $api_key,
+			'api_username' => $api_username,
+			'password'     => $password,
+			'email'        => $email,
+			'username'     => $username,
+			'name'         => $username,
+			'active'       => 'false',
+			'staged'       => 'true',
+		);
+
+		$post_options = array(
+			'timeout' => 45,
+			'body'    => $data,
+		);
+
+		$response = wp_remote_post( $create_user_url, $post_options );
+
+		return $response;
+	}
+
+	protected function send_message( $title, $message, $username, $recipients, $api_key ) {
+		$message_url = $this->base_url . '/posts';
+		$data        = array(
+			'title'            => $title,
+			'raw'              => $message,
+			'api_username'     => $username,
+			'archetype'        => 'private_message',
+			'target_usernames' => $recipients,
+			'api_key'          => $api_key,
+			'skip_validations' => 'true',
+		);
+
+		$response = wp_remote_post( $message_url, array(
+			'timeout' => 45,
+			'body'    => $data,
+		) );
+
+		return $response;
 	}
 }
