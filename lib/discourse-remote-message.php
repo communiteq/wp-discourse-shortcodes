@@ -30,8 +30,8 @@ class DiscourseRemoteMessage {
 
 	public function discourse_remote_message( $atts ) {
 		$attributes = shortcode_atts( array(
-			'title'   => '',
-			'message' => '',
+			'title'      => '',
+			'message'    => '',
 			'recipients' => '',
 		), $atts, 'discourse_remote_message' );
 
@@ -40,10 +40,10 @@ class DiscourseRemoteMessage {
 
 	public function remote_message_form( $attributes ) {
 		static $form_id = 0;
-		$form_id   = $form_id + 1;
-		$form_name = 'discourse_remote_message_form_' . (string) $form_id;
-		$title     = ! empty( $attributes['title'] ) ? $attributes['title'] : null;
-		$message = ! empty ( $attributes['message'] ) ? $attributes['message'] : null;
+		$form_id    = $form_id + 1;
+		$form_name  = 'discourse_remote_message_form_' . (string) $form_id;
+		$title      = ! empty( $attributes['title'] ) ? $attributes['title'] : null;
+		$message    = ! empty ( $attributes['message'] ) ? $attributes['message'] : null;
 		$recipients = ! empty( $attributes['recipients'] ) ? $attributes['recipients'] : null;
 		?>
 
@@ -85,16 +85,17 @@ class DiscourseRemoteMessage {
 		}
 
 		// Get the form values.
-		$email        = ! empty( $_POST['user_email'] ) ? sanitize_email( wp_unslash( $_POST['user_email'] ) ) : null;
-		$title        = ! empty( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '';
-		$message      = ! empty( $_POST['message'] ) ? esc_textarea( wp_unslash( $_POST['message'] ) ) : '';
+		$email      = ! empty( $_POST['user_email'] ) ? sanitize_email( wp_unslash( $_POST['user_email'] ) ) : null;
+		$title      = ! empty( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '';
+		$message    = ! empty( $_POST['message'] ) ? esc_textarea( wp_unslash( $_POST['message'] ) ) : '';
 		$recipients = ! empty( $_POST['recipients'] ) ? sanitize_text_field( wp_unslash( $_POST['recipients'] ) ) : null;
-		$user_url     = $this->base_url . '/admin/users/list/active.json';
+
 		$api_key      = $this->options['api-key'];
 		$api_username = $this->options['publish-username'];
 
 
 		// Check to see if there is an existing User with that email address.
+		$user_url = $this->base_url . '/admin/users/list/active.json';
 		$user_url = add_query_arg( array(
 			'filter'       => urlencode( $email ),
 			'api_key'      => $api_key,
@@ -126,7 +127,7 @@ class DiscourseRemoteMessage {
 					'email'        => $email,
 					'username'     => $username,
 					'name'         => $name,
-					'active' => 'false',
+					'active'       => 'false',
 					'staged'       => 'true',
 				);
 
@@ -167,10 +168,12 @@ class DiscourseRemoteMessage {
 				'body' => $data
 			) );
 
+			write_log( $response );
+
 			if ( ! $this->utilities->validate( $response ) ) {
 				// Change to redirect to error page.
-				$this->redirect_to_referer();
-				exit;
+//				$this->redirect_to_referer();
+//				exit;
 			}
 		}
 
@@ -180,6 +183,30 @@ class DiscourseRemoteMessage {
 
 		$this->redirect_to_referer();
 		exit;
+	}
+
+	protected function discourse_username_from_email( $email, $api_key, $api_username ) {
+		$user_url = $this->base_url . '/admin/users/list/active.json';
+		$user_url = add_query_arg( array(
+			'filter'       => urlencode( $email ),
+			'api_key'      => $api_key,
+			'api_username' => $api_username,
+		), $user_url );
+
+		$user_url = esc_url_raw( $user_url );
+		$response = wp_remote_get( $user_url );
+
+		if ( $this->utilities->validate( $response ) ) {
+			$response = json_decode( wp_remote_retrieve_body( $response ), true );
+			if ( 1 === count( $response ) && ! empty( $response[0]['username'] ) ) {
+
+				return $response[0]['username'];
+			}
+
+			return null;
+		}
+
+		return null;
 	}
 
 	protected function redirect_to_referer() {
