@@ -218,7 +218,8 @@ class DiscourseRemoteMessage {
 
 		if ( ! $username ) {
 			$username = explode( '@', $email )[0];
-			$response = $this->create_staged_user( $email, $username, $api_key, $api_username );
+			$name = ! empty( $real_name ) ? $real_name : $username;
+			$response = $this->create_staged_user( $email, $username, $name, $api_key, $api_username );
 
 			if ( ! $this->utilities->validate( $response ) ) {
 				$form_url = add_query_arg( array(
@@ -278,7 +279,7 @@ class DiscourseRemoteMessage {
 		return null;
 	}
 
-	protected function create_staged_user( $email, $username, $api_key, $api_username ) {
+	protected function create_staged_user( $email, $username, $name, $api_key, $api_username ) {
 		$password = wp_generate_password( 15 );
 
 		$create_user_url = $this->base_url . '/users';
@@ -289,7 +290,7 @@ class DiscourseRemoteMessage {
 			'password'     => $password,
 			'email'        => $email,
 			'username'     => $username,
-			'name'         => $username,
+			'name'         => $name,
 			'active'       => 'false',
 			'staged'       => 'true',
 		);
