@@ -81,6 +81,13 @@ class DiscourseRemoteMessage {
 				} else {
 					$user_supplied_recipients = urldecode( $_GET['recipients'] );
 				}
+
+			}
+
+			if ( isset( $_GET['network_errors'] ) ) {
+				if ( isset( $_GET['unable_to_create_staged_user'] ) || isset( $_GET['unable_to_create_message'] ) ) {
+					echo '<div class="error configuration-error-div">We are sorry. It is not possible to process your request at this time.</div>';
+				}
 			}
 			?>
 
@@ -90,6 +97,7 @@ class DiscourseRemoteMessage {
 			<input type="hidden" name="form_name" value="<?php echo $form_name; ?>">
 			<input type="hidden" name="recipients" value="<?php echo $recipients; ?>">
 
+			<?php // Todo: make fields required ?>
 			<?php // Email field. ?>
 			<label for="user_email"><?php esc_html_e( 'Your email address:' ); ?></label>
 			<?php if ( isset( $email_error_code ) ) {
@@ -109,7 +117,7 @@ class DiscourseRemoteMessage {
 					$error_message = $this->form_errors()->get_error_message( $title_error_code );
 					echo '<span class="error"><strong>Error</strong>: ' . $error_message . '</span>';
 				}
-				$user_supplied_title =! empty( $user_supplied_title ) ? $user_supplied_title : '';
+				$user_supplied_title = ! empty( $user_supplied_title ) ? $user_supplied_title : '';
 				echo '<input type="text" name="title" value="' . $user_supplied_title . '">';
 			}
 
@@ -187,6 +195,10 @@ class DiscourseRemoteMessage {
 			$response = $this->create_staged_user( $email, $username, $api_key, $api_username );
 
 			if ( ! $this->utilities->validate( $response ) ) {
+				$form_url = add_query_arg( array(
+					'network_errors'               => true,
+					'unable_to_create_staged_user' => true,
+				), $form_url );
 
 				wp_safe_redirect( $form_url );
 				exit;
@@ -197,8 +209,11 @@ class DiscourseRemoteMessage {
 		$response = $this->send_message( $title, $message, $username, $recipients, $api_key );
 
 		if ( ! $this->utilities->validate( $response ) ) {
+			$form_url = add_query_arg( array(
+				'network_errors'           => true,
+				'unable_to_create_message' => true,
+			), $form_url );
 
-			// Change this to redirect to an error page.
 			wp_safe_redirect( $form_url );
 			exit;
 		}
