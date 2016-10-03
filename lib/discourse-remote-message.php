@@ -70,6 +70,8 @@ class DiscourseRemoteMessage {
 				echo '<textarea name="message" cols="12" rows="5"></textarea>';
 			}
 			?>
+			<label for="more_info">If you are a human, leave this field blank</label>
+			<input type="text" name="more_info" class="more_info">
 			<input type="submit" value="Send us a message" id="<?php echo $form_name; ?>">
 		</form>
 
