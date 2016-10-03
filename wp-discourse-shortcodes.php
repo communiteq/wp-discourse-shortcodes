@@ -9,9 +9,12 @@
 namespace WPDiscourseShortcodes;
 
 // Make sure the wp-discourse plugin is loaded.
+use WPDiscourseShortcodes\PluginSetup\PluginSetup;
+
 add_action( 'plugins_loaded', __NAMESPACE__ . '\\init' );
 function init() {
 	if ( class_exists( '\WPDiscourse\Discourse\Discourse' ) ) {
+		require_once( __DIR__ . '/lib/plugin-setup.php' );
 		require_once( __DIR__ . '/lib/utilities.php' );
 		require_once( __DIR__ . '/lib/discourse-link.php' );
 		require_once( __DIR__ . '/lib/discourse-latest.php' );
@@ -22,6 +25,7 @@ function init() {
 
 		$wpdc_shortcodes_utilities = new Utilities\Utilities();
 		$wpdc_shortcodes_message   = new DiscourseMessage\DiscourseMessage( $wpdc_shortcodes_utilities );
+		new PluginSetup();
 		new DiscourseRemoteMessage\DiscourseRemoteMessage( $wpdc_shortcodes_utilities );
 		new DiscourseGroups\DiscourseGroups( $wpdc_shortcodes_utilities, $wpdc_shortcodes_message );
 		new DiscourseLatest\DiscourseLatest( $wpdc_shortcodes_utilities );
