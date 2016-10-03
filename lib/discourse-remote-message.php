@@ -95,64 +95,38 @@ class DiscourseRemoteMessage {
 
 
 		// Check to see if there is an existing User with that email address.
-		$user_url = $this->base_url . '/admin/users/list/active.json';
-		$user_url = add_query_arg( array(
-			'filter'       => urlencode( $email ),
-			'api_key'      => $api_key,
-			'api_username' => $api_username,
-		), $user_url );
-
-		$user_url = esc_url_raw( $user_url );
-		$response = wp_remote_get( $user_url );
-
-//		if ( $this->utilities->validate( $response ) ) {
-//			$response = json_decode( wp_remote_retrieve_body( $response ), true );
-
-//			if ( 1 === count( $response ) && ! empty( $response[0]['username'] ) ) {
-
-//				$username = $response[0]['username'];
-//				$user_id  = $response[0]['id'];
 		$username = $this->discourse_username_from_email( $email, $api_key, $api_username );
 
 		if ( ! $username ) {
-				// Create a staged User.
-				$password = wp_generate_password( 15 );
-				$username = explode( '@', $email )[0];
-				$name     = $username;
+			// Create a staged User.
+			$password = wp_generate_password( 15 );
+			$username = explode( '@', $email )[0];
+			$name     = $username;
 
-				$create_user_url = $this->base_url . '/users';
+			$create_user_url = $this->base_url . '/users';
 
-				$data = array(
-					'api_key'      => $api_key,
-					'api_username' => $api_username,
-					'password'     => $password,
-					'email'        => $email,
-					'username'     => $username,
-					'name'         => $name,
-					'active'       => 'false',
-					'staged'       => 'true',
-				);
+			$data = array(
+				'api_key'      => $api_key,
+				'api_username' => $api_username,
+				'password'     => $password,
+				'email'        => $email,
+				'username'     => $username,
+				'name'         => $name,
+				'active'       => 'false',
+				'staged'       => 'true',
+			);
 
-				$post_options = array(
-					'body' => $data,
-				);
+			$post_options = array(
+				'body'    => $data,
+				'timeout' => 30,
+			);
+			$user_response     = wp_remote_post( $create_user_url, $post_options );
 
-				$response = wp_remote_post( $create_user_url, $post_options );
-
-//				if ( $this->utilities->validate( $response ) ) {
-//					$response = json_decode( wp_remote_retrieve_body( $response ), true );
-//					$user_id  = $response['user_id'];
-//				} else {
-//					write_log( $response );
-//					exit;
-//				}
-
-				if ( ! $this->utilities->validate( $response ) ) {
+			if ( ! $this->utilities->validate( $user_response ) ) {
 
 					$this->redirect_to_referer();
 					exit;
-				}
-//			}
+			}
 
 			// Create the message.
 			$message_url = $this->base_url . '/posts';
@@ -166,22 +140,19 @@ class DiscourseRemoteMessage {
 				'skip_validations' => 'true',
 			);
 
-			$response = wp_remote_post( $message_url, array(
-				'body' => $data,
+			$message_response = wp_remote_post( $message_url, array(
+				'body'    => $data,
 				'timeout' => 30,
 			) );
 
 
-			if ( ! $this->utilities->validate( $response ) ) {
+			if ( ! $this->utilities->validate( $message_response ) ) {
+
 				// Change to redirect to error page.
 				$this->redirect_to_referer();
 				exit;
 			}
 		}
-
-//		$referer_url = explode( '?', wp_get_referer() )[0];
-//		$form_url    = home_url( $referer_url );
-//		wp_safe_redirect( esc_url_raw( $form_url ) );
 
 		$this->redirect_to_referer();
 		exit;
