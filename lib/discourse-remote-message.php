@@ -55,18 +55,18 @@ class DiscourseRemoteMessage {
 			<input type="hidden" name="recipients" value="<?php echo $recipients; ?>">
 
 			<label for="user_email"><?php esc_html_e( 'Your email address:' ); ?></label><br>
-			<input type="email" name="user_email"><br>
+			<input type="email" name="user_email">
 			<?php if ( $title ) {
 				echo '<input type="hidden" name="title" value="' . sanitize_text_field( $title ) . '">';
 			} else {
-				echo '<label for="title">Subject:</label><br>';
+				echo '<label for="title">Subject:</label>';
 				echo '<input type="text" name="title" value="' . sanitize_text_field( $title ) . '">';
 			} ?>
 			<?php
 			if ( $message ) {
 				echo '<input type="hidden" name="message" value="' . esc_textarea( $message ) . '">';
 			} else {
-				echo '<label for="message">Message:</label><br>';
+				echo '<label for="message">Message:</label>';
 				echo '<textarea name="message" cols="12" rows="5"></textarea>';
 			}
 			?>
