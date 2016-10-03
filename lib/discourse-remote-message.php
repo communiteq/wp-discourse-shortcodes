@@ -136,8 +136,8 @@ class DiscourseRemoteMessage {
 			?>
 
 			<?php // Honeypot for bots. ?>
-			<label for="more_info">If you are a human, leave this field blank</label>
-			<input type="text" name="more_info" class="more_info">
+			<label for="more_info" class="wpdc-shortcodes-more-info">If you are a human, leave this field blank</label>
+			<input type="text" name="more_info" class="wpdc-shortcodes-more-info">
 
 			<input type="submit" value="Send us a message" id="<?php echo $form_name; ?>">
 		</form>
