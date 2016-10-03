@@ -32,6 +32,7 @@ class DiscourseRemoteMessage {
 		$attributes = shortcode_atts( array(
 			'title'   => '',
 			'message' => '',
+			'recipients' => '',
 		), $atts, 'discourse_remote_message' );
 
 		return $this->remote_message_form( $attributes );
@@ -42,8 +43,8 @@ class DiscourseRemoteMessage {
 		$form_id   = $form_id + 1;
 		$form_name = 'discourse_remote_message_form_' . (string) $form_id;
 		$title     = ! empty( $attributes['title'] ) ? $attributes['title'] : null;
-
 		$message = ! empty ( $attributes['message'] ) ? $attributes['message'] : null;
+		$recipients = ! empty( $attributes['recipients'] ) ? $attributes['recipients'] : null;
 		?>
 
 		<form action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" method="post"
@@ -51,6 +52,7 @@ class DiscourseRemoteMessage {
 			<?php wp_nonce_field( $form_name, $form_name ); ?>
 			<input type="hidden" name="action" value="process_discourse_remote_message">
 			<input type="hidden" name="form_name" value="<?php echo $form_name; ?>">
+			<input type="hidden" name="recipients" value="<?php echo $recipients; ?>">
 
 			<label for="user_email"><?php esc_html_e( 'Your email address:' ); ?></label><br>
 			<input type="email" name="user_email"><br>
@@ -85,6 +87,7 @@ class DiscourseRemoteMessage {
 		$email        = ! empty( $_POST['user_email'] ) ? sanitize_email( wp_unslash( $_POST['user_email'] ) ) : null;
 		$title        = ! empty( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '';
 		$message      = ! empty( $_POST['message'] ) ? esc_textarea( wp_unslash( $_POST['message'] ) ) : '';
+		$recipients = ! empty( $_POST['recipients'] ) ? sanitize_text_field( wp_unslash( $_POST['recipients'] ) ) : null;
 		$user_url     = $this->base_url . '/admin/users/list/active.json';
 		$api_key      = $this->options['api-key'];
 		$api_username = $this->options['publish-username'];
@@ -107,10 +110,8 @@ class DiscourseRemoteMessage {
 				$user_id  = $response[0]['id'];
 			} else {
 				$password = wp_generate_password( 15 );
-				$email    = $email;
 				$username = explode( '@', $email )[0];
 				$name     = $username;
-				$staged   = 'true';
 
 				$create_user_url = $this->base_url . '/users';
 
@@ -137,6 +138,7 @@ class DiscourseRemoteMessage {
 
 				} else {
 					// do something
+					write_log( $response );
 					exit;
 				}
 			}
@@ -147,7 +149,7 @@ class DiscourseRemoteMessage {
 				'raw'              => $message,
 				'api_username'     => $username,
 				'archetype'        => 'private_message',
-				'target_usernames' => 'support',
+				'target_usernames' => $recipients,
 				'api_key'          => $api_key,
 				'skip_validations' => 'true',
 			);
