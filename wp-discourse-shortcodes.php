@@ -30,7 +30,7 @@ function init() {
 		new DiscourseGroups\DiscourseGroups( $wpdc_shortcodes_utilities, $wpdc_shortcodes_remote_message );
 		new DiscourseLatest\DiscourseLatest( $wpdc_shortcodes_utilities );
 		new DiscourseLink\DiscoureLink( $wpdc_shortcodes_utilities );
-		new DiscourseTopic\DiscourseTopic( $wpdc_shortcodes_utilities );
+//		new DiscourseTopic\DiscourseTopic( $wpdc_shortcodes_utilities );
 	}
 }
 
