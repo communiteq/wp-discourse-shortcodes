@@ -59,16 +59,17 @@ class DiscourseGroups {
 	 */
 	public function discourse_groups( $atts ) {
 		$attributes = shortcode_atts( array(
-			'invite'      => false,
-			'group_list'  => false,
-			'require_name' => true,
-			'clear_cache' => false,
-			'button_text' => 'Sign Up',
+			'invite'      => '',
+			'group_list'  => '',
+			'require_name' => 'true',
+			'clear_cache' => '',
+			'button_text' => 'Join',
+			'user_details' => 'true',
+
 		), $atts, 'discourse_groups' );
 
 		$groups = $this->get_discourse_groups( $attributes['group_list'], $attributes['clear_cache'] );
 
-		write_log($attributes);
 		return $groups ? $this->format_groups( $groups, $attributes ) : '';
 	}
 
@@ -82,6 +83,7 @@ class DiscourseGroups {
 		$groups = get_transient( 'discourse_groups' );
 
 		if ( empty( $groups ) || 'true' === $clear_cache ) {
+			write_log('here we are');
 
 			$api_key      = ! empty( $this->options['api-key'] ) ? $this->options['api-key'] : '';
 			$api_username = ! empty( $this->options['publish-username'] ) ? $this->options['publish-username'] : '';
@@ -156,9 +158,11 @@ class DiscourseGroups {
 					'message'    => 'A request to join the ' . $pretty_group_name . ' group',
 					'recipients' => $group['name'],
 					'require_name' => $attributes['require_name'],
+					'user_details' => 'true',
 					'button_text' => $attributes['button_text'],
 				);
 
+				$output .= '<h4 class="wpdc-shortcodes-join">Join the '. $pretty_group_name . ' Group</h4>';
 				$output .= $this->discourse_remote_message->discourse_remote_message( $message_args );
 			}
 			$output .= '</div>';

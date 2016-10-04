@@ -35,6 +35,7 @@ class DiscourseRemoteMessage {
 			'recipients' => '',
 			'button_text' => 'Contact',
 			'require_name' => false,
+			'user_details' => false,
 		), $atts, 'discourse_remote_message' );
 
 		return $this->remote_message_form( $attributes );
@@ -47,7 +48,8 @@ class DiscourseRemoteMessage {
 		$title                 = ! empty( $attributes['title'] ) ? $attributes['title'] : null;
 		$message               = ! empty ( $attributes['message'] ) ? $attributes['message'] : null;
 		$recipients            = ! empty( $attributes['recipients'] ) ? $attributes['recipients'] : null;
-		$name_required = ! empty( $attributes['require_name'] ) ? $attributes['require_name'] : false;
+		$name_required = ! empty( $attributes['require_name'] ) ? 'true' === $attributes['require_name'] : false;
+		$user_details = ! empty( $attributes['user_details'] ) ? 'true' === $attributes['user_details'] : false;
 		$user_supplied_title   = '';
 		$user_supplied_message = '';
 		$user_supplied_realname = '';
@@ -62,7 +64,7 @@ class DiscourseRemoteMessage {
 			$current_form_name = ! empty( $_GET['form_name'] ) ? sanitize_key( wp_unslash( $_GET['form_name'] ) ) : '';
 
 			if ( isset( $_GET['message_created'] ) && $current_form_name === $form_name ) {
-				echo '<div class="success wpdc-shortcodes-success">Your message has been sent!</div>';
+				echo '<div class="success wpdc-shortcodes-success">Thanks! Your message has been sent!</div>';
 			}
 
 			if ( isset( $_GET['form_errors'] ) && $current_form_name === $form_name ) {
@@ -120,7 +122,7 @@ class DiscourseRemoteMessage {
 			// Real name field.
 			if ( $name_required ) {
 				$user_supplied_realname = ! empty( $user_supplied_realname ) ? $user_supplied_realname : '';
-				echo '<label for="real_name">Your name: </label>';
+				echo '<label for="real_name">Name </label>';
 				if ( isset( $realname_error_code ) ) {
 					$error_message = $this->form_errors()->get_error_message( $realname_error_code );
 					echo '<span class="error"><strong>Error</strong>: ' . $error_message . '</span>';
@@ -128,10 +130,15 @@ class DiscourseRemoteMessage {
 				echo '<input type="hidden" name="name_required" value="true">';
 				echo '<input type="text" name="real_name" value="' . $user_supplied_realname . '" >';
 			}
+
+			// User details.
+			if ( $user_details ) {
+				echo '<input type="hidden" name="user_details" value="true">';
+			}
 			?>
 
 			<?php // Email field. ?>
-			<label for="user_email">Your email address: </label>
+			<label for="user_email">Email </label>
 			<?php if ( isset( $email_error_code ) ) {
 				$error_message = $this->form_errors()->get_error_message( $email_error_code );
 				echo '<span class="error"><strong>Error</strong>: ' . $error_message . '</span>';
@@ -143,7 +150,7 @@ class DiscourseRemoteMessage {
 			<?php if ( $title ) {
 				echo '<input type="hidden" name="title" value="' . sanitize_text_field( $title ) . '">';
 			} else {
-				echo '<label for="title">Subject: </label>';
+				echo '<label for="title">Subject </label>';
 				if ( isset( $title_error_code ) ) {
 					$error_message = $this->form_errors()->get_error_message( $title_error_code );
 					echo '<span class="error"><strong>Error</strong>: ' . $error_message . '</span>';
@@ -156,7 +163,7 @@ class DiscourseRemoteMessage {
 			if ( $message ) {
 				echo '<input type="hidden" name="message" value="' . esc_textarea( $message ) . '">';
 			} else {
-				echo '<label for="message">Message: </label>';
+				echo '<label for="message">Message </label>';
 				if ( isset( $message_error_code ) ) {
 					$error_message = $this->form_errors()->get_error_message( $message_error_code );
 					echo '<span class="error"><strong>Error</strong>: ' . $error_message . '</span>';
@@ -202,6 +209,7 @@ class DiscourseRemoteMessage {
 		// Form values.
 		$name_required = ! empty( $_POST['name_required'] ) ? sanitize_text_field( wp_unslash( $_POST['name_required'] ) ) : '';
 		$real_name = ! empty( $_POST['real_name'] ) ? sanitize_text_field( wp_unslash( $_POST['real_name'] ) ) : '';
+		$user_details = ! empty( $_POST['user_details'] ) ? sanitize_key( wp_unslash( $_POST['user_details'] ) ) : false;
 		$email      = ! empty( $_POST['user_email'] ) ? sanitize_email( wp_unslash( $_POST['user_email'] ) ) : '';
 		$title      = ! empty( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '';
 		$message    = ! empty( $_POST['message'] ) ? esc_textarea( wp_unslash( $_POST['message'] ) ) : '';
@@ -247,7 +255,8 @@ class DiscourseRemoteMessage {
 		}
 
 		// Create the message.
-		$response = $this->send_message( $title, $message, $username, $recipients, $api_key );
+		$name = ! empty( $real_name ) ? $real_name : $username;
+		$response = $this->send_message( $title, $message, $username, $name, $user_details, $recipients, $api_key );
 
 		if ( ! $this->utilities->validate( $response ) ) {
 			$form_url = add_query_arg( array(
@@ -325,8 +334,12 @@ class DiscourseRemoteMessage {
 		return $response;
 	}
 
-	protected function send_message( $title, $message, $username, $recipients, $api_key ) {
+	protected function send_message( $title, $message, $username, $name, $user_details, $recipients, $api_key ) {
 		$message_url = $this->base_url . '/posts';
+		if ( $user_details) {
+			$message = 'Sent from: ' . $name . '<br><br>' . $message;
+		}
+
 		$data        = array(
 			'title'            => $title,
 			'raw'              => $message,
