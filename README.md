@@ -1,12 +1,13 @@
-#### WP-Discourse Shortcodes Plugin
+### WP-Discourse Shortcodes Plugin
 
 This plugin extends the wp-discourse plugin by adding WordPress shortcodes that can be
 used to create links between WordPress and your Discourse forum. The plugin currently
 has shortcodes for `[discourse_link]` to create a link to a specific endpoint on your
-forum, `[discourse_topic]` to link to discourse and begin a post with a pre-filled topic,
-and `[discourse_message]` to link to discourse and begin a private message.
+forum, `[discourse_remote_message]` to send a private message to individuals or groups on the forum,
+`[discourse_groups]` to display Discourse groups and provide an optional signup form for the groups,
+and `[discourse_latest]` to display the latest topics from the forum on your website.
 
-##### [discourse_link]
+### [discourse_link]
 
 The `[discourse_link]` shortcode links to a page on your Discourse forum. It accepts the
 following parameters:
@@ -25,45 +26,43 @@ in the user. It adds the class `discourse-button` to the anchor element.
 
 `[discourse_link link_text="Visit Our Forum" classes="discourse-button"]`
 
-##### [discourse_topic]
+###[discourse_remote_message]
 
-The `[discourse_topic]` shortcode begins a prefilled topic by the current user, on the
-Discourse forum. It accepts the following parameters:
+The `[discourse_remote_message]` shortcode creates a private message to a single recipient, a group of recipients, or
+groups on the Discourse forum. If the message is from an email address that is not yet associated with a Discourse user,
+it creates a new 'staged' user on the forum. This user is not able to log into the forum, but can interact with it through
+email. If the email address is one that is associated with an existing Discourse user, then the message that is sent is
+attributed to them.
 
-- link_text - the text you wish to see for the link
-- classes - a list of classes (separated by spaces) that you wish to apply to the anchor
-element. For example to add the classes `discourse` and `discourse-button` to a link you
-would use `classes="discourse discourse-button"`
-- title - the title of the post
-- body - the body of the post
-- category - the post's category name. For example to create a post in the `french` category use
-`category="french"`, to create a post in the `french food` subcategory use
-`category="french/french food"`
+####The shortcode has the following attributes
 
-Here is a complete `[discourse_topic]` shortcode that creates a link with the text 'What did you do this summer?'.
-It begins a Discourse topic with the title 'How I spent my summer vacation' in the 'great trips' category:
+- 'title' - sets the message's title, if not supplied a 'subject' text input will appear in the form
+- 'message' - sets the message's body, if not supplied a 'message' textarea will appear in the form
+- 'recipients' - a comma separated list of recipients, either individuals or groups
+- 'email_heading' - the text for the email input label, defaults to 'Email: '
+- 'subject_heading' - the text for the label of the 'title' text input, defaults to 'Subject: '
+- 'message_heading' - the text for the label of the 'message' text area, defaults to 'Message: '
+- 'require_name' - (boolean) whether or not to include a 'name' input on the form, defaults to false
+- 'user_details' - (boolean) when set to true, the user's full name is appended to the message, defaults to false
 
-`[discourse_topic classes="discourse-button" link_text="What did you do this summer?" title="How I spent my summer vacation" category="great trips"]`
+####Examples:
 
+![alt tag](https://cloud.githubusercontent.com/assets/2975917/19066122/58c71708-89cc-11e6-84f6-6470be517974.png)
+shortcode: `[discourse_remote_message recipients="support"]`
 
-##### [discourse_message]
+![alt tag](https://cloud.githubusercontent.com/assets/2975917/19066128/601af736-89cc-11e6-85f1-377712ad767d.png)
+shortcode: `[discourse_remote_message recipients="support" title="Support request" message="Looking for support with your product"]`
 
-The `[discourse_message]` shortcode begins a prefilled private message sent from the
-current user to a named Discourse user. It accepts the following parameters:
+![alt tag](https://cloud.githubusercontent.com/assets/2975917/19066088/3970e032-89cc-11e6-8813-52515f30e7f0.png)
+shortcode: `[discourse_remote_message recipients="support" button_text="Translate" email_heading="Your email address: " subject_heading="Languages (to and from):" message_heading="Text to translate:"]`
 
-- link_text - the text you wish to see for the link
-- classes - a list of classes (separated by spaces) that you wish to apply to the anchor
-element. For example to add the classes `discourse` and `discourse-button` to a link you
-would use `classes="discourse discourse-button"`
-- username - the username of the person the message is being sent to
-- title - the title of the post
-- message - the body of the post
+When submitted, this will create a new staged user on the associated Discourse forum and send a message to all members of the
+'support' group.
 
-Here is a complete `[discourse_message]` shortcode that creates a link with the text 'Learn more about gentle yoga'.
-It begins a Discourse private message with the title 'Information requested about gentle yoga classes' addressed to
-the user 'scossar'.
+![alt tag](https://cloud.githubusercontent.com/assets/2975917/19066111/4ec3e38a-89cc-11e6-85e4-bd6f26c639ab.png)
 
-`[discourse_message classes="discourse-button" link_text="Learn more about gentle yoga" username="scossar" title="Information requested about gentle yoga classes"]`
+![alt tag](https://cloud.githubusercontent.com/assets/2975917/19066128/601af736-89cc-11e6-85f1-377712ad767d.png)
+shortcode: `[discourse_remote_message recipients="support" title="Support request" message="Looking for support with your product"]`
 
 ##### Using the shortcodes in a php file
 
