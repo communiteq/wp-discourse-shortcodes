@@ -32,7 +32,7 @@ class DiscoursePrefilledMessage {
 		), $atts );
 
 		$link_text = ! empty( $attributes['link_text'] ) ? $attributes['link_text'] : '';
-		$classes   = ! empty( $attributes['classes'] ) ? 'class="' . $attributes['classes'] . '"' : '';
+		$classes   = ! empty( $attributes['classes'] ) ? $attributes['classes'] : '';
 		$title     = ! empty( $attributes['title'] ) ? $attributes['title'] : null;
 		$message   = ! empty( $attributes['message'] ) ? $attributes['message'] : null;
 		// If a comma separated list is being passed, just take the first item.
@@ -62,8 +62,6 @@ class DiscoursePrefilledMessage {
 				'body' => $message,
 			), $message_url ) );
 		}
-
-		write_log( $message_url);
 
 		$message_attributes = array(
 			'link_text' => $link_text,

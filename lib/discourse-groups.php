@@ -104,7 +104,6 @@ class DiscourseGroups {
 			}
 
 			$groups = json_decode( wp_remote_retrieve_body( $response ), true );
-			write_log( $groups );
 			$chosen_groups = [];
 
 			if ( $group_list ) {
