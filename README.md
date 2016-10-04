@@ -76,6 +76,7 @@ Displays the latest Discourse topics.
 - 'cache_duration' - the number of minutes to wait before fetching fresh topics on page load, defaults to 10
 
 ![alt tag](https://cloud.githubusercontent.com/assets/2975917/19066936/afedbeca-89d0-11e6-9ee7-06fa68b94229.png)
+
 shortcode: `[discourse_latest max_topics="7"]` (I guess that's a bug :))
 
 ###[discourse_groups]
