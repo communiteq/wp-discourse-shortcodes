@@ -103,7 +103,7 @@ Submitting the form for the 'blues_society' group will create a staged Discourse
 that email address, and notify members of the 'blues_society' group that the user wishes to join. If the email address
 is already associated with an account on the forum, the message will be associated with them.
 
-##### Using the shortcodes in a php file
+### Using the shortcodes in a php file
 
 This can be done with the WordPress function `do_shortcode`. The most likely place
 to want to do this is in the theme's menu. Here is some example code that could
