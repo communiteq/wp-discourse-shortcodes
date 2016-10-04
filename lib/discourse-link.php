@@ -4,7 +4,7 @@ namespace WPDiscourseShortcodes\DiscourseLink;
 
 use \WPDiscourse\Utilities\Utilities as DiscourseUtilities;
 
-class DiscoureLink {
+class DiscourseLink {
 	protected $utilities;
 	protected $options;
 	protected $base_url;
