@@ -31,7 +31,7 @@ function init() {
 		$wpdc_shortcodes_prefilled_message = new DiscoursePrefilledMessage( $wpdc_shortcodes_utilities, $wpdc_shortcodes_discourse_link );
 		$wpdc_shortcodes_remote_message = new DiscourseRemoteMessage\DiscourseRemoteMessage( $wpdc_shortcodes_utilities );
 		new PluginSetup();
-		new DiscourseGroups( $wpdc_shortcodes_utilities, $wpdc_shortcodes_remote_message );
+		new DiscourseGroups( $wpdc_shortcodes_utilities, $wpdc_shortcodes_remote_message, $wpdc_shortcodes_prefilled_message );
 		new DiscourseLatest( $wpdc_shortcodes_utilities );
 	}
 }

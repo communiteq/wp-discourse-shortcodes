@@ -30,14 +30,17 @@ class DiscourseGroups {
 
 	protected $discourse_remote_message;
 
+	protected $discourse_prefilled_message;
+
 	/**
 	 * DiscourseGroups constructor.
 	 *
 	 * @param \WPDiscourseShortcodes\Utilities\Utilities $utilities A Utilities object.
 	 */
-	public function __construct( $utilities, $discourse_remote_message ) {
+	public function __construct( $utilities, $discourse_remote_message, $discourse_prefilled_message ) {
 		$this->utilities                = $utilities;
 		$this->discourse_remote_message = $discourse_remote_message;
+		$this->discourse_prefilled_message = $discourse_prefilled_message;
 
 		add_action( 'init', array( $this, 'setup' ) );
 	}
@@ -59,12 +62,13 @@ class DiscourseGroups {
 	 */
 	public function discourse_groups( $atts ) {
 		$attributes = shortcode_atts( array(
-			'invite'      => '',
-			'group_list'  => '',
-			'require_name' => 'true',
-			'clear_cache' => '',
-			'button_text' => 'Join',
-			'user_details' => 'true',
+			'invite'         => '',
+			'group_list'     => '',
+			'require_name'   => 'true',
+			'clear_cache'    => '',
+			'button_text'    => 'Join',
+			'user_details'   => 'true',
+			'remote_message' => 'true',
 
 		), $atts, 'discourse_groups' );
 
@@ -99,7 +103,8 @@ class DiscourseGroups {
 				return null;
 			}
 
-			$groups        = json_decode( wp_remote_retrieve_body( $response ), true );
+			$groups = json_decode( wp_remote_retrieve_body( $response ), true );
+			write_log( $groups );
 			$chosen_groups = [];
 
 			if ( $group_list ) {
@@ -152,17 +157,31 @@ class DiscourseGroups {
 			$output .= '</div>';
 
 			if ( 'true' === $attributes['invite'] && $group['mentionable'] ) {
-				$message_args = array(
-					'title'      => 'Request to join the ' . $pretty_group_name . ' group',
-					'message'    => 'A request to join the ' . $pretty_group_name . ' group',
-					'recipients' => $group['name'],
-					'require_name' => $attributes['require_name'],
-					'user_details' => 'true',
-					'button_text' => $attributes['button_text'],
-				);
+				if ( 'true' === $attributes['remote_message'] ) {
 
-				$output .= '<h4 class="wpdc-shortcodes-join">Join the '. $pretty_group_name . ' Group</h4>';
-				$output .= $this->discourse_remote_message->discourse_remote_message( $message_args );
+					$remote_message_args = array(
+						'title'        => 'Request to join the ' . $pretty_group_name . ' group',
+						'message'      => 'A request to join the ' . $pretty_group_name . ' group',
+						'recipients'   => $group['name'],
+						'require_name' => $attributes['require_name'],
+						'user_details' => 'true',
+						'button_text'  => $attributes['button_text'],
+					);
+
+					$output .= '<h4 class="wpdc-shortcodes-join">Join the ' . $pretty_group_name . ' Group</h4>';
+					$output .= $this->discourse_remote_message->discourse_remote_message( $remote_message_args );
+				} elseif ( 1 === $this->options['enable-sso'] ) {
+					// Add a link to create a prefilled message.
+					$prefilled_message_args = array(
+						'title' => 'Request to join the ' . $pretty_group_name . ' group',
+						'classes' => 'wpdc-shortcodes-message-link',
+						'groupname' => $group['name'],
+						'link_text' => $attributes['button_text'],
+					);
+
+					$output .= '<h4 class="wpdc-shortcodes-join">Join the ' . $pretty_group_name . ' Group</h4>';
+					$output .= $this->discourse_prefilled_message->discourse_prefilled_message( $prefilled_message_args );
+				}
 			}
 			$output .= '</div>';
 
