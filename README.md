@@ -66,9 +66,6 @@ When submitted, this will create a new staged user on the associated Discourse f
 
 ![alt tag](https://cloud.githubusercontent.com/assets/2975917/19066111/4ec3e38a-89cc-11e6-85e4-bd6f26c639ab.png)
 
-![alt tag](https://cloud.githubusercontent.com/assets/2975917/19066128/601af736-89cc-11e6-85f1-377712ad767d.png)
-shortcode: `[discourse_remote_message recipients="support" title="Support request" message="Looking for support with your product"]`
-
 ###[discourse_latest]
 
 Displays the latest Discourse topics.
