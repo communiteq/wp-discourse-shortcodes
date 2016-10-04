@@ -33,6 +33,7 @@ class DiscourseRemoteMessage {
 			'title'      => '',
 			'message'    => '',
 			'recipients' => '',
+			'button_text' => 'Contact',
 			'require_name' => false,
 		), $atts, 'discourse_remote_message' );
 
@@ -169,7 +170,7 @@ class DiscourseRemoteMessage {
 			<label for="more_info" class="wpdc-shortcodes-more-info">If you are a human, leave this field blank</label>
 			<input type="text" name="more_info" class="wpdc-shortcodes-more-info">
 
-			<input type="submit" value="Send us a message" id="<?php echo $form_name; ?>">
+			<input type="submit" value="<?php echo esc_textarea( $attributes['button_text'] ); ?>" id="<?php echo $form_name; ?>">
 		</form>
 
 		<?php

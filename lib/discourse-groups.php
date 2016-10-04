@@ -61,7 +61,9 @@ class DiscourseGroups {
 		$attributes = shortcode_atts( array(
 			'invite'      => false,
 			'group_list'  => false,
+			'require_name' => true,
 			'clear_cache' => false,
+			'button_text' => 'Sign Up',
 		), $atts, 'discourse_groups' );
 
 		$groups = $this->get_discourse_groups( $attributes['group_list'], $attributes['clear_cache'] );
@@ -147,24 +149,22 @@ class DiscourseGroups {
 			$output .= '<div class="wpdc-shortcodes-group-description">';
 			$output .= $group['description'];
 			$output .= '</div>';
-//			$request_args = array(
-//				'link_text' => 'Request to join the ' . $pretty_group_name . ' group',
-//				'title'     => 'A request to join the ' . $pretty_group_name . ' group',
-//				'username'  => $owner_names,
-//				'classes'   => 'discourse-button',
-//			);
 
 			if ( 'true' === $attributes['invite'] && $group['mentionable'] ) {
 				$message_args = array(
 					'title'      => 'Request to join the ' . $pretty_group_name . ' group',
 					'message'    => 'A request to join the ' . $pretty_group_name . ' group',
 					'recipients' => $group['name'],
+					'require_name' => $attributes['require_name'],
+					'button_text' => $attributes['button_text'],
 				);
 
 				$output .= $this->discourse_remote_message->discourse_remote_message( $message_args );
 			}
 			$output .= '</div>';
+
 		}
+
 		$output .= '</div>';
 		echo $output;
 
