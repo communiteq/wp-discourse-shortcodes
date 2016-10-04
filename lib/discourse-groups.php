@@ -83,7 +83,6 @@ class DiscourseGroups {
 		$groups = get_transient( 'discourse_groups' );
 
 		if ( empty( $groups ) || 'true' === $clear_cache ) {
-			write_log('here we are');
 
 			$api_key      = ! empty( $this->options['api-key'] ) ? $this->options['api-key'] : '';
 			$api_username = ! empty( $this->options['publish-username'] ) ? $this->options['publish-username'] : '';
