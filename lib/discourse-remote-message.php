@@ -51,16 +51,20 @@ class DiscourseRemoteMessage {
 		$user_supplied_message = '';
 		$user_supplied_realname = '';
 		$user_supplied_recipients = '';
+
+		ob_start();
 		?>
 
 		<form action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" method="post"
 		      class="discourse-remote-message">
 			<?php
-			if ( isset( $_GET['message_created'] ) ) {
+			$current_form_name = ! empty( $_GET['form_name'] ) ? sanitize_key( wp_unslash( $_GET['form_name'] ) ) : '';
+
+			if ( isset( $_GET['message_created'] ) && $current_form_name === $form_name ) {
 				echo '<div class="success wpdc-shortcodes-success">Your message has been sent!</div>';
 			}
 
-			if ( isset( $_GET['form_errors'] ) ) {
+			if ( isset( $_GET['form_errors'] ) && $current_form_name === $form_name ) {
 				if ( empty( $_GET['title'] ) ) {
 					$title_error_code = 'missing_title';
 					$this->form_errors()->add( $title_error_code, 'You must supply a subject for your message.' );
@@ -98,13 +102,12 @@ class DiscourseRemoteMessage {
 
 			}
 
-			if ( isset( $_GET['network_errors'] ) ) {
+			if ( isset( $_GET['network_errors'] ) && $current_form_name === $form_name ) {
 				if ( isset( $_GET['unable_to_create_staged_user'] ) || isset( $_GET['unable_to_create_message'] ) ) {
 					echo '<div class="error configuration-error-div">We are sorry. It is not possible to process your request at this time.</div>';
 				}
 			}
 			?>
-
 
 			<?php wp_nonce_field( $form_name, $form_name ); ?>
 			<input type="hidden" name="action" value="process_discourse_remote_message">
@@ -170,6 +173,10 @@ class DiscourseRemoteMessage {
 		</form>
 
 		<?php
+
+		$output = ob_get_clean();
+
+		return apply_filters( 'wpdc_shortcodes_message', $output );
 	}
 
 	public function ajax_process_remote_message() {
@@ -202,6 +209,7 @@ class DiscourseRemoteMessage {
 		if ( ! $email || ! $title || ! $message || ! $recipients || ( $name_required && ! $real_name ) ) {
 			$form_url = add_query_arg( array(
 				'form_errors' => true,
+				'form_name' => $form_name,
 				'real_name' => urlencode( $real_name ),
 				'user_email'  => urlencode( $email ),
 				'title'       => urlencode( $title ),
@@ -228,6 +236,7 @@ class DiscourseRemoteMessage {
 			if ( ! $this->utilities->validate( $response ) ) {
 				$form_url = add_query_arg( array(
 					'network_errors'               => true,
+					'form_name' => $form_name,
 					'unable_to_create_staged_user' => true,
 				), $form_url );
 
@@ -242,6 +251,7 @@ class DiscourseRemoteMessage {
 		if ( ! $this->utilities->validate( $response ) ) {
 			$form_url = add_query_arg( array(
 				'network_errors'           => true,
+				'form_name' => $form_name,
 				'unable_to_create_message' => true,
 			), $form_url );
 
@@ -251,6 +261,7 @@ class DiscourseRemoteMessage {
 
 		$form_url = add_query_arg( array(
 			'message_created' => true,
+			'form_name' => $form_name,
 		), $form_url );
 
 		wp_safe_redirect( $form_url );

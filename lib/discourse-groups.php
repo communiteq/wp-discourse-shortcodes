@@ -28,16 +28,16 @@ class DiscourseGroups {
 	 */
 	protected $base_url;
 
-	protected $discourse_message;
+	protected $discourse_remote_message;
 
 	/**
 	 * DiscourseGroups constructor.
 	 *
 	 * @param \WPDiscourseShortcodes\Utilities\Utilities $utilities A Utilities object.
 	 */
-	public function __construct( $utilities, $discourse_message ) {
-		$this->utilities         = $utilities;
-		$this->discourse_message = $discourse_message;
+	public function __construct( $utilities, $discourse_remote_message ) {
+		$this->utilities                = $utilities;
+		$this->discourse_remote_message = $discourse_remote_message;
 
 		add_action( 'init', array( $this, 'setup' ) );
 	}
@@ -59,12 +59,14 @@ class DiscourseGroups {
 	 */
 	public function discourse_groups( $atts ) {
 		$attributes = shortcode_atts( array(
-			'invite_link' => false,
+			'invite'      => false,
+			'group_list'  => false,
 			'clear_cache' => false,
 		), $atts, 'discourse_groups' );
 
-		$groups = $this->get_discourse_groups( $attributes['clear_cache']);
+		$groups = $this->get_discourse_groups( $attributes['group_list'], $attributes['clear_cache'] );
 
+		write_log($attributes);
 		return $groups ? $this->format_groups( $groups, $attributes ) : '';
 	}
 
@@ -73,41 +75,52 @@ class DiscourseGroups {
 	 *
 	 * @return array|mixed|null|object
 	 */
-	protected function get_discourse_groups( $clear_cache ) {
-		$options = $this->options;
+	protected function get_discourse_groups( $group_list, $clear_cache ) {
 
 		$groups = get_transient( 'discourse_groups' );
 
 		if ( empty( $groups ) || 'true' === $clear_cache ) {
-			$url = array_key_exists( 'url', $options ) ? $options['url'] : '';
-			$url = add_query_arg( array(
-				'api_key'      => array_key_exists( 'api-key', $options ) ? $options['api-key'] : '',
-				'api_username' => array_key_exists( 'publish-username', $options ) ? $options['publish-username'] : '',
-			), $url . '/admin/groups.json' );
 
-			$url      = esc_url_raw( $url );
-			$response = wp_remote_get( $url );
+			$api_key      = ! empty( $this->options['api-key'] ) ? $this->options['api-key'] : '';
+			$api_username = ! empty( $this->options['publish-username'] ) ? $this->options['publish-username'] : '';
+			$groups_url   = $this->base_url . '/admin/groups.json';
+			$groups_url   = add_query_arg( array(
+				'api_key'      => $api_key,
+				'api_username' => $api_username,
+			), $groups_url );
+
+			$groups_url = esc_url_raw( $groups_url );
+			$response   = wp_remote_get( $groups_url );
 
 			if ( ! $this->utilities->validate( $response ) ) {
 				return null;
 			}
 
-			$groups = json_decode( wp_remote_retrieve_body( $response ), true );
+			$groups        = json_decode( wp_remote_retrieve_body( $response ), true );
+			$chosen_groups = [];
 
-			foreach ( $groups as $key => $group ) {
-				$groups[ $key ]['description'] = $this->get_group_description( $group['name'] );
-				$owners                        = $this->get_group_owners( $group['name'] );
-				if ( $owners ) {
-					foreach ( $owners as $owner ) {
-						$owner_names[] = $owner['username'];
+			if ( $group_list ) {
+				$group_array = explode( ',', $group_list );
+				foreach ( $groups as $group ) {
+					if ( in_array( $group['name'], $group_array, true ) ) {
+						$chosen_groups[] = $group;
 					}
-					$groups[ $key ]['owners'] = $owner_names[0];
-				} else {
-					$groups[ $key ]['owners'] = isset( $this->options['publish-username'] ) ? $this->options['publish-username'] : null;
+				}
+			} else {
+				// Select the 'mentionable' groups.
+				foreach ( $groups as $group ) {
+					if ( $group['mentionable'] ) {
+						$chosen_groups[] = $group;
+					}
 				}
 			}
 
-			set_transient( 'discourse_groups', $groups, HOUR_IN_SECONDS );
+			foreach ( $chosen_groups as $key => $group ) {
+				$chosen_groups[ $key ]['description'] = $this->get_group_description( $group['name'] );
+			}
+
+			$groups = $chosen_groups;
+			set_transient( 'discourse_groups', $groups, DAY_IN_SECONDS );
 		}
 
 		return $groups;
@@ -119,39 +132,45 @@ class DiscourseGroups {
 	 * @return string
 	 */
 	protected function format_groups( $groups, $attributes ) {
-		$output = '<div class="discourse-shortcode-groups">';
+		ob_start();
+
+		$output = '<div class="wpdc-shortcodes-groups">';
 		foreach ( $groups as $group ) {
-			if ( ! $group['automatic'] && $group['visible'] ) {
-				$pretty_group_name = str_replace( '_', ' ', $group['name'] );
-				$user_count        = $group['user_count'];
-				// For now only the first owner is being selected. Eventually it should be possible to send the
-				// message to all of the group's owners.
-				$owner_names = isset( $group['owners'] ) ? $group['owners'] : null;
+			$pretty_group_name = str_replace( '_', ' ', $group['name'] );
+			$user_count        = $group['user_count'];
 
-				$output .= '<div class="discourse-shortcode-group clearfix">';
-				$output .= '<h3 class="discourse-shortcode-groupname">' . $pretty_group_name . '</h3>';
-				$output .= '<span class="discourse-shortcode-groupcount">';
-				$output .= 1 === intval( $user_count ) ? '1 member' : intval( $user_count ) . ' members';
-				$output .= '</span>';
-				$output .= '<div class="discourse-shortcode-group-description">';
-				$output .= $group['description'];
-				$output .= '</div>';
-				$request_args = array(
-					'link_text' => 'Request to join the ' . $pretty_group_name . ' group',
-					'title'     => 'A request to join the ' . $pretty_group_name . ' group',
-					'username'  => $owner_names,
-					'classes'   => 'discourse-button',
+			$output .= '<div class="wpdc-shortcodes-group clearfix">';
+			$output .= '<h3 class="wpdc-shortcodes-groupname">' . $pretty_group_name . '</h3>';
+			$output .= '<span class="wpdc-shortcodes-groupcount">';
+			$output .= 1 === intval( $user_count ) ? '1 member' : intval( $user_count ) . ' members';
+			$output .= '</span>';
+			$output .= '<div class="wpdc-shortcodes-group-description">';
+			$output .= $group['description'];
+			$output .= '</div>';
+//			$request_args = array(
+//				'link_text' => 'Request to join the ' . $pretty_group_name . ' group',
+//				'title'     => 'A request to join the ' . $pretty_group_name . ' group',
+//				'username'  => $owner_names,
+//				'classes'   => 'discourse-button',
+//			);
+
+			if ( 'true' === $attributes['invite'] && $group['mentionable'] ) {
+				$message_args = array(
+					'title'      => 'Request to join the ' . $pretty_group_name . ' group',
+					'message'    => 'A request to join the ' . $pretty_group_name . ' group',
+					'recipients' => $group['name'],
 				);
-				if ( ! empty( $attributes['invite_link'] ) && 'true' === $attributes['invite_link'] ) {
-					$output .= $this->discourse_message->discourse_message( $request_args );
 
-				}
-				$output .= '</div>';
+				$output .= $this->discourse_remote_message->discourse_remote_message( $message_args );
 			}
+			$output .= '</div>';
 		}
 		$output .= '</div>';
+		echo $output;
 
-		return $output;
+		$output = ob_get_clean();
+
+		return apply_filters( 'wpdc_shortcodes_groups', $output );
 	}
 
 	protected function get_group_description( $group_name ) {
