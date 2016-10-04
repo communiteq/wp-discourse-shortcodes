@@ -6,10 +6,12 @@ class DiscourseRemoteMessage {
 	protected $utilities;
 	protected $options;
 	protected $base_url;
+	protected $discourse_prefilled_message;
 
 
-	public function __construct( $utilities ) {
-		$this->utilities = $utilities;
+	public function __construct( $utilities, $discourse_prefilled_message ) {
+		$this->utilities                   = $utilities;
+		$this->discourse_prefilled_message = $discourse_prefilled_message;
 
 		add_action( 'init', array( $this, 'setup' ) );
 		add_shortcode( 'discourse_remote_message', array( $this, 'discourse_remote_message' ) );
@@ -30,15 +32,15 @@ class DiscourseRemoteMessage {
 
 	public function discourse_remote_message( $atts ) {
 		$attributes = shortcode_atts( array(
-			'title'        => '',
-			'message'      => '',
-			'recipients'   => '',
-			'button_text'  => 'Contact',
-			'email_heading' => 'Email: ',
+			'title'           => '',
+			'message'         => '',
+			'recipients'      => '',
+			'button_text'     => 'Contact',
+			'email_heading'   => 'Email: ',
 			'subject_heading' => 'Subject: ',
 			'message_heading' => 'Message: ',
-			'require_name' => false,
-			'user_details' => false,
+			'require_name'    => false,
+			'user_details'    => false,
 		), $atts, 'discourse_remote_message' );
 
 		return $this->remote_message_form( $attributes );
@@ -68,6 +70,25 @@ class DiscourseRemoteMessage {
 
 			if ( isset( $_GET['message_created'] ) && $current_form_name === $form_name ) {
 				echo '<div class="success wpdc-shortcodes-success">Thanks! Your message has been received!</div>';
+			}
+
+			if ( isset( $_GET['user_exists'] ) && $current_form_name === $form_name ) {
+				$message_title = ! empty( $_GET['title'] ) ? sanitize_text_field( wp_unslash( $_GET['title'] ) ) : null;
+				$message_body = ! empty( $_GET['message_body'] ) ? esc_html( wp_unslash( $_GET['message'] ) ) : null;
+				$recipients = ! empty( $_GET['recipients'] ) ? sanitize_text_field( wp_unslash( $_GET['recipients'] ) ) : '';
+				$link_text = sanitize_text_field( $attributes['button_text'] );
+
+				$message_args = array(
+					'title' => $message_title,
+					'classes' => 'wpdc-shortcodes-message-link',
+					'groupname' => $recipients,
+					'link_text' => $link_text,
+				);
+
+				$prefilled_message = $this->discourse_prefilled_message->discourse_prefilled_message( $message_args );
+				write_log( $prefilled_message);
+				echo $prefilled_message;
+
 			}
 
 			if ( isset( $_GET['form_errors'] ) && $current_form_name === $form_name ) {
@@ -215,8 +236,8 @@ class DiscourseRemoteMessage {
 		$real_name     = ! empty( $_POST['real_name'] ) ? sanitize_text_field( wp_unslash( $_POST['real_name'] ) ) : '';
 		$user_details  = ! empty( $_POST['user_details'] ) ? sanitize_key( wp_unslash( $_POST['user_details'] ) ) : false;
 		$email         = ! empty( $_POST['user_email'] ) ? sanitize_email( wp_unslash( $_POST['user_email'] ) ) : '';
-		$title         = ! empty( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '';
-		$message       = ! empty( $_POST['message'] ) ? esc_textarea( wp_unslash( $_POST['message'] ) ) : '';
+		$title         = ! empty( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : null;
+		$message       = ! empty( $_POST['message'] ) ? esc_textarea( wp_unslash( $_POST['message'] ) ) : null;
 		$recipients    = ! empty( $_POST['recipients'] ) ? sanitize_text_field( wp_unslash( $_POST['recipients'] ) ) : '';
 
 		if ( ! $email || ! $title || ! $message || ! $recipients || ( $name_required && ! $real_name ) ) {
@@ -240,6 +261,20 @@ class DiscourseRemoteMessage {
 
 		// Check to see if there is an existing User with that email address.
 		$username = $this->discourse_username_from_email( $email, $api_key, $api_username );
+
+		if ( $username ) {
+			// The user already exists on the forum. Their email has not been confirmed.
+			$form_url = add_query_arg( array(
+				'user_exists' => true,
+				'form_name'   => $form_name,
+				'title'       => urlencode( $title ),
+				'message'     => urlencode( $message ),
+				'recipients'  => urlencode( $recipients ),
+			), $form_url );
+
+			wp_safe_redirect( $form_url );
+			exit;
+		}
 
 		if ( ! $username ) {
 			$username = explode( '@', $email )[0];

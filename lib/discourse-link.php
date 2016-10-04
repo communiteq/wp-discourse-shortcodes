@@ -22,6 +22,7 @@ class DiscourseLink {
 	}
 
 	public function discourse_link( $atts ) {
+		ob_start();
 		$attributes = shortcode_atts( array(
 			'link_text'   => 'Visit Our Forum',
 			'return_path' => '/',
@@ -34,7 +35,9 @@ class DiscourseLink {
 		$classes        = $attributes['classes'] ? 'class="' . $attributes['classes'] . '"' : '';
 		$discourse_link = '<a ' . $classes . ' href="' . $url . '">' . $attributes['link_text'] . '</a>';
 
-		return $discourse_link;
+		echo $discourse_link;
+
+		return ob_get_clean();
 	}
 
 }
