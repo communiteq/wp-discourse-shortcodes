@@ -84,6 +84,9 @@ When submitted, this will create a new staged user on the associated Discourse f
 
 ![alt tag](https://cloud.githubusercontent.com/assets/2975917/19066111/4ec3e38a-89cc-11e6-85e4-bd6f26c639ab.png)
 
+The form after being submitted by an 'active' user;
+![alt tag](https://cloud.githubusercontent.com/assets/2975917/19103994/09d26968-8a8f-11e6-9af2-50fec471c963.png)
+
 ###[discourse_prefilled_message]
 
 Creates a link to Discourse that opens the Discourse Composer and initiates a prefilled private message, either to an
