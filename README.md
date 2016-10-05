@@ -36,8 +36,8 @@ in the user. It adds the class `discourse-button` to the anchor element.
 
 ###[discourse_remote_message]
 
-The `[discourse_remote_message]` shortcode creates a form for sending private messages to a single recipient, a list of recipients, or
-a list of groups, on the Discourse forum. If the message is from an email address that is not yet associated with a Discourse user,
+The `[discourse_remote_message]` shortcode creates a form for sending private messages to a single recipient, a list of Discourse users, or
+a list of Discourse groups, on the Discourse forum. If the message is from an email address that is not yet associated with a Discourse user,
 it creates a new 'staged' user on the forum and sends the message through the Discourse API. This user is not able to log
 into the forum, but can interact with it through email.
 
