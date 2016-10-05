@@ -105,12 +105,12 @@ class DiscourseRemoteMessage {
 
 					$prefilled_message_link = $this->discourse_prefilled_message->discourse_prefilled_message( $message_args );
 
-					echo '<div class="wpdc-shortcodes-user-exists">There is an active user on our forum with the email address (' . $email . ')
-				that you supplied. If that is you, ' . $prefilled_message_link . ' to send your message directly from the forum.</div>';
+					echo '<div class="wpdc-shortcodes-user-exists">There is an active user on our forum with the email address you supplied: <pre>' . $email . '.</pre>
+				If that\'s you, ' . $prefilled_message_link . ' to send your message directly from the forum.</div>';
 				} else {
 					$forum_link = '<a href="' . $this->base_url . '">the forum</a>';
-					echo '<div class="wpdc-shortcodes-user-exists">There is an active user on our forum with the email address (' . $email . ')
-				that you supplied. If that is you, log into the ' . $forum_link . ' to send your message directly from the forum.</div>';
+					echo '<div class="wpdc-shortcodes-user-exists">There is an active user on our forum with the email address you supplied: <pre>' . $email . '.</pre>
+				If that\'s you, log into the ' . $forum_link . ' to send your message directly from there.</div>';
 				}
 			}
 
@@ -294,7 +294,7 @@ class DiscourseRemoteMessage {
 			$active   = $discourse_user['active'];
 		}
 
-		if ( $username && $active ) {
+		if ( ! empty( $username )  && ! empty( $active ) ) {
 			// The user already exists on the forum. They will be redirected back with instructions about
 			// how to make the enquiry directly on the forum.
 			$form_url = add_query_arg( array(
@@ -311,7 +311,7 @@ class DiscourseRemoteMessage {
 		}
 
 		// Create a staged user.
-		if ( ! $username ) {
+		if ( empty( $username ) ) {
 			$username = explode( '@', $email )[0];
 			$name     = ! empty( $real_name ) ? $real_name : $username;
 			$response = $this->create_staged_user( $email, $username, $name, $api_key, $api_username );
