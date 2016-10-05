@@ -1,3 +1,15 @@
 .wpdc-shortcodes-more-info {
     display: none !important;
 }
+
+.wpdc-shortcodes-hide-form {
+    display: none !important;
+}
+
+.wpdc-shortcodes-user-exists {
+    width: 100%;
+    padding: 1em;
+    border: 1px solid green;
+    border-radius: 4px;
+    margin-bottom: 1em;
+}
