@@ -108,6 +108,7 @@ must be supplied
 ####Examples:
 
 ![alt tag](https://cloud.githubusercontent.com/assets/2975917/19102869/2949b9ba-8a88-11e6-8e67-bf70bb43918c.png)
+
 clicking the link opens the following composer window:
 ![alt tag](https://cloud.githubusercontent.com/assets/2975917/19102873/30bf5baa-8a88-11e6-874a-e468b2033662.png)
 shortcode + text: `Need help? [discourse_prefilled_message username="simon12,tester2" title="Help Required" message="Tell us how we can help..." classes="test-class scratch" link_text="Click Here!!!"]`
