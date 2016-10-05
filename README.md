@@ -26,6 +26,9 @@ would use `classes="discourse discourse-button"`
 - login - whether you with for the link to log the user in to Discourse. Defaults to 
 true.
 
+**Note:** for the 'login' attribute to work, you must configure and enable 'single sign on' between
+your WordPress site and your Discourse forum, through the wp-discourse plugin.
+
 Here is a complete `[discourse_link]` shortcode that links to the forum's hompage and logs
 in the user. It adds the class `discourse-button` to the anchor element.
 
