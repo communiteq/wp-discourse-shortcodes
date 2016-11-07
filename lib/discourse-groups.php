@@ -174,7 +174,7 @@ class DiscourseGroups {
 					$prefilled_message_args = array(
 						'title' => 'Request to join the ' . $pretty_group_name . ' group',
 						'classes' => 'wpdc-shortcodes-message-link',
-						'groupname' => $group['name'],
+						'username' => $this->group_owner_names( $group['name'] ),
 						'link_text' => $attributes['button_text'],
 					);
 
@@ -214,5 +214,15 @@ class DiscourseGroups {
 		$owners        = $group_members['owners'];
 
 		return $owners;
+	}
+
+	protected function group_owner_names( $group_name ) {
+		$owners_info = $this->get_group_owners( $group_name );
+		$owner_names_array = [];
+		foreach ( $owners_info as $info ) {
+			$owner_names_array[] = $info['username'];
+		}
+
+		return join( ',', $owner_names_array );
 	}
 }
