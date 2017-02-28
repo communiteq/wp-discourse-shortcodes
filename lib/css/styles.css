@@ -1,10 +1,26 @@
-.discourse-topiclist {
+.dclt-topiclist {
     list-style: none;
 }
 
-h3.discourse-topic-title {
-    font-size: 1rem;
-    margin-bottom: 0;
+p.dclt-topic-title {
+    margin-bottom: 0 !important;
 }
 
-/*.discourse-topiclist .discourse-topic*/
+p.dclt-topic-title a {
+    text-decoration: none;
+    box-shadow: none;
+}
+
+.dclt-latest-avatar {
+    margin-right: 4px;
+}
+
+.dclt-topic-poster-meta,
+.dclt-topic-activity-meta {
+    font-size: 0.8125rem;
+    color: #686868;
+}
+
+.dclt-term {
+    font-style: italic;
+}

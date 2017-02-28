@@ -108,7 +108,6 @@ class DiscourseLatestShortcode {
 		// If the first topic is pinned, don't display it.
 		if ( ! empty( $topics[0]['pinned'] ) && 1 === intval( $topics[0]['pinned'] ) ) {
 			$topics = array_slice( $topics, 1, $args['max_topics'] );
-			write_log( 'topics', $topics);
 		} else {
 			$topics = array_slice( $topics, 0, $args['max_topics'] );
 		}
@@ -117,10 +116,10 @@ class DiscourseLatestShortcode {
 		$poster_avatar_url = '';
 		$poster_username   = '';
 
-		$output = '<ul class="discourse-topiclist">';
+		$output = '<ul class="dclt-topiclist">';
 
 		foreach ( $topics as $topic ) {
-			$topic_url            = esc_url_raw( $this->options['url'] . "/t/{$topic['slug']}/{$topic['id']}" );
+			$topic_url            = $this->options['url'] . "/t/{$topic['slug']}/{$topic['id']}";
 			$created_at           = date_create( get_date_from_gmt( $topic['created_at'] ) );
 			$created_at_formatted = date_format( $created_at, 'F j, Y' );
 			$last_activity        = $topic['last_posted_at'];
@@ -133,28 +132,25 @@ class DiscourseLatestShortcode {
 						if ( $original_poster_id === $user['id'] ) {
 							$poster_username   = $user['username'];
 							$avatar_template   = str_replace( '{size}', 22, $user['avatar_template'] );
-							$poster_avatar_url = esc_url_raw( $this->options['url'] . $avatar_template );
+							$poster_avatar_url = $this->options['url'] . $avatar_template;
 						}
 					}
 				}
 			}
 
-			$output .= '<li class="discourse-topic">';
-			$output .= '<div class="discourse-topic-poster-meta">';
-			$avatar_image = '<img class="discourse-latest-avatar" src="' . $poster_avatar_url . '">';
-			$output .= apply_filters( 'wp_discourse_shorcodes_avatar', $avatar_image, $poster_avatar_url );
-			$output .= '<span class="discourse-username">' . $poster_username . '</span>' . ' posted on ' . '<span class="discourse-created-at">' . $created_at_formatted . '</span><br>';
-			$output .= 'in <span class="discourse-shortcode-category" >' . $this->discourse_category_badge( $category ) . '</span>';
-			$output .= '</div>';
-//			$output .= '<a href="' . $topic_url . '">';
-			$output .= '<h3 class="discourse-topic-title"><a href="' . esc_url( $topic_url) . '">"' . $topic['title'] . '</a></h3>';
-//			$output .= '</a>';
-			$output .= '<div class="discourse-topic-activity-meta">';
-			$output .= 'replies <span class="discourse-num-replies">' . ( $topic['posts_count'] - 1 ) . '</span> last activity <span class="discourse-last-activity">' . $this->calculate_last_activity( $last_activity ) . '</span>';
-			$output .= '</div>';
-			$output .= '</li>';
+			$avatar_image = '<img class="dclt-latest-avatar" src="' . esc_url( $poster_avatar_url ) . '">';
+			$output .= '<li class="dclt-topic"><div class="dclt-topic-poster-meta">';
+			$output .= apply_filters( 'dclt_shorcodes_avatar', $avatar_image, esc_url( $poster_avatar_url ) );
+			$output .= '<span class="dclt-username">' . esc_html( $poster_username ) . '</span>' . '<span class="dclt-term"> posted on </span>
+						<span class="dclt-created-at">' . $created_at_formatted . '</span><br>
+						<span class="dclt-term">in </span><span class="dclt-shortcode-category" >' . $this->discourse_category_badge( $category ) . '</span></div>
+						<p class="dclt-topic-title"><a href="' . esc_url( $topic_url ) . '">' . esc_html( $topic['title'] ) . '</a></p>
+						<p class="dclt-topic-activity-meta"><span class="dclt-term">replies</span> <span class="dclt-num-replies">' .
+			           esc_attr( ( $topic['posts_count'] ) - 1 ) .
+			           '</span> <span class="dclt-term">last activity</span> <span class="dclt-last-activity">' .
+			           // Last activity will only be as acurate as the cache period.
+			           $this->calculate_last_activity( $last_activity ) . '</span></p></li>';
 		}
-
 		$output .= '</ul>';
 
 		return $output;
@@ -176,7 +172,8 @@ class DiscourseLatestShortcode {
 	protected function discourse_category_badge( $category ) {
 		$category_name  = $category['name'];
 		$category_color = '#' . $category['color'];
-		$category_badge = '<span class="discourse-shortcode-category-badge" style="width: 8px; height: 8px; background-color: ' . $category_color . '; display: inline-block;"></span><span class="discourse-category-name"> ' . $category_name . '</span>';
+		$category_badge = '<span class="discourse-shortcode-category-badge" style="width: 8px; height: 8px; background-color: ' .
+		                  esc_attr( $category_color ) . '; display: inline-block;"></span><span class="discourse-category-name"> ' . esc_html( $category_name ) . '</span>';
 
 		return $category_badge;
 	}
@@ -210,6 +207,4 @@ class DiscourseLatestShortcode {
 
 		return 1 === $years ? '1 year ago' : $years . ' years ago';
 	}
-
-
 }
