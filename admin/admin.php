@@ -30,6 +30,11 @@ class Admin {
 			'clear_topics_cache_checkbox',
 		), 'dclt_options', 'dclt_settings_section' );
 
+		add_settings_field( 'dclt_use_default_styles', __( 'Use Default Styles', 'dclt' ), array(
+		        $this,
+		        'use_default_styles_checkbox',
+        ), 'dclt_options', 'dclt_settings_section' );
+
 		// The settings fields will be saved in the 'dclt_options' array as `dclt_options[ $key ].`
 		register_setting( 'dclt_options', 'dclt_options', array( $this->form_helper, 'validate_options' ) );
 	}
@@ -76,6 +81,10 @@ class Admin {
     }
 
     public function clear_topics_cache_checkbox() {
-	    $this->form_helper->checkbox_input( 'dclt_clear_topics_cache', 'dclt_options', __( 'Clear topics cache', 'dclt' ) );
+	    $this->form_helper->checkbox_input( 'dclt_clear_topics_cache', 'dclt_options', __( 'Clear the cache to fetch fresh topics from Discourse.', 'dclt' ) );
+    }
+
+    public function use_default_styles_checkbox() {
+	    $this->form_helper->checkbox_input( 'dclt_use_default_styles', 'dclt_options', __( 'Use the default plugin styles.', 'dclt' ) );
     }
 }

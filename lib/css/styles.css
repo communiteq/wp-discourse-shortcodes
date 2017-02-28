@@ -1,0 +1,10 @@
+.discourse-topiclist {
+    list-style: none;
+}
+
+h3.discourse-topic-title {
+    font-size: 1rem;
+    margin-bottom: 0;
+}
+
+/*.discourse-topiclist .discourse-topic*/
