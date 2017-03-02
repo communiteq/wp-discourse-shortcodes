@@ -227,7 +227,8 @@ class Admin {
 	 * Displays the clear_topics_cache_checkbox field.
 	 */
 	public function clear_topics_cache_checkbox() {
-		$this->form_helper->checkbox_input( 'dclt_clear_topics_cache', 'dclt_options', __( 'Clear the cache to fetch fresh topics from Discourse.', 'dclt' ) );
+		$this->form_helper->checkbox_input( 'dclt_clear_topics_cache', 'dclt_options', __( 'Clear the cache to fetch fresh topics from Discourse (This
+		will be reset after a single request.)', 'dclt' ) );
 	}
 
 	/**
@@ -241,6 +242,7 @@ class Admin {
 	 * Displays the cache_duration_input field.
 	 */
 	public function cache_duration_input() {
-		$this->form_helper->input( 'dclt_cache_duration', 'dclt_options', __( 'Time in minutes to cache Discourse Topics.', 'dclt' ), 'number', 0 );
+		$this->form_helper->input( 'dclt_cache_duration', 'dclt_options', __( 'Time in minutes to cache Discourse Topics.
+		This value will be ignored if you enable a webhook from Discourse.', 'dclt' ), 'number', 0 );
 	}
 }
