@@ -20,10 +20,14 @@ class DiscourseLatestShortcode {
 	 */
 	protected $discourse_url;
 
+	protected $latest_topics;
+
 	/**
 	 * DiscourseLatestShortcode constructor.
 	 */
-	public function __construct() {
+	public function __construct( $latest_topics ) {
+		$this->latest_topics = $latest_topics;
+
 		add_action( 'init', array( $this, 'setup_options' ) );
 		add_shortcode( 'discourse_latest', array( $this, 'discourse_latest' ) );
 	}
@@ -33,7 +37,6 @@ class DiscourseLatestShortcode {
 	 */
 	public function setup_options() {
 		$this->options       = DiscourseUtilities::get_options();
-		$this->discourse_url = ! empty( $this->options['url'] ) ? $this->options['url'] : null;
 	}
 
 	/**
@@ -45,10 +48,6 @@ class DiscourseLatestShortcode {
 	 */
 	public function discourse_latest( $atts ) {
 
-		if ( ! $this->discourse_url ) {
-			return '';
-		}
-
 		$attributes = shortcode_atts( array(
 			'max_topics'     => 5,
 			'cache_duration' => 10,
@@ -57,37 +56,12 @@ class DiscourseLatestShortcode {
 		// Force WordPress to fetch new topics from Discourse.
 		$force = ! empty( $this->options['dclt_clear_topics_cache'] ) ? $this->options['dclt_clear_topics_cache'] : null;
 
-		$discourse_topics = $this->get_latest_topics( $attributes['cache_duration'], $force );
+		$discourse_topics = $this->latest_topics->get_latest_topics( $attributes['cache_duration'], $force );
 
 		return $this->format_topics( $discourse_topics, $attributes );
 	}
 
-	/**
-	 * Get the latest topics from Discourse.
-	 *
-	 * @param int|string $cache_duration The cache duration for the topics.
-	 * @param bool $force Whether to force retrieving new topics from Discourse.
-	 *
-	 * @return array|mixed|null|object
-	 */
-	protected function get_latest_topics( $cache_duration, $force ) {
-		$latest_url = esc_url_raw( $this->discourse_url . '/latest.json' );
 
-		$discourse_topics = get_transient( 'dclt_latest_topics' );
-		if ( empty( $discourse_topics ) || $force ) {
-
-			$remote = wp_remote_get( $latest_url );
-			if ( ! DiscourseUtilities::validate( $remote ) ) {
-
-				return null;
-			}
-
-			$discourse_topics = json_decode( wp_remote_retrieve_body( $remote ), true );
-			set_transient( 'dclt_latest_topics', $discourse_topics, $cache_duration * MINUTE_IN_SECONDS );
-		}
-
-		return $discourse_topics;
-	}
 
 	/**
 	 * Format the Discourse topics.
