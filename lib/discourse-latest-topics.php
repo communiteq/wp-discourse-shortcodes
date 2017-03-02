@@ -44,7 +44,6 @@ class LatestTopics {
 		'dclt_webhook_secret'     => '',
 		'dclt_clear_topics_cache' => 0,
 		'dclt_use_default_styles' => 1,
-		'dclt_new_webhook_request' => 0,
 	);
 
 	/**
@@ -131,14 +130,9 @@ class LatestTopics {
 			return null;
 		}
 
-		/**
-		 * Success! All that is happening here is that the option 'dclt_new_webhook_request' is being set. This
-		 * is then used to force the plugin to request fresh topics in 'get_latest_topics'.
-		 */
-		$plugin_options = get_option( $this->option_key );
-		$plugin_options['dclt_new_webhook_request'] = 1;
+		$latest = $this->latest_topics();
 
-		update_option( $this->option_key, $plugin_options );
+		set_transient( 'dclt_latest_topics', $latest, DAY_IN_SECONDS );
 	}
 
 
@@ -148,24 +142,21 @@ class LatestTopics {
 	 * @param int|string $cache_duration The cache duration for the topics.
 	 * @param bool $force Whether to force retrieving new topics from Discourse.
 	 *
-	 * @return array|mixed|null|object
+	 * @return array
 	 */
 	public function get_latest_topics() {
 		$discourse_topics = get_transient( 'dclt_latest_topics' );
-		$plugin_options = get_option( $this->option_key);
-		$force = ! empty( $plugin_options['dclt_clear_topics_cache']) ? $plugin_options['dclt_clear_topics_cache'] : 0;
-		$new_topics = ! empty( $plugin_options['dclt_new_webhook_request']) ? $plugin_options['dclt_new_webhook_request'] : 0;
+		$plugin_options   = get_option( $this->option_key );
+		$force            = ! empty( $plugin_options['dclt_clear_topics_cache'] ) ? $plugin_options['dclt_clear_topics_cache'] : 0;
 
-		if ( empty( $discourse_topics ) || $force || $new_topics ) {
-
+		if ( empty( $discourse_topics ) || $force ) {
 
 			$discourse_topics = $this->latest_topics();
 			$cache_duration   = ! empty( $plugin_options['dclt_cache_duration'] ) ? $plugin_options['dclt_cache_duration'] : 10;
 			set_transient( 'dclt_latest_topics', $discourse_topics, $cache_duration * MINUTE_IN_SECONDS );
 
-			if ( $force || $new_topics ) {
+			if ( $force ) {
 				$plugin_options['dclt_clear_topics_cache'] = 0;
-				$plugin_options['dclt_new_webhook_request'] = 0;
 
 				update_option( $this->option_key, $plugin_options );
 			}
@@ -210,7 +201,7 @@ class LatestTopics {
 		if ( $sig = substr( $data->get_header( 'X-Discourse-Event-Signature' ), 7 ) ) {
 			$payload = $data->get_body();
 			// Key used for verifying the request - a matching key needs to be set on the Discourse webhook.
-			$secret = ! empty( $this->options['dclt_webhook_secret']) ? $this->options['dclt_webhook_secret'] : null;
+			$secret = ! empty( $this->options['dclt_webhook_secret'] ) ? $this->options['dclt_webhook_secret'] : null;
 
 			if ( ! $secret ) {
 				return new \WP_Error( 'Webhook Secret Missing', 'The webhook secret key has not been set.' );
