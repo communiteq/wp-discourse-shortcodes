@@ -107,11 +107,11 @@ class LatestTopics {
 	public function initialize_topic_route() {
 		register_rest_route( 'wp-discourse/v1', 'latest-topics', array(
 			array(
-			'methods'  => \WP_REST_Server::CREATABLE,
-			'callback' => array( $this, 'create_latest_topics' ),
+				'methods'  => \WP_REST_Server::CREATABLE,
+				'callback' => array( $this, 'create_latest_topics' ),
 			),
 			array(
-				'methods' => \WP_REST_Server::READABLE,
+				'methods'  => \WP_REST_Server::READABLE,
 				'callback' => array( $this, 'get_latest_topics' ),
 			)
 		) );
@@ -126,6 +126,12 @@ class LatestTopics {
 	 * @return null
 	 */
 	public function create_latest_topics( $data ) {
+		$api_enabled = ! empty( $this->options['dclt_webhook_refresh'] ) && 1 === intval( $this->options['dclt_webhook_refresh']);
+		if (! $api_enabled ) {
+
+			return 0;
+		}
+
 		$data = $this->verify_discourse_request( $data );
 
 		if ( is_wp_error( $data ) ) {
@@ -137,13 +143,12 @@ class LatestTopics {
 		$latest = $this->latest_topics();
 
 		set_transient( 'dclt_latest_topics', $latest, DAY_IN_SECONDS );
+
+		return 1;
 	}
 
 	/**
 	 * Get the latest topics from either from the stored transient, or from Discourse.
-	 *
-	 * @param int|string $cache_duration The cache duration for the topics.
-	 * @param bool $force Whether to force retrieving new topics from Discourse.
 	 *
 	 * @return array
 	 */
@@ -156,6 +161,8 @@ class LatestTopics {
 
 			$discourse_topics = $this->latest_topics();
 			$cache_duration   = ! empty( $plugin_options['dclt_cache_duration'] ) ? $plugin_options['dclt_cache_duration'] : 10;
+
+			// Todo: This could be set to null. Something needs to happen here.
 			set_transient( 'dclt_latest_topics', $discourse_topics, $cache_duration * MINUTE_IN_SECONDS );
 
 			if ( $force ) {
