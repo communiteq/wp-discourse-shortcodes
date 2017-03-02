@@ -106,8 +106,14 @@ class LatestTopics {
 	 */
 	public function initialize_topic_route() {
 		register_rest_route( 'wp-discourse/v1', 'latest-topics', array(
-			'methods'  => 'POST',
-			'callback' => array( $this, 'process_latest_topics_request' ),
+			array(
+			'methods'  => \WP_REST_Server::CREATABLE,
+			'callback' => array( $this, 'create_latest_topics' ),
+			),
+			array(
+				'methods' => \WP_REST_Server::READABLE,
+				'callback' => array( $this, 'get_topics' ),
+			)
 		) );
 	}
 
@@ -121,7 +127,7 @@ class LatestTopics {
 	 *
 	 * @return null
 	 */
-	public function process_latest_topics_request( $data ) {
+	public function create_latest_topics( $data ) {
 		$data = $this->verify_discourse_request( $data );
 
 		if ( is_wp_error( $data ) ) {
@@ -133,6 +139,10 @@ class LatestTopics {
 		$latest = $this->latest_topics();
 
 		set_transient( 'dclt_latest_topics', $latest, DAY_IN_SECONDS );
+	}
+
+	public function get_topics( $data ) {
+		return $this->get_latest_topics();
 	}
 
 
