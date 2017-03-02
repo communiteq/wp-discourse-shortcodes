@@ -126,8 +126,8 @@ class LatestTopics {
 	 * @return null
 	 */
 	public function create_latest_topics( $data ) {
-		$api_enabled = ! empty( $this->options['dclt_webhook_refresh'] ) && 1 === intval( $this->options['dclt_webhook_refresh']);
-		if (! $api_enabled ) {
+		$api_enabled = ! empty( $this->options['dclt_webhook_refresh'] ) && 1 === intval( $this->options['dclt_webhook_refresh'] );
+		if ( ! $api_enabled ) {
 
 			return 0;
 		}
