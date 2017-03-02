@@ -16,14 +16,23 @@ class DiscourseLatestShortcode {
 	/**
 	 * The Discourse forum URL.
 	 *
+	 * @access protected
 	 * @var string
 	 */
 	protected $discourse_url;
 
+	/**
+	 * An instance of the LatestTopics class.
+	 *
+	 * @access protected
+	 * @var LatestTopics
+	 */
 	protected $latest_topics;
 
 	/**
 	 * DiscourseLatestShortcode constructor.
+	 *
+	 * @param LatestTopics $latest_topics An instance of the LatestTopics class.
 	 */
 	public function __construct( $latest_topics ) {
 		$this->latest_topics = $latest_topics;
@@ -36,7 +45,7 @@ class DiscourseLatestShortcode {
 	 * Set the plugin options.
 	 */
 	public function setup_options() {
-		$this->options       = DiscourseUtilities::get_options();
+		$this->options = DiscourseUtilities::get_options();
 	}
 
 	/**
@@ -49,19 +58,14 @@ class DiscourseLatestShortcode {
 	public function discourse_latest( $atts ) {
 
 		$attributes = shortcode_atts( array(
-			'max_topics'     => 5,
-			'cache_duration' => 10,
+			'max_topics' => 5,
+			'display_avatars' => 'true',
 		), $atts );
 
-		// Force WordPress to fetch new topics from Discourse.
-		$force = ! empty( $this->options['dclt_clear_topics_cache'] ) ? $this->options['dclt_clear_topics_cache'] : null;
-
-		$discourse_topics = $this->latest_topics->get_latest_topics( $attributes['cache_duration'], $force );
+		$discourse_topics = $this->latest_topics->get_latest_topics();
 
 		return $this->format_topics( $discourse_topics, $attributes );
 	}
-
-
 
 	/**
 	 * Format the Discourse topics.
@@ -114,7 +118,9 @@ class DiscourseLatestShortcode {
 
 			$avatar_image = '<img class="dclt-latest-avatar" src="' . esc_url( $poster_avatar_url ) . '">';
 			$output .= '<li class="dclt-topic"><div class="dclt-topic-poster-meta">';
-			$output .= apply_filters( 'dclt_shorcodes_avatar', $avatar_image, esc_url( $poster_avatar_url ) );
+			if ( 'true' === $args['display_avatars'] ) {
+				$output .= apply_filters( 'dclt_shorcodes_avatar', $avatar_image, esc_url( $poster_avatar_url ) );
+			}
 			$output .= '<span class="dclt-username">' . esc_html( $poster_username ) . '</span>' . '<span class="dclt-term"> posted on </span>
 						<span class="dclt-created-at">' . $created_at_formatted . '</span><br>
 						<span class="dclt-term">in </span><span class="dclt-shortcode-category" >' . $this->discourse_category_badge( $category ) . '</span></div>
@@ -122,7 +128,7 @@ class DiscourseLatestShortcode {
 						<p class="dclt-topic-activity-meta"><span class="dclt-term">replies</span> <span class="dclt-num-replies">' .
 			           esc_attr( ( $topic['posts_count'] ) - 1 ) .
 			           '</span> <span class="dclt-term">last activity</span> <span class="dclt-last-activity">' .
-			           // Last activity will only be as acurate as the cache period.
+			           // Unless webhooks are setup, the last activity will only be as acurate as the cache period.
 			           $this->calculate_last_activity( $last_activity ) . '</span></p></li>';
 		}
 		$output .= '</ul>';
@@ -130,6 +136,13 @@ class DiscourseLatestShortcode {
 		return $output;
 	}
 
+	/**
+	 * Finds the category of a topic.
+	 *
+	 * @param array $topic A Discourse topic.
+	 *
+	 * @return null
+	 */
 	protected function find_discourse_category( $topic ) {
 		$categories  = DiscourseUtilities::get_discourse_categories();
 		$category_id = $topic['category_id'];
@@ -143,6 +156,13 @@ class DiscourseLatestShortcode {
 		return null;
 	}
 
+	/**
+	 * Creates the markup for a category badge.
+	 *
+	 * @param array $category A Discourse category.
+	 *
+	 * @return string
+	 */
 	protected function discourse_category_badge( $category ) {
 		$category_name  = $category['name'];
 		$category_color = '#' . $category['color'];
@@ -152,6 +172,13 @@ class DiscourseLatestShortcode {
 		return $category_badge;
 	}
 
+	/**
+	 * Formats the last_activity string.
+	 *
+	 * @param string $last_activity The time of the last activity on the topic.
+	 *
+	 * @return string
+	 */
 	protected function calculate_last_activity( $last_activity ) {
 		$now           = time();
 		$last_activity = strtotime( $last_activity );

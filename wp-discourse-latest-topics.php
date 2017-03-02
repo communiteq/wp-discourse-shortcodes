@@ -11,6 +11,9 @@ use \WPDiscourse\Admin\OptionsPage as OptionsPage;
 use \WPDiscourse\Admin\FormHelper as FormHelper;
 
 add_action( 'plugins_loaded', __NAMESPACE__ . '\\init' );
+/**
+ * Initializes the plugin, checks that WPDiscourse exists before requiring plugin files.
+ */
 function init() {
 	if ( class_exists( '\WPDiscourse\Discourse\Discourse' ) ) {
 
@@ -20,6 +23,7 @@ function init() {
 		$latest_topics = new LatestTopics();
 		new DiscourseLatestShortcode( $latest_topics );
 
+		// Only load admin files in admin.
 		if ( is_admin() ) {
 			require_once( __DIR__ . '/admin/admin.php' );
 			require_once( __DIR__ . '/admin/settings-validator.php' );
@@ -30,6 +34,5 @@ function init() {
 			new SettingsValidator();
 			new Admin( $options_page, $form_helper );
 		}
-
 	}
 }
