@@ -58,7 +58,7 @@ class Admin {
 		add_action( 'init', array( $this, 'setup_options' ) );
 		add_action( 'admin_init', array( $this, 'register_latest_topics_settings' ) );
 		add_action( 'admin_menu', array( $this, 'add_latest_topics_page' ) );
-		add_action( 'wpdc_options_page_append_settings_tabs', array( $this, 'settings_tab' ) );
+		add_action( 'wpdc_options_page_append_settings_tabs', array( $this, 'settings_tab' ), 5, 1 );
 		add_action( 'wpdc_options_page_after_tab_switch', array( $this, 'dclt_settings_fields' ) );
 	}
 
