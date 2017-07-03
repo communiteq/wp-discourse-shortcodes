@@ -1,6 +1,6 @@
 <?php
 
-namespace WPDiscourse\DiscourseShortcodes;
+namespace WPDiscourse\Shortcodes;
 
 use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
 
@@ -52,7 +52,6 @@ class DiscourseShortcodes {
 	public function __construct() {
 		add_action( 'init', array( $this, 'initialize_plugin' ) );
 		add_filter( 'wpdc_utilities_options_array', array( $this, 'add_options' ) );
-		add_action( 'rest_api_init', array( $this, 'initialize_topic_route' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'plugin_scripts' ) );
 	}
 

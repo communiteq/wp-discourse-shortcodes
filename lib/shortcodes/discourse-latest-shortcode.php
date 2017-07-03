@@ -1,6 +1,6 @@
 <?php
 
-namespace WPDiscourse\LatestTopics;
+namespace WPDiscourse\Shortcodes;
 
 use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
 

@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name: WP Discourse Latest Topics
+ * Plugin Name: WP Discourse Shortcodes
  * Version: 0.1
  * Author: scossar
  */
 
-namespace WPDiscourse\LatestTopics;
+namespace WPDiscourse\Shortcodes;
 
 use \WPDiscourse\Admin\OptionsPage as OptionsPage;
 use \WPDiscourse\Admin\FormHelper as FormHelper;
@@ -16,13 +16,17 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\\init' );
  */
 function init() {
 	if ( class_exists( '\WPDiscourse\Discourse\Discourse' ) ) {
-
 		require_once( __DIR__ . '/lib/discourse-shortcodes.php' );
 		require_once( __DIR__ . '/lib/discourse-latest-topics.php' );
+		require_once( __DIR__ . '/lib/discourse-groups.php' );
 		require_once( __DIR__ . '/lib/shortcodes/discourse-latest-shortcode.php' );
+		require_once( __DIR__ . '/lib/shortcodes/discourse-groups-shortcode.php' );
 
+		new DiscourseShortcodes();
 		$latest_topics = new LatestTopics();
+		$groups = new Groups();
 		new DiscourseLatestShortcode( $latest_topics );
+		new DiscourseGroupsShortcode( $groups );
 
 		// Only load admin files in admin.
 		if ( is_admin() ) {

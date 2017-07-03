@@ -1,6 +1,6 @@
 <?php
 
-namespace WPDiscourse\LatestTopics;
+namespace WPDiscourse\Shortcodes;
 
 class SettingsValidator {
 	protected $webhook_refresh = false;
