@@ -17,8 +17,9 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\\init' );
 function init() {
 	if ( class_exists( '\WPDiscourse\Discourse\Discourse' ) ) {
 
+		require_once( __DIR__ . '/lib/discourse-shortcodes.php' );
 		require_once( __DIR__ . '/lib/discourse-latest-topics.php' );
-		require_once( __DIR__ . '/lib/discourse-latest-shortcode.php' );
+		require_once( __DIR__ . '/lib/shortcodes/discourse-latest-shortcode.php' );
 
 		$latest_topics = new LatestTopics();
 		new DiscourseLatestShortcode( $latest_topics );
