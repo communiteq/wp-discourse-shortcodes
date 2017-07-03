@@ -2,9 +2,8 @@
 
 namespace WPDiscourse\Shortcodes;
 
-use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
-
 class DiscourseShortcodes {
+	use Utilities;
 
 	/**
 	 * The key for the plugin's options array.
@@ -12,10 +11,10 @@ class DiscourseShortcodes {
 	 * @access protected
 	 * @var string
 	 */
-	protected $option_key = 'dclt_options';
+	protected $option_key = 'wpds_options';
 
 	/**
-	 * The merged options from WP Discourse and WP Discourse Latest Topics.
+	 * The merged options from WP Discourse and WP Discourse Shortcodes.
 	 *
 	 * All options are held in a single array, use a custom plugin prefix to avoid naming collisions with wp-discourse.
 	 *
@@ -25,25 +24,18 @@ class DiscourseShortcodes {
 	protected $options;
 
 	/**
-	 * The Discourse forum url.
-	 *
-	 * @access protected
-	 * @var string
-	 */
-	protected $discourse_url;
-
-	/**
 	 * The options array added by this plugin.
 	 *
 	 * @access protected
 	 * @var array
 	 */
-	protected $dclt_options = array(
-		'dclt_cache_duration'     => 10,
-		'dclt_webhook_refresh'    => 0,
-		'dclt_webhook_secret'     => '',
-		'dclt_clear_topics_cache' => 0,
-		'dclt_use_default_styles' => 1,
+	protected $wpds_options = array(
+		'wpds_topic_cache_duration'     => 10,
+		'wpds_topic_webhook_refresh'    => 0,
+		'wpds_webhook_secret'     => '',
+		'wpds_clear_topics_cache' => 0,
+		'wpds_use_default_styles' => 1,
+		'wpds_fetch_discourse_groups' => 0,
 	);
 
 	/**
@@ -59,18 +51,17 @@ class DiscourseShortcodes {
 	 * Adds the plugin options, gets the merged wp-discourse/wp-discourse-latest-topics options, sets the discourse_url.
 	 */
 	public function initialize_plugin() {
-		add_option( 'dclt_options', $this->dclt_options );
-		$this->options       = DiscourseUtilities::get_options();
-		$this->discourse_url = ! empty( $this->options['url'] ) ? $this->options['url'] : null;
+		add_option( 'wpds_options', $this->wpds_options );
+		$this->options       = $this->get_options();
 	}
 
 	/**
 	 * Enqueue styles.
 	 */
 	public function plugin_scripts() {
-		if ( ! empty( $this->options['dclt_use_default_styles'] ) && 1 === intval( $this->options['dclt_use_default_styles'] ) ) {
-			wp_register_style( 'dclt_styles', plugins_url( '/css/styles.css', __FILE__ ) );
-			wp_enqueue_style( 'dclt_styles' );
+		if ( ! empty( $this->options['wpds_use_default_styles'] ) ) {
+			wp_register_style( 'wpds_styles', plugins_url( '/css/styles.css', __FILE__ ) );
+			wp_enqueue_style( 'wpds_styles' );
 		}
 	}
 

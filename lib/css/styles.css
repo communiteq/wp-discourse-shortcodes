@@ -1,26 +1,26 @@
-.dclt-topiclist {
+.wpds-topiclist {
     list-style: none;
 }
 
-p.dclt-topic-title {
+p.wpds-topic-title {
     margin-bottom: 0 !important;
 }
 
-p.dclt-topic-title a {
+p.wpds-topic-title a {
     text-decoration: none;
     box-shadow: none;
 }
 
-.dclt-latest-avatar {
+.wpds-latest-avatar {
     margin-right: 4px;
 }
 
-.dclt-topic-poster-meta,
-.dclt-topic-activity-meta {
+.wpds-topic-poster-meta,
+.wpds-topic-activity-meta {
     font-size: 0.8125rem;
     color: #686868;
 }
 
-.dclt-term {
+.wpds-term {
     font-style: italic;
 }

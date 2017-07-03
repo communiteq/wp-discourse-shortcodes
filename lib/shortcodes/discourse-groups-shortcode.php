@@ -14,8 +14,7 @@ class DiscourseGroupsShortcode {
 	}
 
 	public function discourse_groups() {
-		$discourse_groups = $this->groups->get_discourse_groups( null, 'true' );
-		write_log( $discourse_groups );
+		$discourse_groups = $this->groups->get_discourse_groups();
 	}
 
 

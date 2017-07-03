@@ -2,9 +2,10 @@
 
 namespace WPDiscourse\Shortcodes;
 
-use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
+//use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
 
 class LatestTopics {
+	use Utilities;
 
 	/**
 	 * The key for the plugin's options array.
@@ -12,10 +13,10 @@ class LatestTopics {
 	 * @access protected
 	 * @var string
 	 */
-	protected $option_key = 'dclt_options';
+	protected $option_key = 'wpds_options';
 
 	/**
-	 * The merged options from WP Discourse and WP Discourse Latest Topics.
+	 * The merged options from WP Discourse and WP Discourse Shortcodes.
 	 *
 	 * All options are held in a single array, use a custom plugin prefix to avoid naming collisions with wp-discourse.
 	 *
@@ -33,20 +34,6 @@ class LatestTopics {
 	protected $discourse_url;
 
 	/**
-	 * The options array added by this plugin.
-	 *
-	 * @access protected
-	 * @var array
-	 */
-	protected $dclt_options = array(
-		'dclt_cache_duration'     => 10,
-		'dclt_webhook_refresh'    => 0,
-		'dclt_webhook_secret'     => '',
-		'dclt_clear_topics_cache' => 0,
-		'dclt_use_default_styles' => 1,
-	);
-
-	/**
 	 * LatestTopics constructor.
 	 */
 	public function __construct() {
@@ -58,8 +45,7 @@ class LatestTopics {
 	 * Adds the plugin options, gets the merged wp-discourse/wp-discourse-latest-topics options, sets the discourse_url.
 	 */
 	public function initialize_plugin() {
-		$this->options       = DiscourseUtilities::get_options();
-		// Todo: don't do this.
+		$this->options       = $this->get_options();
 		$this->discourse_url = ! empty( $this->options['url'] ) ? $this->options['url'] : null;
 	}
 
@@ -88,7 +74,7 @@ class LatestTopics {
 	 * @return null
 	 */
 	public function create_latest_topics( $data ) {
-		$api_enabled = ! empty( $this->options['dclt_webhook_refresh'] ) && 1 === intval( $this->options['dclt_webhook_refresh'] );
+		$api_enabled = ! empty( $this->options['wpds_topic_webhook_refresh'] );
 		if ( ! $api_enabled ) {
 
 			return 0;
@@ -104,7 +90,7 @@ class LatestTopics {
 
 		$latest = $this->latest_topics();
 
-		set_transient( 'dclt_latest_topics', $latest, DAY_IN_SECONDS );
+		set_transient( 'wpds_latest_topics', $latest, DAY_IN_SECONDS );
 
 		return 1;
 	}
@@ -115,20 +101,20 @@ class LatestTopics {
 	 * @return array
 	 */
 	public function get_latest_topics() {
-		$discourse_topics = get_transient( 'dclt_latest_topics' );
+		$discourse_topics = get_transient( 'wpds_latest_topics' );
 		$plugin_options   = get_option( $this->option_key );
-		$force            = ! empty( $plugin_options['dclt_clear_topics_cache'] ) ? $plugin_options['dclt_clear_topics_cache'] : 0;
+		$force            = ! empty( $plugin_options['wpds_clear_topics_cache'] ) ? $plugin_options['wpds_clear_topics_cache'] : 0;
 
 		if ( empty( $discourse_topics ) || $force ) {
 
 			$discourse_topics = $this->latest_topics();
-			$cache_duration   = ! empty( $plugin_options['dclt_cache_duration'] ) ? $plugin_options['dclt_cache_duration'] : 10;
+			$cache_duration   = ! empty( $plugin_options['wpds_topic_cache_duration'] ) ? $plugin_options['wpds_topic_cache_duration'] : 10;
 
 			// Todo: This could be set to null. Something needs to happen here.
-			set_transient( 'dclt_latest_topics', $discourse_topics, $cache_duration * MINUTE_IN_SECONDS );
+			set_transient( 'wpds_latest_topics', $discourse_topics, $cache_duration * MINUTE_IN_SECONDS );
 
 			if ( $force ) {
-				$plugin_options['dclt_clear_topics_cache'] = 0;
+				$plugin_options['wpds_clear_topics_cache'] = 0;
 
 				update_option( $this->option_key, $plugin_options );
 			}
@@ -152,7 +138,7 @@ class LatestTopics {
 
 		$remote = wp_remote_get( $latest_url );
 
-		if ( ! DiscourseUtilities::validate( $remote ) ) {
+		if ( ! $this->validate( $remote ) ) {
 
 			return null;
 		}
@@ -173,7 +159,7 @@ class LatestTopics {
 		if ( $sig = substr( $data->get_header( 'X-Discourse-Event-Signature' ), 7 ) ) {
 			$payload = $data->get_body();
 			// Key used for verifying the request - a matching key needs to be set on the Discourse webhook.
-			$secret = ! empty( $this->options['dclt_webhook_secret'] ) ? $this->options['dclt_webhook_secret'] : null;
+			$secret = ! empty( $this->options['wpds_webhook_secret'] ) ? $this->options['wpds_webhook_secret'] : null;
 
 			if ( ! $secret ) {
 				return new \WP_Error( 'Webhook Secret Missing', 'The webhook secret key has not been set.' );

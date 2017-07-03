@@ -2,11 +2,13 @@
 
 namespace WPDiscourse\Shortcodes;
 
-use WPDiscourse\Admin\FormHelper;
-use WPDiscourse\Admin\OptionsPage;
-use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
+//use WPDiscourse\Admin\FormHelper;
+//use WPDiscourse\Admin\OptionsPage;
+//use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
 
 class Admin {
+    use Utilities;
+
 
 	/**
      * The WPDiscourse options page.
@@ -59,7 +61,7 @@ class Admin {
 		add_action( 'admin_init', array( $this, 'register_latest_topics_settings' ) );
 		add_action( 'admin_menu', array( $this, 'add_latest_topics_page' ) );
 		add_action( 'wpdc_options_page_append_settings_tabs', array( $this, 'settings_tab' ), 5, 1 );
-		add_action( 'wpdc_options_page_after_tab_switch', array( $this, 'dclt_settings_fields' ) );
+		add_action( 'wpdc_options_page_after_tab_switch', array( $this, 'wpds_settings_fields' ) );
 	}
 
 	/**
@@ -69,7 +71,7 @@ class Admin {
      * plugin in `discourse-latest-topics.php`.
 	 */
 	public function setup_options() {
-		$this->options = DiscourseUtilities::get_options();
+		$this->options = $this->get_options();
 		$this->webhook_url = ! empty( $this->options['url'] ) ? $this->options['url'] . '/admin/api/web_hooks' : null;
     }
 
@@ -77,39 +79,44 @@ class Admin {
 	 * Add settings section, settings fields, and register the setting.
 	 */
 	public function register_latest_topics_settings() {
-		add_settings_section( 'dclt_settings_section', __( 'Discourse Latest Topics Settings', 'dclt' ), array(
+		add_settings_section( 'wpds_settings_section', __( 'WP Discourse Shortcodes Settings', 'wpds' ), array(
 			$this,
-			'latest_topics_settings_details',
-		), 'dclt_options' );
+			'shortcode_settings_details',
+		), 'wpds_options' );
 
 
-		add_settings_field( 'dclt_cache_duration', __( 'Topics Cache Duration', 'dclt' ), array(
+		add_settings_field( 'wpds_topic_cache_duration', __( 'Topics Cache Duration', 'wpds' ), array(
 			$this,
 			'cache_duration_input',
-		), 'dclt_options', 'dclt_settings_section' );
+		), 'wpds_options', 'wpds_settings_section' );
 
-		add_settings_field( 'dclt_webhook_refresh', __( 'Refresh Comments With Discourse Webhook', 'dclt' ), array(
+		add_settings_field( 'wpds_topic_webhook_refresh', __( 'Refresh Comments With Discourse Webhook', 'wpds' ), array(
 			$this,
 			'webhook_refresh_checkbox',
-		), 'dclt_options', 'dclt_settings_section' );
+		), 'wpds_options', 'wpds_settings_section' );
 
-		add_settings_field( 'dclt_webhook_secret', __( 'Discourse Webhook Secret Key', 'dclt' ), array(
+		add_settings_field( 'wpds_webhook_secret', __( 'Discourse Webhook Secret Key', 'wpds' ), array(
 		        $this,
             'webhook_secret_input',
-        ), 'dclt_options', 'dclt_settings_section' );
+        ), 'wpds_options', 'wpds_settings_section' );
 
-		add_settings_field( 'dclt_use_default_styles', __( 'Use Default Styles', 'dclt' ), array(
+		add_settings_field( 'wpds_use_default_styles', __( 'Use Default Styles', 'wpds' ), array(
 			$this,
 			'use_default_styles_checkbox',
-		), 'dclt_options', 'dclt_settings_section' );
+		), 'wpds_options', 'wpds_settings_section' );
 
-		add_settings_field( 'dclt_clear_topics_cache', __( 'Clear Topics Cache', 'dclt' ), array(
+		add_settings_field( 'wpds_clear_topics_cache', __( 'Clear Topics Cache', 'wpds' ), array(
 			$this,
 			'clear_topics_cache_checkbox',
-		), 'dclt_options', 'dclt_settings_section' );
+		), 'wpds_options', 'wpds_settings_section' );
 
-		// The settings fields will be saved in the 'dclt_options' array as `dclt_options[ $key ].`
-		register_setting( 'dclt_options', 'dclt_options', array( $this->form_helper, 'validate_options' ) );
+		add_settings_field( 'wpds_fetch_discourse_groups', __( 'Refresh Discourse Groups', 'wpds' ), array(
+            $this,
+            'fetch_discourse_groups_checkbox',
+        ), 'wpds_options', 'wpds_settings_section' );
+
+		// The settings fields will be saved in the 'wpds_options' array as `wpds_options[ $key ].`
+		register_setting( 'wpds_options', 'wpds_options', array( $this->form_helper, 'validate_options' ) );
 	}
 
 	/**
@@ -119,11 +126,11 @@ class Admin {
 		$latest_topics_settings = add_submenu_page(
 		// The parent page from the wp-discourse plugin.
 			'wp_discourse_options',
-			__( 'Latest Topics', 'dclt' ),
-			__( 'Latest Topics', 'dclt' ),
+			__( 'Shortcodes', 'wpds' ),
+			__( 'Shortcodes', 'wpds' ),
 			'manage_options',
-			'dclt_options',
-			array( $this, 'dclt_options_page' )
+			'wpds_options',
+			array( $this, 'wpds_options_page' )
 		);
 		// This is optional, it checks the connection status with Discourse after saving the settings page.
 		add_action( 'load-' . $latest_topics_settings, array( $this->form_helper, 'connection_status_notice' ) );
@@ -133,9 +140,9 @@ class Admin {
 	 * Creates the discourse latest topics options page by calling OptionsPage::display with 'dctl_options' (the name of
      * the latest-topics options tab.)
 	 */
-	public function dclt_options_page() {
+	public function wpds_options_page() {
 		if ( current_user_can( 'manage_options' ) ) {
-			$this->options_page->display( 'dclt_options' );
+			$this->options_page->display( 'wpds_options' );
 		}
 	}
 
@@ -148,10 +155,10 @@ class Admin {
 	 * @param string $tab The active tab.
 	 */
 	public function settings_tab( $tab ) {
-		$active = 'dclt_options' === $tab;
+		$active = 'wpds_options' === $tab;
 		?>
-        <a href="?page=wp_discourse_options&tab=dclt_options"
-           class="nav-tab <?php echo $active ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Latest Topics', 'dclt' ); ?>
+        <a href="?page=wp_discourse_options&tab=wpds_options"
+           class="nav-tab <?php echo $active ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Shortcodes', 'wpds' ); ?>
         </a>
 		<?php
 	}
@@ -159,10 +166,10 @@ class Admin {
 	/**
 	 * Details about the setting.
 	 */
-	public function latest_topics_settings_details() {
+	public function shortcode_settings_details() {
 		?>
         <p>
-            The WP Discourse Latest Topics plugin lets you add a <code>[discourse_latest]</code> shortcode to your WordPress pages.
+            The WP Discourse Shortcodes plugin lets you add a <code>[discourse_latest]</code> shortcode to your WordPress pages.
             The shortcode will display the latest topics from your Discourse Forum. It takes the optional arguments of
             <code>max_topics</code> (defaults to <code>5</code>) and <code>display_avatars</code> (defaults to <code>true</code>.)
             To create a shortcode to display the latest 10 topics, and not display avatars, you would do this: <code>[discourse_latest max_topics=10 display_avatars=false]</code>
@@ -171,16 +178,16 @@ class Admin {
 	}
 
 	/**
-     * Adds settings fields if 'dclt_options' is the current tab.
+     * Adds settings fields if 'wpds_options' is the current tab.
      *
      * Hooked into 'wpdc_options_page_after_tab_switch'.
      *
 	 * @param string $tab The current active tab.
 	 */
-	public function dclt_settings_fields( $tab ) {
-		if ( 'dclt_options' === $tab ) {
-			settings_fields( 'dclt_options' );
-			do_settings_sections( 'dclt_options' );
+	public function wpds_settings_fields( $tab ) {
+		if ( 'wpds_options' === $tab ) {
+			settings_fields( 'wpds_options' );
+			do_settings_sections( 'wpds_options' );
 		}
 	}
 
@@ -206,7 +213,7 @@ class Admin {
                            updates when there is a new topic. To receive updates when there are new replies, also select the "Post Event" checkbox.';
         }
 
-		$this->form_helper->checkbox_input( 'dclt_webhook_refresh', 'dclt_options', __( 'Use a Discourse Webhook to refresh comments.', 'dclt' ), $description );
+		$this->form_helper->checkbox_input( 'wpds_topic_webhook_refresh', 'wpds_options', __( 'Use a Discourse Webhook to refresh comments.', 'wpds' ), $description );
 	}
 
 	/**
@@ -220,29 +227,33 @@ class Admin {
             $description = 'The secret key used to verify Discourse webhook requests. It needs to match the key set at <strong>http://discourse.example.com/admin/api/web_hooks</strong>.';
         }
 
-        $this->form_helper->input( 'dclt_webhook_secret', 'dclt_options', $description );
+        $this->form_helper->input( 'wpds_webhook_secret', 'wpds_options', $description );
     }
 
 	/**
 	 * Displays the clear_topics_cache_checkbox field.
 	 */
 	public function clear_topics_cache_checkbox() {
-		$this->form_helper->checkbox_input( 'dclt_clear_topics_cache', 'dclt_options', __( 'Clear the cache to fetch fresh topics from Discourse (This
-		will be reset after a single request.)', 'dclt' ) );
+		$this->form_helper->checkbox_input( 'wpds_clear_topics_cache', 'wpds_options', __( 'Clear the cache to fetch fresh topics from Discourse (This
+		will be reset after a single request.)', 'wpds' ) );
 	}
 
 	/**
 	 * Displays the use_default_styles_checkbox field.
 	 */
 	public function use_default_styles_checkbox() {
-		$this->form_helper->checkbox_input( 'dclt_use_default_styles', 'dclt_options', __( 'Use the default plugin styles.', 'dclt' ) );
+		$this->form_helper->checkbox_input( 'wpds_use_default_styles', 'wpds_options', __( 'Use the default plugin styles.', 'wpds' ) );
 	}
 
 	/**
 	 * Displays the cache_duration_input field.
 	 */
 	public function cache_duration_input() {
-		$this->form_helper->input( 'dclt_cache_duration', 'dclt_options', __( 'Time in minutes to cache Discourse Topics.
-		This value will be ignored if you enable a webhook from Discourse.', 'dclt' ), 'number', 0 );
+		$this->form_helper->input( 'wpds_topic_cache_duration', 'wpds_options', __( 'Time in minutes to cache Discourse Topics.
+		This value will be ignored if you enable a webhook from Discourse.', 'wpds' ), 'number', 0 );
 	}
+
+	public function fetch_discourse_groups_checkbox() {
+	    $this->form_helper->checkbox_input( 'wpds_fetch_discourse_groups', 'wpds_options', __( 'Refresh Discourse groups.', 'wpds' ) );
+    }
 }

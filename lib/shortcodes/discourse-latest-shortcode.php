@@ -94,7 +94,7 @@ class DiscourseLatestShortcode {
 		$poster_avatar_url = '';
 		$poster_username   = '';
 
-		$output = '<ul class="dclt-topiclist">';
+		$output = '<ul class="wpds-topiclist">';
 
 		foreach ( $topics as $topic ) {
 			$topic_url            = $this->options['url'] . "/t/{$topic['slug']}/{$topic['id']}";
@@ -116,18 +116,18 @@ class DiscourseLatestShortcode {
 				}
 			}
 
-			$avatar_image = '<img class="dclt-latest-avatar" src="' . esc_url( $poster_avatar_url ) . '">';
-			$output .= '<li class="dclt-topic"><div class="dclt-topic-poster-meta">';
+			$avatar_image = '<img class="wpds-latest-avatar" src="' . esc_url( $poster_avatar_url ) . '">';
+			$output .= '<li class="wpds-topic"><div class="wpds-topic-poster-meta">';
 			if ( 'true' === $args['display_avatars'] ) {
-				$output .= apply_filters( 'dclt_shorcodes_avatar', $avatar_image, esc_url( $poster_avatar_url ) );
+				$output .= apply_filters( 'wpds_shorcodes_avatar', $avatar_image, esc_url( $poster_avatar_url ) );
 			}
-			$output .= '<span class="dclt-username">' . esc_html( $poster_username ) . '</span>' . '<span class="dclt-term"> posted on </span>
-						<span class="dclt-created-at">' . $created_at_formatted . '</span><br>
-						<span class="dclt-term">in </span><span class="dclt-shortcode-category" >' . $this->discourse_category_badge( $category ) . '</span></div>
-						<p class="dclt-topic-title"><a href="' . esc_url( $topic_url ) . '">' . esc_html( $topic['title'] ) . '</a></p>
-						<p class="dclt-topic-activity-meta"><span class="dclt-term">replies</span> <span class="dclt-num-replies">' .
+			$output .= '<span class="wpds-username">' . esc_html( $poster_username ) . '</span>' . '<span class="wpds-term"> posted on </span>
+						<span class="wpds-created-at">' . $created_at_formatted . '</span><br>
+						<span class="wpds-term">in </span><span class="wpds-shortcode-category" >' . $this->discourse_category_badge( $category ) . '</span></div>
+						<p class="wpds-topic-title"><a href="' . esc_url( $topic_url ) . '">' . esc_html( $topic['title'] ) . '</a></p>
+						<p class="wpds-topic-activity-meta"><span class="wpds-term">replies</span> <span class="wpds-num-replies">' .
 			           esc_attr( ( $topic['posts_count'] ) - 1 ) .
-			           '</span> <span class="dclt-term">last activity</span> <span class="dclt-last-activity">' .
+			           '</span> <span class="wpds-term">last activity</span> <span class="wpds-last-activity">' .
 			           // Unless webhooks are setup, the last activity will only be as acurate as the cache period.
 			           $this->calculate_last_activity( $last_activity ) . '</span></p></li>';
 		}
