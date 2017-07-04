@@ -168,11 +168,23 @@ class Admin {
 	public function shortcode_settings_details() {
 		?>
         <p>
-            The WP Discourse Shortcodes plugin lets you add a <code>[discourse_latest]</code> shortcode to your WordPress pages.
-            The shortcode will display the latest topics from your Discourse Forum. It takes the optional arguments of
-            <code>max_topics</code> (defaults to <code>5</code>) and <code>display_avatars</code> (defaults to <code>true</code>.)
-            To create a shortcode to display the latest 10 topics, and not display avatars, you would do this: <code>[discourse_latest max_topics=10 display_avatars=false]</code>
+            <em>The following shortcodes are available:</em>
         </p>
+        <ul>
+            <li><code>[discourse_latest]</code> <em>paramaters:</em> <code>max_topics</code> <em>(default '5')</em> <code>display_avatars</code> <em>(default 'true')</em></li>
+            <br>
+            <li><code>[discourse_link]</code> <em>paramaters:</em> <code>link_text</code> <em>(default 'Visit Our Forum')</em> <code>path</code> <em>(default '/')</em><br>
+            <code>classes</code> <em>(default '')</em> <code>login</code> <em>(default 'true', requires SSO Provider to be enabled)</em></li>
+            <br>
+            <li><code>[discourse_prefilled_message]</code> <em>paramaters:</em> <code>link_text</code> <em>(default 'Contact Us')</em> <code>classes</code> <em>(default '')</em><br>
+                <code>title</code> <em>(default '')</em> <code>message</code> <em>(default '')</em> <code>username</code> <em>(default '')</em> <code>groupname</code> <em>(default ''.) If
+                both a username and a groupname are supplied, will default to groupname. The discourse_prefilled_message shortcode requires
+                WordPress to be enabled as the SSO Provider for Discourse.</em></li>
+            <br>
+            <li><code>[discourse_groups]</code> <em>parameters:</em> <code>link_type</code> <em>(default 'visit', available 'visit', 'message')</em> <code>group_list</code>
+                <em>(If left empty, will default to all non-automatic groups, otherwise, supply a comma separated list of group_names.)</em>
+            <code>link_open_text</code> <em>(default 'Join')</em> <code>link_close_text</code> <em>(default '')</em></li>
+        </ul>
 		<?php
 	}
 

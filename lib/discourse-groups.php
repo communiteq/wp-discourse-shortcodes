@@ -82,7 +82,7 @@ class DiscourseGroups {
 				);
 
 				$output .= $this->prefilled_message->discourse_prefilled_message( $message_args );
-			} elseif ( ! empty( $attributes['link_type'] ) && 'link' === $attributes['link_type'] ) {
+			} elseif ( ! empty( $attributes['link_type'] ) && 'visit' === $attributes['link_type'] ) {
 				$message_args = array(
 					'link_text' => $link_text,
 					'path'      => $group_path,
