@@ -18,14 +18,22 @@ function init() {
 	if ( class_exists( '\WPDiscourse\Discourse\Discourse' ) ) {
 		require_once( __DIR__ . '/lib/utilities.php' );
 		require_once( __DIR__ . '/lib/discourse-shortcodes.php' );
+		require_once( __DIR__ . '/lib/discourse-link.php' );
+		require_once( __DIR__ . '/lib/discourse-prefilled-message.php' );
 		require_once( __DIR__ . '/lib/discourse-latest-topics.php' );
 		require_once( __DIR__ . '/lib/discourse-groups.php' );
 		require_once( __DIR__ . '/lib/shortcodes/discourse-latest-shortcode.php' );
 		require_once( __DIR__ . '/lib/shortcodes/discourse-groups-shortcode.php' );
+		require_once( __DIR__ . '/lib/shortcodes/discourse-link-shortcode.php' );
+		require_once( __DIR__ . '/lib/shortcodes/discourse-prefilled-message-shortcode.php' );
 
 		new DiscourseShortcodes();
 		$latest_topics = new LatestTopics();
 		$groups = new Groups();
+		$discourse_link = new DiscourseLink();
+		$prefilled_message = new DiscoursePrefilledMessage( $discourse_link );
+		new DiscourseLinkShortcode( $discourse_link );
+		new DiscoursePrefilledMessageShortcode( $prefilled_message );
 		new DiscourseLatestShortcode( $latest_topics );
 		new DiscourseGroupsShortcode( $groups );
 

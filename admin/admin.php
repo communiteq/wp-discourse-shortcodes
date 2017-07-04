@@ -2,13 +2,8 @@
 
 namespace WPDiscourse\Shortcodes;
 
-//use WPDiscourse\Admin\FormHelper;
-//use WPDiscourse\Admin\OptionsPage;
-//use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
-
 class Admin {
     use Utilities;
-
 
 	/**
      * The WPDiscourse options page.
@@ -16,7 +11,7 @@ class Admin {
      * Use this class to hook into the WPDiscourse options page.
      *
      * @access protected
-	 * @var OptionsPage
+	 * @var \WPDiscourse\Admin\OptionsPage
 	 */
 	protected $options_page;
 
@@ -27,7 +22,7 @@ class Admin {
      * to option arrays.
      *
      * @access protected
-	 * @var FormHelper
+	 * @var \WPDiscourse\Admin\FormHelper
 	 */
 	protected $form_helper;
 
@@ -50,8 +45,8 @@ class Admin {
 	/**
 	 * Admin constructor.
 	 *
-	 * @param OptionsPage $options_page An instance of the OptionsPage class.
-	 * @param FormHelper $form_helper An instance of the FormHelper class.
+	 * @param \WPDiscourse\Admin\OptionsPage $options_page An instance of the OptionsPage class.
+	 * @param \WPDiscourse\Admin\FormHelper $form_helper An instance of the FormHelper class.
 	 */
 	public function __construct( $options_page, $form_helper ) {
 		$this->options_page = $options_page;

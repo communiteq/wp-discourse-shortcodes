@@ -2,8 +2,6 @@
 
 namespace WPDiscourse\Shortcodes;
 
-//use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
-
 class LatestTopics {
 	use Utilities;
 
