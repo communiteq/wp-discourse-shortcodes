@@ -30,37 +30,43 @@ class LatestTopics {
 	 * @var string
 	 */
 	protected $discourse_url;
+	protected $api_key;
+	protected $api_username;
 
 	/**
 	 * LatestTopics constructor.
 	 */
 	public function __construct() {
-		add_action( 'init', array( $this, 'initialize_plugin' ) );
+		add_action( 'init', array( $this, 'setup_options' ) );
 		add_action( 'rest_api_init', array( $this, 'initialize_topic_route' ) );
 	}
 
 	/**
 	 * Adds the plugin options, gets the merged wp-discourse/wp-discourse-latest-topics options, sets the discourse_url.
 	 */
-	public function initialize_plugin() {
+	public function setup_options() {
 		$this->options       = $this->get_options();
 		$this->discourse_url = ! empty( $this->options['url'] ) ? $this->options['url'] : null;
+		$this->api_key       = ! empty( $this->options['api-key'] ) ? $this->options['api-key'] : null;
+		$this->api_username  = ! empty( $this->options['publish-username'] ) ? $this->options['publish-username'] : null;
 	}
 
 	/**
 	 * Initializes a WordPress Rest API route and endpoint.
 	 */
 	public function initialize_topic_route() {
-		register_rest_route( 'wp-discourse/v1', 'latest-topics', array(
-			array(
-				'methods'  => \WP_REST_Server::CREATABLE,
-				'callback' => array( $this, 'create_latest_topics' ),
-			),
-			array(
-				'methods'  => \WP_REST_Server::READABLE,
-				'callback' => array( $this, 'get_latest_topics' ),
-			)
-		) );
+		if ( ! empty( $this->options['wpds_topic_webhook_refresh'] ) ) {
+			register_rest_route( 'wp-discourse/v1', 'latest-topics', array(
+				array(
+					'methods'  => \WP_REST_Server::CREATABLE,
+					'callback' => array( $this, 'update_latest_topics' ),
+				),
+				array(
+					'methods'  => \WP_REST_Server::READABLE,
+					'callback' => array( $this, 'get_latest_topics' ),
+				)
+			) );
+		}
 	}
 
 	/**
@@ -71,26 +77,20 @@ class LatestTopics {
 	 *
 	 * @return null
 	 */
-	public function create_latest_topics( $data ) {
-		$api_enabled = ! empty( $this->options['wpds_topic_webhook_refresh'] );
-		if ( ! $api_enabled ) {
-
-			return 0;
-		}
-
+	public function update_latest_topics( $data ) {
 		$data = $this->verify_discourse_request( $data );
 
 		if ( is_wp_error( $data ) ) {
-			error_log( $data->get_error_message() );
 
-			return null;
+			return new \WP_Error( 'discourse_response_error', 'There was an error returned from Discourse when processing the
+			latest_topics webhook.' );
 		}
 
 		$latest = $this->latest_topics();
 
 		set_transient( 'wpds_latest_topics', $latest, DAY_IN_SECONDS );
 
-		return 1;
+		return null;
 	}
 
 	/**
@@ -100,21 +100,23 @@ class LatestTopics {
 	 */
 	public function get_latest_topics() {
 		$discourse_topics = get_transient( 'wpds_latest_topics' );
-		$plugin_options   = get_option( $this->option_key );
-		$force            = ! empty( $plugin_options['wpds_clear_topics_cache'] ) ? $plugin_options['wpds_clear_topics_cache'] : 0;
+		$force            = ! empty( $this->options['wpds_clear_topics_cache'] );
+
+		if ( $force ) {
+			// Reset the force option.
+			$plugin_options                            = get_option( $this->option_key );
+			$plugin_options['wpds_clear_topics_cache'] = 0;
+
+			update_option( $this->option_key, $plugin_options );
+		}
 
 		if ( empty( $discourse_topics ) || $force ) {
 
 			$discourse_topics = $this->latest_topics();
-			$cache_duration   = ! empty( $plugin_options['wpds_topic_cache_duration'] ) ? $plugin_options['wpds_topic_cache_duration'] : 10;
+			$cache_duration   = ! empty( $this->options['wpds_topic_cache_duration'] ) ? $this->options['wpds_topic_cache_duration'] : 10;
 
-			// Todo: This could be set to null. Something needs to happen here.
-			set_transient( 'wpds_latest_topics', $discourse_topics, $cache_duration * MINUTE_IN_SECONDS );
-
-			if ( $force ) {
-				$plugin_options['wpds_clear_topics_cache'] = 0;
-
-				update_option( $this->option_key, $plugin_options );
+			if ( ! empty( $discourse_topics ) || ! is_wp_error( $discourse_topics ) ) {
+				set_transient( 'wpds_latest_topics', $discourse_topics, $cache_duration * MINUTE_IN_SECONDS );
 			}
 		}
 
@@ -129,16 +131,24 @@ class LatestTopics {
 	protected function latest_topics() {
 		if ( empty( $this->discourse_url ) ) {
 
-			return null;
+			return new \WP_Error( 'wp_discourse_configuration_error', 'The WP Discourse plugin is not properly configured.' );
 		}
 
-		$latest_url = esc_url( $this->discourse_url . '/latest.json' );
+		$latest_url = $this->discourse_url . '/latest.json';
+		if ( ! empty( $this->options['wpds_display_private_topics'] ) ) {
+			$latest_url = add_query_arg( array(
+				'api_key'      => $this->api_key,
+				'api_username' => $this->api_username,
+			), $latest_url );
+		}
+
+		$latest_url = esc_url_raw( $latest_url );
 
 		$remote = wp_remote_get( $latest_url );
 
 		if ( ! $this->validate( $remote ) ) {
 
-			return null;
+			return new \WP_Error( 'wp_discourse_response_error', 'An error was returned from Discourse when fetching the latest topics.' );
 		}
 
 		return json_decode( wp_remote_retrieve_body( $remote ), true );
@@ -160,6 +170,7 @@ class LatestTopics {
 			$secret = ! empty( $this->options['wpds_webhook_secret'] ) ? $this->options['wpds_webhook_secret'] : null;
 
 			if ( ! $secret ) {
+
 				return new \WP_Error( 'Webhook Secret Missing', 'The webhook secret key has not been set.' );
 			}
 

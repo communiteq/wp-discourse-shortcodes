@@ -37,7 +37,6 @@ function init() {
 		new DiscourseLatestShortcode( $latest_topics );
 		new DiscourseGroupsShortcode( $discourse_groups );
 
-		// Only load admin files in admin.
 		if ( is_admin() ) {
 			require_once( __DIR__ . '/admin/admin.php' );
 			require_once( __DIR__ . '/admin/settings-validator.php' );

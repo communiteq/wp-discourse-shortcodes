@@ -2,9 +2,9 @@
 
 namespace WPDiscourse\Shortcodes;
 
-use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
-
 class DiscourseLatestShortcode {
+	use Utilities;
+
 	/**
 	 * The plugin options.
 	 *
@@ -45,7 +45,8 @@ class DiscourseLatestShortcode {
 	 * Set the plugin options.
 	 */
 	public function setup_options() {
-		$this->options = DiscourseUtilities::get_options();
+		$this->options       = $this->get_options();
+		$this->discourse_url = ! empty( $this->options['url'] ) ? $this->options['url'] : null;
 	}
 
 	/**
@@ -58,13 +59,19 @@ class DiscourseLatestShortcode {
 	public function discourse_latest( $atts ) {
 
 		$attributes = shortcode_atts( array(
-			'max_topics' => 5,
+			'max_topics'      => 5,
 			'display_avatars' => 'true',
 		), $atts );
 
 		$discourse_topics = $this->latest_topics->get_latest_topics();
 
-		return $this->format_topics( $discourse_topics, $attributes );
+		if ( ! is_wp_error( $discourse_topics ) ) {
+
+			return $this->format_topics( $discourse_topics, $attributes );
+		} else {
+
+			return '';
+		}
 	}
 
 	/**
@@ -77,14 +84,16 @@ class DiscourseLatestShortcode {
 	 */
 	protected function format_topics( $discourse_topics, $args ) {
 
-		if ( empty( $discourse_topics['topic_list'] ) ) {
+		if ( empty( $this->discourse_url ) || empty( $discourse_topics['topic_list'] ) ) {
+
 			return '';
 		}
 
 		$topics = $discourse_topics['topic_list']['topics'];
 
 		// If the first topic is pinned, don't display it.
-		if ( ! empty( $topics[0]['pinned'] ) && 1 === intval( $topics[0]['pinned'] ) ) {
+		// Todo: what if the second topic is pinned?
+		if ( ! empty( $topics[0]['pinned'] ) ) {
 			$topics = array_slice( $topics, 1, $args['max_topics'] );
 		} else {
 			$topics = array_slice( $topics, 0, $args['max_topics'] );
@@ -102,27 +111,28 @@ class DiscourseLatestShortcode {
 			$created_at_formatted = date_format( $created_at, 'F j, Y' );
 			$last_activity        = $topic['last_posted_at'];
 			$category             = $this->find_discourse_category( $topic );
-			$posters              = $topic['posters'];
-			foreach ( $posters as $poster ) {
-				if ( preg_match( '/Original Poster/', $poster['description'] ) ) {
-					$original_poster_id = $poster['user_id'];
-					foreach ( $users as $user ) {
-						if ( $original_poster_id === $user['id'] ) {
-							$poster_username   = $user['username'];
-							$avatar_template   = str_replace( '{size}', 22, $user['avatar_template'] );
-							$poster_avatar_url = $this->options['url'] . $avatar_template;
+
+			$output .= '<li class="wpds-topic"><div class="wpds-topic-poster-meta">';
+			if ( 'true' === $args['display_avatars'] ) {
+				$posters = $topic['posters'];
+				foreach ( $posters as $poster ) {
+					if ( preg_match( '/Original Poster/', $poster['description'] ) ) {
+						$original_poster_id = $poster['user_id'];
+						foreach ( $users as $user ) {
+							if ( $original_poster_id === $user['id'] ) {
+								$poster_username   = $user['username'];
+								$avatar_template   = str_replace( '{size}', 22, $user['avatar_template'] );
+								$poster_avatar_url = $this->options['url'] . $avatar_template;
+							}
 						}
 					}
 				}
-			}
 
-			$avatar_image = '<img class="wpds-latest-avatar" src="' . esc_url( $poster_avatar_url ) . '">';
-			$output .= '<li class="wpds-topic"><div class="wpds-topic-poster-meta">';
-			if ( 'true' === $args['display_avatars'] ) {
+				$avatar_image = '<img class="wpds-latest-avatar" src="' . esc_url( $poster_avatar_url ) . '">';
+
 				$output .= apply_filters( 'wpds_shorcodes_avatar', $avatar_image, esc_url( $poster_avatar_url ) );
 			}
-			$output .= '<span class="wpds-username">' . esc_html( $poster_username ) . '</span>' . '<span class="wpds-term"> posted on </span>
-						<span class="wpds-created-at">' . $created_at_formatted . '</span><br>
+			$output .= '<span class="wpds-username">' . esc_html( $poster_username ) . '</span>' . '<span class="wpds-term"> posted on </span><span class="wpds-created-at">' . $created_at_formatted . '</span><br>
 						<span class="wpds-term">in </span><span class="wpds-shortcode-category" >' . $this->discourse_category_badge( $category ) . '</span></div>
 						<p class="wpds-topic-title"><a href="' . esc_url( $topic_url ) . '">' . esc_html( $topic['title'] ) . '</a></p>
 						<p class="wpds-topic-activity-meta"><span class="wpds-term">replies</span> <span class="wpds-num-replies">' .
@@ -144,7 +154,7 @@ class DiscourseLatestShortcode {
 	 * @return null
 	 */
 	protected function find_discourse_category( $topic ) {
-		$categories  = DiscourseUtilities::get_discourse_categories();
+		$categories  = $this->get_discourse_categories();
 		$category_id = $topic['category_id'];
 
 		foreach ( $categories as $category ) {

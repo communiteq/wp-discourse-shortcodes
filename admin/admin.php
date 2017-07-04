@@ -79,13 +79,12 @@ class Admin {
 			'shortcode_settings_details',
 		), 'wpds_options' );
 
-
 		add_settings_field( 'wpds_topic_cache_duration', __( 'Topics Cache Duration', 'wpds' ), array(
 			$this,
 			'cache_duration_input',
 		), 'wpds_options', 'wpds_settings_section' );
 
-		add_settings_field( 'wpds_topic_webhook_refresh', __( 'Refresh Comments With Discourse Webhook', 'wpds' ), array(
+		add_settings_field( 'wpds_topic_webhook_refresh', __( 'Refresh Latest Topics With Discourse Webhook', 'wpds' ), array(
 			$this,
 			'webhook_refresh_checkbox',
 		), 'wpds_options', 'wpds_settings_section' );
@@ -93,6 +92,11 @@ class Admin {
 		add_settings_field( 'wpds_webhook_secret', __( 'Discourse Webhook Secret Key', 'wpds' ), array(
 		        $this,
             'webhook_secret_input',
+        ), 'wpds_options', 'wpds_settings_section' );
+
+		add_settings_field( 'wpds_display_private_topics', __( 'Display Private Topics', 'wpds' ), array(
+            $this,
+            'display_private_topics_checkbox',
         ), 'wpds_options', 'wpds_settings_section' );
 
 		add_settings_field( 'wpds_use_default_styles', __( 'Use Default Styles', 'wpds' ), array(
@@ -223,6 +227,11 @@ class Admin {
         }
 
         $this->form_helper->input( 'wpds_webhook_secret', 'wpds_options', $description );
+    }
+
+    public function display_private_topics_checkbox() {
+	    $this->form_helper->checkbox_input( 'wpds_display_private_topics', 'wpds_options', __( 'Display private topics in
+	    topic list.', 'wpds') );
     }
 
 	/**

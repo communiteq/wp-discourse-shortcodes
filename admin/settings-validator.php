@@ -12,6 +12,7 @@ class SettingsValidator {
 		add_filter( 'wpdc_validate_wpds_topic_webhook_refresh', array( $this, 'validate_webhook_request' ) );
 		add_filter( 'wpdc_validate_wpds_webhook_secret', array( $this, 'validate_webhook_secret' ) );
 		add_filter( 'wpdc_validate_wpds_fetch_discourse_groups', array( $this, 'validate_checkbox' ) );
+		add_filter( 'wpdc_validate_wpds_display_private_topics', array( $this, 'validate_checkbox' ) );
 	}
 
 	public function validate_checkbox( $input ) {
@@ -29,7 +30,7 @@ class SettingsValidator {
 	}
 
 	public function validate_webhook_secret( $input ) {
-		if ( empty( $input) && true === $this->webhook_refresh ) {
+		if ( empty( $input) && 1 === intval( $this->webhook_refresh ) ) {
 			add_settings_error( 'wpds', 'webhook_secret', __( 'To use Discourse webhooks you must provide a webhook secret key.', 'wpds') );
 
 			return '';

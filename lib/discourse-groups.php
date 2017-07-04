@@ -59,24 +59,21 @@ class DiscourseGroups {
 		foreach ( $groups as $group ) {
 			$group_path      = '/groups/' . esc_attr( $group['name'] );
 			$full_group_name = ! empty( $group['full_name'] ) ? $group['full_name'] : str_replace( '_', ' ', $group['name'] );
-			$user_count      = $group['user_count'];
 			$link_open_text  = ! empty( $attributes['link_open_text'] ) ? $attributes['link_open_text'] . ' ' : '';
 			$link_close_text = ! empty( $attributes['link_close_text'] ) ? ' ' . $attributes['link_close_text'] : '';
 			$link_text       = esc_html( $link_open_text ) . ' ' . esc_html( $full_group_name ) . esc_html( $link_close_text );
 
 			$output .= '<div class="wpdc-shortcodes-group clearfix">';
 			$output .= '<h3 class="wpdc-shortcodes-groupname">' . $full_group_name . '</h3>';
-			if ( $user_count > 0 && ! empty( $attributes['user_details'] ) && 'false' !== $attributes['user_details'] ) {
-				$output .= '<span class="wpdc-shortcodes-groupcount">';
-				$output .= 1 === intval( $user_count ) ? '1 member' : intval( $user_count ) . ' members';
-				$output .= '</span>';
-			}
 
 			$output .= '<div class="wpdc-shortcodes-group-description">';
 			$output .= wp_kses_post( $group['bio_raw'] );
 			$output .= '</div>';
 
-			if ( ! empty( $this->options['enable-sso'] ) && ! empty( $attributes['link_type'] ) && 'message' === $attributes['link_type'] ) {
+			if ( ! empty( $this->options['enable-sso'] ) &&
+			     ! empty( $attributes['link_type'] ) && 'message' === $attributes['link_type'] &&
+			     ! empty( $attributes['allow_membership_requests'] )
+			) {
 				$message_args = array(
 					'title'     => 'Request to join the ' . $full_group_name . ' group',
 					'classes'   => 'wpdc-shortcodes-message-link',

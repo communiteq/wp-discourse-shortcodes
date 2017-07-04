@@ -14,4 +14,9 @@ trait Utilities {
 
 		return DiscourseUtilities::validate( $response );
 	}
+
+	public function get_discourse_categories() {
+
+		return DiscourseUtilities::get_discourse_categories();
+	}
 }

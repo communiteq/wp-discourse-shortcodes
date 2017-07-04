@@ -23,7 +23,6 @@ class DiscourseGroupsShortcode {
 			'group_list'     => '',
 			'link_open_text'    => 'Join',
 			'link_close_text' => '',
-			'user_details'   => 'true',
 		), $attributes, 'discourse_groups' );
 
 		$groups = $this->discourse_groups->get_discourse_groups( $attributes['group_list'] );
