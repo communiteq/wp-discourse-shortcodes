@@ -20,26 +20,25 @@ class DiscourseLink {
 	public function get_discourse_link( $attributes ) {
 		$attributes = shortcode_atts( array(
 			'link_text'   => 'Visit Our Forum',
-			'return_path' => '/',
+			'path' => '/',
 			'classes'     => '',
 			'login'       => true,
 		), $attributes );
 
-		$url = esc_url( $this->get_url( $this->base_url, $attributes['login'], $attributes['return_path'] ) );
+		$url = esc_url( $this->get_url( $this->base_url, $attributes['login'], $attributes['path'] ) );
 		$classes        = $attributes['classes'] ? 'class="' . $attributes['classes'] . '"' : '';
-		$discourse_link = '<a ' . $classes . ' href="' . $url . '">' . $attributes['link_text'] . '</a>';
+		$discourse_link = '<a ' . $classes . ' href="' . $url . '">' . esc_html( $attributes['link_text'] ) . '</a>';
 
 		return $discourse_link;
 	}
 
-	protected function get_url( $base_url, $login = false, $return_path = '' ) {
+	protected function get_url( $base_url, $login = false, $path = '' ) {
 		if ( ! $login || 'false' === $login ) {
-			$url = $base_url . $return_path;
+			$url = $base_url . $path;
 		} else {
-			$url = $base_url . '/session/sso?return_path=' . $return_path;
+			$url = $base_url . '/session/sso?return_path=' . $path;
 		}
 
 		return $url;
 	}
-
 }

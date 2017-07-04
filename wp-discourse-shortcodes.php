@@ -29,13 +29,13 @@ function init() {
 
 		new DiscourseShortcodes();
 		$latest_topics = new LatestTopics();
-		$groups = new Groups();
 		$discourse_link = new DiscourseLink();
 		$prefilled_message = new DiscoursePrefilledMessage( $discourse_link );
+		$discourse_groups = new DiscourseGroups( $discourse_link, $prefilled_message );
 		new DiscourseLinkShortcode( $discourse_link );
 		new DiscoursePrefilledMessageShortcode( $prefilled_message );
 		new DiscourseLatestShortcode( $latest_topics );
-		new DiscourseGroupsShortcode( $groups );
+		new DiscourseGroupsShortcode( $discourse_groups );
 
 		// Only load admin files in admin.
 		if ( is_admin() ) {
