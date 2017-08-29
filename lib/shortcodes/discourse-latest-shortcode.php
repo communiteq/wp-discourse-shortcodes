@@ -90,60 +90,61 @@ class DiscourseLatestShortcode {
 		}
 
 		$topics = $discourse_topics['topic_list']['topics'];
-
-		// If the first topic is pinned, don't display it.
-		// Todo: what if the second topic is pinned?
-		if ( ! empty( $topics[0]['pinned'] ) ) {
-			$topics = array_slice( $topics, 1, $args['max_topics'] );
-		} else {
-			$topics = array_slice( $topics, 0, $args['max_topics'] );
-		}
-
 		$users             = $discourse_topics['users'];
 		$poster_avatar_url = '';
 		$poster_username   = '';
 
 		$output = '<ul class="wpds-topiclist">';
 
+		$topic_count = 0;
 		foreach ( $topics as $topic ) {
-			$topic_url            = $this->options['url'] . "/t/{$topic['slug']}/{$topic['id']}";
-			$created_at           = date_create( get_date_from_gmt( $topic['created_at'] ) );
-			$created_at_formatted = date_format( $created_at, 'F j, Y' );
-			$last_activity        = $topic['last_posted_at'];
-			$category             = $this->find_discourse_category( $topic );
+			if ( $topic_count < $args['max_topics'] && $this->display_topic( $topic ) ) {
+				$topic_url            = $this->options['url'] . "/t/{$topic['slug']}/{$topic['id']}";
+				$created_at           = date_create( get_date_from_gmt( $topic['created_at'] ) );
+				$created_at_formatted = date_format( $created_at, 'F j, Y' );
+				$last_activity        = $topic['last_posted_at'];
+				$category             = $this->find_discourse_category( $topic );
 
-			$output .= '<li class="wpds-topic"><div class="wpds-topic-poster-meta">';
-			if ( 'true' === $args['display_avatars'] ) {
-				$posters = $topic['posters'];
-				foreach ( $posters as $poster ) {
-					if ( preg_match( '/Original Poster/', $poster['description'] ) ) {
-						$original_poster_id = $poster['user_id'];
-						foreach ( $users as $user ) {
-							if ( $original_poster_id === $user['id'] ) {
-								$poster_username   = $user['username'];
-								$avatar_template   = str_replace( '{size}', 22, $user['avatar_template'] );
-								$poster_avatar_url = $this->options['url'] . $avatar_template;
+				$output .= '<li class="wpds-topic"><div class="wpds-topic-poster-meta">';
+				if ( 'true' === $args['display_avatars'] ) {
+					$posters = $topic['posters'];
+					foreach ( $posters as $poster ) {
+						if ( preg_match( '/Original Poster/', $poster['description'] ) ) {
+							$original_poster_id = $poster['user_id'];
+							foreach ( $users as $user ) {
+								if ( $original_poster_id === $user['id'] ) {
+									$poster_username   = $user['username'];
+									$avatar_template   = str_replace( '{size}', 22, $user['avatar_template'] );
+									$poster_avatar_url = $this->options['url'] . $avatar_template;
+								}
 							}
 						}
 					}
+
+					$avatar_image = '<img class="wpds-latest-avatar" src="' . esc_url( $poster_avatar_url ) . '">';
+
+					$output .= apply_filters( 'wpds_shorcodes_avatar', $avatar_image, esc_url( $poster_avatar_url ) );
 				}
-
-				$avatar_image = '<img class="wpds-latest-avatar" src="' . esc_url( $poster_avatar_url ) . '">';
-
-				$output .= apply_filters( 'wpds_shorcodes_avatar', $avatar_image, esc_url( $poster_avatar_url ) );
-			}
-			$output .= '<span class="wpds-username">' . esc_html( $poster_username ) . '</span>' . '<span class="wpds-term"> posted on </span><span class="wpds-created-at">' . $created_at_formatted . '</span><br>
+				$output .= '<span class="wpds-username">' . esc_html( $poster_username ) . '</span>' . '<span class="wpds-term"> posted on </span><span class="wpds-created-at">' . $created_at_formatted . '</span><br>
 						<span class="wpds-term">in </span><span class="wpds-shortcode-category" >' . $this->discourse_category_badge( $category ) . '</span></div>
 						<p class="wpds-topic-title"><a href="' . esc_url( $topic_url ) . '">' . esc_html( $topic['title'] ) . '</a></p>
 						<p class="wpds-topic-activity-meta"><span class="wpds-term">replies</span> <span class="wpds-num-replies">' .
-			           esc_attr( ( $topic['posts_count'] ) - 1 ) .
-			           '</span> <span class="wpds-term">last activity</span> <span class="wpds-last-activity">' .
-			           // Unless webhooks are setup, the last activity will only be as acurate as the cache period.
-			           $this->calculate_last_activity( $last_activity ) . '</span></p></li>';
+				           esc_attr( ( $topic['posts_count'] ) - 1 ) .
+				           '</span> <span class="wpds-term">last activity</span> <span class="wpds-last-activity">' .
+				           // Unless webhooks are setup, the last activity will only be as acurate as the cache period.
+				           $this->calculate_last_activity( $last_activity ) . '</span></p></li>';
+
+				$topic_count += 1;
+			}
+
 		}
 		$output .= '</ul>';
 
 		return $output;
+	}
+
+	protected function display_topic( $topic ) {
+		return ! $topic['pinned_globally'];
 	}
 
 	/**
