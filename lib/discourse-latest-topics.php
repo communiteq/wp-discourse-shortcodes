@@ -6,14 +6,6 @@ class LatestTopics {
 	use Utilities;
 
 	/**
-	 * The key for the plugin's options array.
-	 *
-	 * @access protected
-	 * @var string
-	 */
-	protected $option_key = 'wpds_options';
-
-	/**
 	 * The merged options from WP Discourse and WP Discourse Shortcodes.
 	 *
 	 * All options are held in a single array, use a custom plugin prefix to avoid naming collisions with wp-discourse.
@@ -30,7 +22,21 @@ class LatestTopics {
 	 * @var string
 	 */
 	protected $discourse_url;
+
+	/**
+	 * The Discourse API key.
+	 *
+	 * @access protected
+	 * @var string
+	 */
 	protected $api_key;
+
+	/**
+	 * The Discourse api_username.
+	 *
+	 * @access protected
+	 * @var string
+	 */
 	protected $api_username;
 
 	/**
@@ -55,23 +61,18 @@ class LatestTopics {
 	 * Initializes a WordPress Rest API route and endpoint.
 	 */
 	public function initialize_topic_route() {
-		if ( ! empty( $this->options['wpds_topic_webhook_refresh'] ) ) {
+		if ( ! empty( $this->options['wpds_webhook_secret'] ) ) {
 			register_rest_route( 'wp-discourse/v1', 'latest-topics', array(
 				array(
 					'methods'  => \WP_REST_Server::CREATABLE,
 					'callback' => array( $this, 'update_latest_topics' ),
 				),
-//				array(
-//					'methods'  => \WP_REST_Server::READABLE,
-//					'callback' => array( $this, 'get_latest_topics' ),
-//				)
 			) );
 		}
 	}
 
 	/**
-	 * Create latest topics.
-	 *
+	 * Update latest topics transient.
 	 *
 	 * @param \WP_REST_Request $data
 	 *
@@ -86,7 +87,7 @@ class LatestTopics {
 			latest_topics webhook.' );
 		}
 
-		$latest = $this->latest_topics();
+		$latest = $this->fetch_latest_topics();
 
 		set_transient( 'wpds_latest_topics', $latest, DAY_IN_SECONDS );
 
@@ -96,40 +97,35 @@ class LatestTopics {
 	/**
 	 * Get the latest topics from either from the stored transient, or from Discourse.
 	 *
-	 * @return array
+	 * @return array|null
 	 */
 	public function get_latest_topics() {
-		$discourse_topics = get_transient( 'wpds_latest_topics' );
-		$force            = ! empty( $this->options['wpds_clear_topics_cache'] );
+		$latest_topics = get_transient( 'wpds_latest_topics' );
 
-		if ( $force ) {
-			// Reset the force option.
-			$plugin_options                            = get_option( $this->option_key );
-			$plugin_options['wpds_clear_topics_cache'] = 0;
+		if ( empty( $latest_topics ) ) {
 
-			update_option( $this->option_key, $plugin_options );
-		}
+			$latest_topics = $this->fetch_latest_topics();
 
-		if ( empty( $discourse_topics ) || $force ) {
 
-			$discourse_topics = $this->latest_topics();
-			$cache_duration   = ! empty( $this->options['wpds_topic_cache_duration'] ) ? $this->options['wpds_topic_cache_duration'] : 10;
+			if ( ! empty( $latest_topics ) && ! is_wp_error( $latest_topics ) ) {
 
-			if ( ! empty( $discourse_topics ) || ! is_wp_error( $discourse_topics ) ) {
-				set_transient( 'wpds_latest_topics', $discourse_topics, $cache_duration * MINUTE_IN_SECONDS );
+				set_transient( 'wpds_latest_topics', $latest_topics, DAY_IN_SECONDS );
+			} else {
+
+				return null;
 			}
 		}
 
-		return $discourse_topics;
+		return $latest_topics;
 	}
 
 	/**
-	 * Gets the latest topics from Discourse.
+	 * Fetch the latest topics from Discourse.
 	 *
 	 * @return array|mixed|null|object
 	 */
-	protected function latest_topics() {
-		if ( empty( $this->discourse_url ) ) {
+	protected function fetch_latest_topics() {
+		if ( empty( $this->discourse_url ) || empty( $this->api_key ) || empty( $this->api_username ) ) {
 
 			return new \WP_Error( 'wp_discourse_configuration_error', 'The WP Discourse plugin is not properly configured.' );
 		}
@@ -146,7 +142,7 @@ class LatestTopics {
 
 		$remote = wp_remote_get( $latest_url );
 
-		if ( ! validate( $remote ) ) {
+		if ( ! $this->validate( $remote ) ) {
 
 			return new \WP_Error( 'wp_discourse_response_error', 'An error was returned from Discourse when fetching the latest topics.' );
 		}
