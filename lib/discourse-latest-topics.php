@@ -40,9 +40,21 @@ class LatestTopics {
 	protected $api_username;
 
 	/**
-	 * LatestTopics constructor.
+	 * An instance of the TopicFormatter class.
+	 *
+	 * @access protected
+	 * @var TopicFormatter
 	 */
-	public function __construct() {
+	protected $topic_formatter;
+
+	/**
+	 * LatestTopics constructor.
+	 *
+	 * @param TopicFormatter $topic_formatter An instance of TopicFormatter.
+	 */
+	public function __construct( $topic_formatter ) {
+		$this->topic_formatter = $topic_formatter;
+
 		add_action( 'init', array( $this, 'setup_options' ) );
 		add_action( 'rest_api_init', array( $this, 'initialize_topic_route' ) );
 	}
@@ -67,6 +79,10 @@ class LatestTopics {
 					'methods'  => \WP_REST_Server::CREATABLE,
 					'callback' => array( $this, 'update_latest_topics' ),
 				),
+				array(
+					'methods'  => \WP_REST_Server::READABLE,
+					'callback' => array( $this, 'get_latest_topics' ),
+				)
 			) );
 		}
 	}
@@ -97,9 +113,10 @@ class LatestTopics {
 	/**
 	 * Get the latest topics from either from the stored transient, or from Discourse.
 	 *
-	 * @return array|null
+	 * @return string|null
 	 */
 	public function get_latest_topics() {
+		write_log('this should be called repeatedly');
 		$latest_topics = get_transient( 'wpds_latest_topics' );
 
 		if ( empty( $latest_topics ) ) {
@@ -116,7 +133,12 @@ class LatestTopics {
 			}
 		}
 
-		return $latest_topics;
+		$formatted_topics = $this->topic_formatter->format_topics( $latest_topics, array(
+			'max_topics'      => 5,
+			'display_avatars' => 'true',
+		) );
+
+		return $formatted_topics;
 	}
 
 	/**

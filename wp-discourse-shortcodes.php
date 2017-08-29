@@ -22,13 +22,15 @@ function init() {
 		require_once( __DIR__ . '/lib/discourse-prefilled-message.php' );
 		require_once( __DIR__ . '/lib/discourse-latest-topics.php' );
 		require_once( __DIR__ . '/lib/discourse-groups.php' );
+		require_once( __DIR__ . '/lib/discourse-topic-formatter.php' );
 		require_once( __DIR__ . '/lib/shortcodes/discourse-latest-shortcode.php' );
 		require_once( __DIR__ . '/lib/shortcodes/discourse-groups-shortcode.php' );
 		require_once( __DIR__ . '/lib/shortcodes/discourse-link-shortcode.php' );
 		require_once( __DIR__ . '/lib/shortcodes/discourse-prefilled-message-shortcode.php' );
 
 		new DiscourseShortcodes();
-		$latest_topics = new LatestTopics();
+		$topic_formatter = new TopicFormatter();
+		$latest_topics = new LatestTopics( $topic_formatter );
 		$discourse_link = new DiscourseLink();
 		$prefilled_message = new DiscoursePrefilledMessage( $discourse_link );
 		$discourse_groups = new DiscourseGroups( $discourse_link, $prefilled_message );
