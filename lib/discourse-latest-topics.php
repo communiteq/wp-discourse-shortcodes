@@ -146,7 +146,7 @@ class LatestTopics {
 
 		$remote = wp_remote_get( $latest_url );
 
-		if ( ! $this->validate( $remote ) ) {
+		if ( ! validate( $remote ) ) {
 
 			return new \WP_Error( 'wp_discourse_response_error', 'An error was returned from Discourse when fetching the latest topics.' );
 		}
