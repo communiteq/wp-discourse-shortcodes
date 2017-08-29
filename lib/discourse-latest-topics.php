@@ -61,7 +61,7 @@ class LatestTopics {
 	 * Initializes a WordPress Rest API route and endpoint.
 	 */
 	public function initialize_topic_route() {
-		if ( ! empty( $this->options['wpds_webhook_secret'] ) ) {
+		if ( ! empty( $this->options['wpds_topic_webhook_refresh'] ) ) {
 			register_rest_route( 'wp-discourse/v1', 'latest-topics', array(
 				array(
 					'methods'  => \WP_REST_Server::CREATABLE,

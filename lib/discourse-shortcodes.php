@@ -34,7 +34,7 @@ class DiscourseShortcodes {
 //		'wpds_clear_topics_cache' => 0,
 		'wpds_display_private_topics' => 0,
 		'wpds_use_default_styles' => 1,
-//		'wpds_topic_webhook_refresh'    => 0,
+		'wpds_topic_webhook_refresh'    => 1,
 		'wpds_webhook_secret'     => '',
 		'wpds_fetch_discourse_groups' => 0,
 	);

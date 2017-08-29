@@ -6,9 +6,7 @@ class SettingsValidator {
 	protected $webhook_refresh = false;
 
 	public function __construct() {
-		add_filter( 'wpdc_validate_wpds_clear_topics_cache', array( $this, 'validate_checkbox' ) );
 		add_filter( 'wpdc_validate_wpds_use_default_styles', array( $this, 'validate_checkbox' ) );
-		add_filter( 'wpdc_validate_wpds_topic_cache_duration', array( $this, 'validate_int' ) );
 		add_filter( 'wpdc_validate_wpds_topic_webhook_refresh', array( $this, 'validate_webhook_request' ) );
 		add_filter( 'wpdc_validate_wpds_webhook_secret', array( $this, 'validate_webhook_secret' ) );
 		add_filter( 'wpdc_validate_wpds_fetch_discourse_groups', array( $this, 'validate_checkbox' ) );
@@ -30,12 +28,19 @@ class SettingsValidator {
 	}
 
 	public function validate_webhook_secret( $input ) {
-		if ( empty( $input) && 1 === intval( $this->webhook_refresh ) ) {
-			add_settings_error( 'wpds', 'webhook_secret', __( 'To use Discourse webhooks you must provide a webhook secret key.', 'wpds') );
+		// The input sanitization removes tags and converts angle brackets to html entities.
+		if ( strpos( $input, '<' ) > - 1 || strpos( $input, '>' ) > - 1 ) {
+			add_settings_error( 'wpds', 'webhook_secret', __( 'Angle brackets (<, >) cannot be used in the webhook secret key.', 'wpds' ) );
 
 			return '';
 		}
 
-		return sanitize_text_field( $input );
+		$secret = sanitize_text_field( $input );
+		if ( ( empty( $secret ) || iconv_strlen( $secret ) < 12 ) && $this->webhook_refresh ) {
+
+			add_settings_error( 'wpds', 'webhook_secret', __( 'To use the discourse_latest shortcode, you must provide a webhook secret key at least 12 characters long.', 'wpds' ) );
+		}
+
+		return $secret;
 	}
 }

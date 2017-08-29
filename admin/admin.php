@@ -79,6 +79,11 @@ class Admin {
 			'shortcode_settings_details',
 		), 'wpds_options' );
 
+		add_settings_field( 'wpds_topic_webhook_refresh', __( 'Enable Latest Topics Shortcode', 'wpds' ), array(
+			$this,
+			'webhook_refresh_checkbox',
+		), 'wpds_options', 'wpds_settings_section' );
+
 		add_settings_field( 'wpds_webhook_secret', __( 'Discourse Webhook Secret Key', 'wpds' ), array(
 			$this,
 			'webhook_secret_input',
@@ -195,14 +200,40 @@ class Admin {
 	}
 
 	/**
+	 * Displays the webhook_refresh_checkbox field.
+	 *
+	 * This, and all the other settings fields functions, use the FormHelper methods to create the form elements.
+	 * Using the FormHelper methods is optional. If they are used, you need to be certain that your plugin options are
+	 * being added to the array returned by DiscourseUtilities::get_options. See discourse-latest-topics.php for details.
+	 */
+	public function webhook_refresh_checkbox() {
+		$wordpress_url = home_url( '/wp-json/wp-discourse/v1/latest-topics' );
+		if ( ! empty( $this->webhook_url ) ) {
+			$description = 'To use the latest_topics shortcode, you need to setup a <strong>webhook</strong> on your Discourse forum at <a href="' .
+			               esc_url( $this->webhook_url) . '">' . esc_url( $this->webhook_url ) . '</a>. ' .
+			               'On that page, set the "Payload URL" to <strong>' . esc_url( $wordpress_url ) . '</strong>.
+                           On the events section of that page, select the "Topic Event" checkbox to receive
+                           updates when there is a new topic. To receive updates when there are new replies, also select the "Post Event" checkbox.';
+
+		} else {
+			$description = 'To use the latest_topics shortcode you need to setup a <strong>webhook</strong> on your Discourse forum at <strong>http://discourse.example.com/admin/api/web_hooks</strong>
+		                   On that page, set the "Payload URL" to <strong>' . esc_url( $wordpress_url ) . '</strong>. On the events section of that page, select the "Topic Event" checkbox to receive
+                           updates when there is a new topic. To receive updates when there are new replies, also select the "Post Event" checkbox.';
+		}
+
+		$this->form_helper->checkbox_input( 'wpds_topic_webhook_refresh', 'wpds_options', __( 'Use a Discourse Webhook to refresh comments.', 'wpds' ), $description );
+	}
+
+	/**
 	 * Displays the webhook_secret_input field.
 	 */
 	public function webhook_secret_input() {
 		if ( ! empty( $this->webhook_url ) ) {
 			$description = 'The secret key used to verify Discourse webhook requests. It needs to match the key set at <a href="' .
-			               esc_url( $this->webhook_url ) . '">' . esc_url( $this->webhook_url ) . '</a>.';
+			               esc_url( $this->webhook_url ) . '">' . esc_url( $this->webhook_url ) . '</a>. (You must supply a secret key to use the latest_topics shortcode.)';
 		} else {
-			$description = 'The secret key used to verify Discourse webhook requests. It needs to match the key set at <strong>http://discourse.example.com/admin/api/web_hooks</strong>.';
+			$description = 'The secret key used to verify Discourse webhook requests. It needs to match the key set at <strong>http://discourse.example.com/admin/api/web_hooks</strong>.
+            (You must supply a secret key to use the latest_topics shortcode.)';
 		}
 
 		$this->form_helper->input( 'wpds_webhook_secret', 'wpds_options', $description );
