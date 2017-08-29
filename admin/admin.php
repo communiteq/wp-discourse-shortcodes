@@ -84,6 +84,16 @@ class Admin {
 			'webhook_refresh_checkbox',
 		), 'wpds_options', 'wpds_settings_section' );
 
+		add_settings_field( 'wpds_ajax_refresh', __( 'Ajax Load', 'wpds' ), array(
+			$this,
+			'ajax_load_checkbox',
+		), 'wpds_options', 'wpds_settings_section' );
+
+		add_settings_field( 'wpds_ajax_timeout', __( 'Ajax Refresh Period', 'wpds' ), array(
+			$this,
+			'ajax_timeout_input',
+		), 'wpds_options', 'wpds_settings_section' );
+
 		add_settings_field( 'wpds_webhook_secret', __( 'Discourse Webhook Secret Key', 'wpds' ), array(
 			$this,
 			'webhook_secret_input',
@@ -210,7 +220,7 @@ class Admin {
 		$wordpress_url = home_url( '/wp-json/wp-discourse/v1/latest-topics' );
 		if ( ! empty( $this->webhook_url ) ) {
 			$description = 'To use the latest_topics shortcode, you need to setup a <strong>webhook</strong> on your Discourse forum at <a href="' .
-			               esc_url( $this->webhook_url) . '">' . esc_url( $this->webhook_url ) . '</a>. ' .
+			               esc_url( $this->webhook_url ) . '">' . esc_url( $this->webhook_url ) . '</a>. ' .
 			               'On that page, set the "Payload URL" to <strong>' . esc_url( $wordpress_url ) . '</strong>.
                            On the events section of that page, select the "Topic Event" checkbox to receive
                            updates when there is a new topic. To receive updates when there are new replies, also select the "Post Event" checkbox.';
@@ -222,6 +232,22 @@ class Admin {
 		}
 
 		$this->form_helper->checkbox_input( 'wpds_topic_webhook_refresh', 'wpds_options', __( 'Use a Discourse Webhook to refresh comments.', 'wpds' ), $description );
+	}
+
+	/**
+	 * Displays the ajax_load_checkbox field.
+	 */
+	public function ajax_load_checkbox() {
+		$this->form_helper->checkbox_input( 'wpds_ajax_refresh', 'wpds_options', __( 'Use an ajax request to load topics on the front end.', 'wpds' ) );
+	}
+
+	/**
+	 * Displays the ajax_timeout_input field.
+	 * Todo: reset the min value to a sane number (60?). I've reduced it for testing.
+	 */
+	public function ajax_timeout_input() {
+		$this->form_helper->input( 'wpds_ajax_timeout', 'wpds_options', __( 'Ajax refresh period in seconds (minimum value: 60, default: 120).', 'wpds' ),
+			'number', 10 );
 	}
 
 	/**
