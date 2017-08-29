@@ -143,8 +143,10 @@ class DiscourseLatestShortcode {
 		return $output;
 	}
 
+	// Todo: add an option to exclude categories.
 	protected function display_topic( $topic ) {
-		return ! $topic['pinned_globally'];
+
+		return ! $topic['pinned_globally'] && 'regular' === $topic['archetype'] && -1 !== $topic['posters'][0]['user_id'];
 	}
 
 	/**

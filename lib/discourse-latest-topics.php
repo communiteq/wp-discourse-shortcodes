@@ -78,7 +78,7 @@ class LatestTopics {
 	 * @return null
 	 */
 	public function update_latest_topics( $data ) {
-		$data = verify_discourse_request( $data );
+		$data = $this->verify_discourse_webhook_request( $data );
 
 		if ( is_wp_error( $data ) ) {
 
