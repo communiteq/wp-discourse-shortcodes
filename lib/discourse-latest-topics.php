@@ -65,11 +65,14 @@ class LatestTopics {
 
 		add_action( 'init', array( $this, 'setup_options' ) );
 		add_action( 'rest_api_init', array( $this, 'initialize_topic_route' ) );
-		// Todo: tmp fix
-		add_filter( 'http_request_args', function( $args ) {
-			$args['reject_unsafe_urls'] = false;
-			return $args;
-		} );
+		// Todo: workaround for accessing rss URLs with a port number. Remove this code!
+		if ( defined( 'DEV_MODE') && 'DEV_MODE' ) {
+			add_filter( 'http_request_args', function ( $args ) {
+				$args['reject_unsafe_urls'] = false;
+
+				return $args;
+			} );
+		}
 	}
 
 	/**
@@ -129,7 +132,6 @@ class LatestTopics {
 	 * @return string|null
 	 */
 	public function get_latest_topics() {
-		write_log('this should be called repeatedly');
 		$latest_topics = get_transient( 'wpds_latest_topics' );
 		$force            = ! empty( $this->options['wpds_clear_topics_cache'] );
 
@@ -175,25 +177,30 @@ class LatestTopics {
 		}
 
 		$latest_url = $this->discourse_url . '/latest.rss';
-//		if ( ! empty( $this->options['wpds_display_private_topics'] ) ) {
-//			$latest_url = add_query_arg( array(
-//				'api_key'      => $this->api_key,
-//				'api_username' => $this->api_username,
-//			), $latest_url );
-//		}
-//
-//		$latest_url = esc_url_raw( $latest_url );
-//
-//		$remote = wp_remote_get( $latest_url );
-//
-//		if ( ! $this->validate( $remote ) ) {
-//
-//			return new \WP_Error( 'wp_discourse_response_error', 'An error was returned from Discourse when fetching the latest topics.' );
-//		}
-//
-//		return json_decode( wp_remote_retrieve_body( $remote ), true );
+
 		include_once(ABSPATH . WPINC . '/feed.php');
 		$feed = fetch_feed( $latest_url );
-		write_log('feed', $feed );
+		$maxitems = 0;
+		if ( is_wp_error( $feed ) ) {
+
+			return new \WP_Error( 'wp_discourse_rss_error', 'An RSS feed was not returned by Discourse.' );
+		}
+
+		$maxitems = $feed->get_item_quantity( 5 );
+		write_log('max items', $maxitems );
+		$feed_items = $feed->get_items( 0, $maxitems );
+		foreach ( $feed_items as $item ) {
+			$title = $item->get_title();
+			$category = $item->get_category();
+			$author = $item->get_author();
+			$date = $item->get_date();
+			$description = $item->get_description();
+			write_log('title', $title);
+			write_log('category', $category);
+			write_log('author', $author);
+			write_log('date', $date);
+			write_log('description', $description);
+		}
+
 	}
 }
