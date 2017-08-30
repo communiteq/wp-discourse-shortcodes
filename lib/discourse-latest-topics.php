@@ -57,6 +57,11 @@ class LatestTopics {
 
 		add_action( 'init', array( $this, 'setup_options' ) );
 		add_action( 'rest_api_init', array( $this, 'initialize_topic_route' ) );
+		// Todo: tmp fix
+		add_filter( 'http_request_args', function( $args ) {
+			$args['reject_unsafe_urls'] = false;
+			return $args;
+		} );
 	}
 
 	/**
@@ -152,23 +157,26 @@ class LatestTopics {
 			return new \WP_Error( 'wp_discourse_configuration_error', 'The WP Discourse plugin is not properly configured.' );
 		}
 
-		$latest_url = $this->discourse_url . '/latest.json';
-		if ( ! empty( $this->options['wpds_display_private_topics'] ) ) {
-			$latest_url = add_query_arg( array(
-				'api_key'      => $this->api_key,
-				'api_username' => $this->api_username,
-			), $latest_url );
-		}
-
-		$latest_url = esc_url_raw( $latest_url );
-
-		$remote = wp_remote_get( $latest_url );
-
-		if ( ! $this->validate( $remote ) ) {
-
-			return new \WP_Error( 'wp_discourse_response_error', 'An error was returned from Discourse when fetching the latest topics.' );
-		}
-
-		return json_decode( wp_remote_retrieve_body( $remote ), true );
+		$latest_url = $this->discourse_url . '/latest.rss';
+//		if ( ! empty( $this->options['wpds_display_private_topics'] ) ) {
+//			$latest_url = add_query_arg( array(
+//				'api_key'      => $this->api_key,
+//				'api_username' => $this->api_username,
+//			), $latest_url );
+//		}
+//
+//		$latest_url = esc_url_raw( $latest_url );
+//
+//		$remote = wp_remote_get( $latest_url );
+//
+//		if ( ! $this->validate( $remote ) ) {
+//
+//			return new \WP_Error( 'wp_discourse_response_error', 'An error was returned from Discourse when fetching the latest topics.' );
+//		}
+//
+//		return json_decode( wp_remote_retrieve_body( $remote ), true );
+		include_once(ABSPATH . WPINC . '/feed.php');
+		$feed = fetch_feed( $latest_url );
+		write_log('feed', $feed );
 	}
 }
