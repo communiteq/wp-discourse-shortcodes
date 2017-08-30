@@ -148,6 +148,9 @@ class TopicFormatter {
 		$seconds       = $now - $last_activity;
 
 		$minutes = intval( $seconds / 60 );
+		if ( $minutes === 0 ) {
+			return 'A few seconds ago';
+		}
 		if ( $minutes < 60 ) {
 			return 1 === $minutes ? '1 minute ago' : $minutes . ' minutes ago';
 		}
