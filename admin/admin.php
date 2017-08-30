@@ -109,6 +109,11 @@ class Admin {
 			'use_default_styles_checkbox',
 		), 'wpds_options', 'wpds_settings_section' );
 
+		add_settings_field( 'wpds_clear_topics_cache', __( 'Clear Topics Cache', 'wpds' ), array(
+			$this,
+			'clear_topics_cache_checkbox',
+		), 'wpds_options', 'wpds_settings_section' );
+
 		add_settings_field( 'wpds_fetch_discourse_groups', __( 'Refresh Discourse Groups', 'wpds' ), array(
 			$this,
 			'fetch_discourse_groups_checkbox',
@@ -268,6 +273,14 @@ class Admin {
 	public function display_private_topics_checkbox() {
 		$this->form_helper->checkbox_input( 'wpds_display_private_topics', 'wpds_options', __( 'Display private topics in
 	    topic list.', 'wpds' ) );
+	}
+
+	/**
+	 * Displays the clear_topics_cache_checkbox field.
+	 */
+	public function clear_topics_cache_checkbox() {
+		$this->form_helper->checkbox_input( 'wpds_clear_topics_cache', 'wpds_options', __( 'Clear the cache to fetch fresh topics from Discourse (This
+		will be reset after a single request.)', 'wpds' ) );
 	}
 
 	/**

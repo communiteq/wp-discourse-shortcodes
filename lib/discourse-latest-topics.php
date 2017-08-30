@@ -6,6 +6,14 @@ class LatestTopics {
 	use Utilities;
 
 	/**
+	 * The key for the plugin's options array.
+	 *
+	 * @access protected
+	 * @var string
+	 */
+	protected $option_key = 'wpds_options';
+
+	/**
 	 * The merged options from WP Discourse and WP Discourse Shortcodes.
 	 *
 	 * All options are held in a single array, use a custom plugin prefix to avoid naming collisions with wp-discourse.
@@ -123,8 +131,17 @@ class LatestTopics {
 	public function get_latest_topics() {
 		write_log('this should be called repeatedly');
 		$latest_topics = get_transient( 'wpds_latest_topics' );
+		$force            = ! empty( $this->options['wpds_clear_topics_cache'] );
 
-		if ( empty( $latest_topics ) ) {
+		if ( $force ) {
+			// Reset the force option.
+			$plugin_options                            = get_option( $this->option_key );
+			$plugin_options['wpds_clear_topics_cache'] = 0;
+
+			update_option( $this->option_key, $plugin_options );
+		}
+
+		if ( empty( $latest_topics ) || $force ) {
 
 			$latest_topics = $this->fetch_latest_topics();
 
