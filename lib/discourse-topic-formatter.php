@@ -109,13 +109,26 @@ class TopicFormatter {
 			$cleaned_name = trim( $author, '\@' );
 			$author_url   = $this->discourse_url . '/u/' . $cleaned_name;
 			$category     = $this->find_discourse_category_by_name( $topic['category'] );
-			$output       .= '<li class="wpds-rss-topic">';
+			$wp_permalink = ! empty( $topic['wp_permalink']) ? $topic['wp_permalink'] : null;
 
-			$output .= '<div class="wpds-topic-poster-meta"><a href="' . esc_url( $author_url ) . '">' . esc_html( $topic['author'] ) . '</a></span>'
-			           . '<span class="wpds-term"> posted on </span><span class="wpds-created-at">' . $topic['date']
-			           . '</span><br><span class="wpds-term">in </span><span class="wpds-shortcode-category" >' . $this->discourse_category_badge( $category ) . '</span></div>';
+			$output       .= '<li class="wpds-rss-topic">';
 			$output .= '<h3 class="wpds-topic-title"><a href="' . esc_url( $topic['permalink'] ) . '">' . esc_html( $topic['title'] ) . '</a></h3>';
+			$output .= '<div class="wpds-topic-poster-meta"><span class="wpds-term">posted by </span><a href="' . esc_url( $author_url ) . '">' . esc_html( $cleaned_name ) . '</a>'
+			           . '<span class="wpds-term"> on </span><span class="wpds-created-at">' . $topic['date']
+			           . '</span><br><span class="wpds-term">in </span><span class="wpds-shortcode-category" >' . $this->discourse_category_badge( $category ) . '</span>';
+			if ( $wp_permalink ) {
+				$output .= '<br><span class="wpds-term"> orginally posted at </span><a href="' . esc_url( $wp_permalink ) . '">' . esc_url( $wp_permalink ) . '</a>';
+			}
+
+			$output .= '</div>';
+			if ( count( $topic['images'])) {
+				$output .= '<p>' . $topic['images'][0] . '</p>';
+			}
 			$output .= join( '', $topic['description'] );
+			if ( $topic['reply_count'] ) {
+				$output .= '<p class="wpds-topic-activity-meta"><span class="wpds-term">Replies </span>' . $topic['reply_count'] . '</p>';
+			}
+			$output .= '<p><a href="' . esc_url( $topic['permalink']) . '">join the discussion</a></p>';
 		}
 
 

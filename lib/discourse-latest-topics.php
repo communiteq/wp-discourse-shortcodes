@@ -73,7 +73,6 @@ class LatestTopics {
 				return $args;
 			} );
 		}
-		add_filter( 'wp_feed_options', array( $this, 'feed_options' ), 10, 2 );
 	}
 
 	/**
@@ -161,8 +160,6 @@ class LatestTopics {
 
 		$formatted_topics = $this->topic_formatter->format_rss_topics( $latest_topics );
 
-//		$formatted_topics = '';
-
 		return $formatted_topics;
 	}
 
@@ -170,23 +167,10 @@ class LatestTopics {
 		return 30;
 	}
 
-	public function feed_allowed_tags( $tags ) {
-		write_log( 'tags', $tags );
-		unset( $tags['img'] );
-		unset( $tags['div'] );
-		unset( $tags['a'] );
-		unset( $tags['span'] );
-
-		return $tags;
-	}
-
-	public function feed_options( &$feed ) {
-		// Todo: make this an option.
-//		add_filter( 'wp_kses_allowed_html', array( $this, 'feed_allowed_tags' ) );
-	}
-
 	/**
 	 * Fetch the latest topics from Discourse.
+	 *
+	 * This function should only be run when content has been updated on Discourse.
 	 *
 	 * @return array|mixed|null|object
 	 */
@@ -199,6 +183,7 @@ class LatestTopics {
 		$latest_url = $this->discourse_url . '/latest.rss';
 
 		include_once( ABSPATH . WPINC . '/feed.php' );
+		// Break and then restore the cache.
 		add_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'feed_cache_duration' ) );
 		$feed = fetch_feed( $latest_url );
 		remove_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'feed_cache_duration' ) );
@@ -210,38 +195,50 @@ class LatestTopics {
 		$maxitems   = $feed->get_item_quantity( 5 );
 		$feed_items = $feed->get_items( 0, $maxitems );
 		$latest     = [];
-		$dom        = new \domDocument( '1.0', 'utf-8' );
-		// Todo: unset( $dom );
+		// Don't create warnings for misformed HTML.
+		libxml_use_internal_errors( true );
+		$dom = new \domDocument( '1.0', 'utf-8' );
+		// Clear the internal error cache.
+		libxml_clear_errors();
+
 		foreach ( $feed_items as $key => $item ) {
 			$title            = $item->get_title();
 			$permalink        = $item->get_permalink();
 			$category         = $item->get_category()->get_term();
 			$author           = $item->get_author()->get_name();
-			$date             = $item->get_date();
+			$date             = $item->get_date( 'F j, Y' );
 			$description_html = $item->get_description();
-			$description_html = '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"></head><body>' . $description_html . '</body></html>';
-//			$description = $description_html;
-			// If 'show_full_topic'.
-//			preg_match( "'<blockquote>(.*?)</blockquote>'si", $description_html, $match );
-//			$description = $match[1];
-			// Else...
-			// see https://www.sitepoint.com/php-dom-working-with-xml/
-			// see https://stackoverflow.com/questions/8964674/php-domdocument-how-to-convert-node-value-to-string
-			libxml_use_internal_errors(true);
+			$description_html = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' . $description_html . '</body></html>';
 			$dom->loadHTML( $description_html );
-//			$description = $dom->getElementsByTagName( 'blockquote' );
-			$paragraphs  = $dom->getElementsByTagName( 'p' );
-			$description = [];
-			$reply_count = 0;
+			$description  = [];
+			$wp_permalink = '';
+			$reply_count  = 0;
+			// Getting content from <p> elements avoids having to deal with Discourse lightboxes.
+			$paragraphs = $dom->getElementsByTagName( 'p' );
 
+			// This is relying on the structure of the topic description that's returned by Discourse - will probably need tweaking.
 			foreach ( $paragraphs as $index => $paragraph ) {
-				if ( $paragraph->textContent && $index !== 0 && $index < $paragraphs->length - 3 ) {
+				if ( $paragraph->textContent && $index > 0 && $index < $paragraphs->length - 3 ) {
+					if ( 1 === $index ) {
+						$small_tags = $paragraph->getElementsByTagName( 'small' );
+						if ( $small_tags->length ) {
+							$link_nodes = $small_tags->item( 0 )->getElementsByTagName( 'a' );
+							if ( $link_nodes->length ) {
+								$wp_link_node = $small_tags->item( 0 );
+								// Save and then remove the WordPress link that's added when posts are published from WP to Discourse.
+								$wp_permalink = $wp_link_node->getElementsByTagName( 'a' )->item( 0 )->getAttribute( 'href' );
+								$paragraph->removeChild( $wp_link_node );
+							}
+						}
+					}
+
+					// Save the description as an array of paragraphs.
 					$description[] = $dom->saveHTML( $paragraph );
 				}
 
+				// The third to last paragraph contains the reply count.
 				if ( $index === $paragraphs->length - 3 ) {
 					$reply_count = filter_var( $paragraph->textContent, FILTER_SANITIZE_NUMBER_INT ) - 1;
-					write_log('reply count', $reply_count );
 				}
 			}
 
@@ -253,21 +250,20 @@ class LatestTopics {
 				}
 			}
 
-//			$description = $description->item(0)->textContent;
-//			preg_match( '/\<blockquote\>(.*)\<\/blockquote\>/', $description, $match );
-			$latest[ $key ]['title']       = $title;
-			$latest[ $key ]['permalink']   = $permalink;
-			$latest[ $key ]['category']    = $category;
-			$latest[ $key ]['author']      = $author;
-			$latest[ $key ]['date']        = $date;
-			$latest[ $key ]['description'] = $description;
-			$latest[ $key ]['images']      = $images;
-			$latest[ $key ]['reply_count'] = $reply_count;
+			$latest[ $key ]['title']        = $title;
+			$latest[ $key ]['permalink']    = $permalink;
+			$latest[ $key ]['wp_permalink'] = $wp_permalink;
+			$latest[ $key ]['category']     = $category;
+			$latest[ $key ]['author']       = $author;
+			$latest[ $key ]['date']         = $date;
+			$latest[ $key ]['description']  = $description;
+			$latest[ $key ]['images']       = $images;
+			$latest[ $key ]['reply_count']  = $reply_count;
 		}
 
 		remove_filter( 'wp_kses_allowed_html', array( $this, 'feed_allowed_tags' ) );
 
-//		unset( $dom );
+		unset( $dom );
 
 		return $latest;
 	}
