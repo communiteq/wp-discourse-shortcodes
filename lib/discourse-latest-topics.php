@@ -175,7 +175,7 @@ class LatestTopics {
 		unset( $tags['img'] );
 		unset( $tags['div'] );
 		unset( $tags['a'] );
-		unset( $tags['span']);
+		unset( $tags['span'] );
 
 		return $tags;
 	}
@@ -210,7 +210,7 @@ class LatestTopics {
 		$maxitems   = $feed->get_item_quantity( 5 );
 		$feed_items = $feed->get_items( 0, $maxitems );
 		$latest     = [];
-		$dom = new \domDocument('1.0', 'utf-8');
+		$dom        = new \domDocument( '1.0', 'utf-8' );
 		// Todo: unset( $dom );
 		foreach ( $feed_items as $key => $item ) {
 			$title            = $item->get_title();
@@ -219,6 +219,7 @@ class LatestTopics {
 			$author           = $item->get_author()->get_name();
 			$date             = $item->get_date();
 			$description_html = $item->get_description();
+			$description_html = '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"></head><body>' . $description_html . '</body></html>';
 //			$description = $description_html;
 			// If 'show_full_topic'.
 //			preg_match( "'<blockquote>(.*?)</blockquote>'si", $description_html, $match );
@@ -227,9 +228,32 @@ class LatestTopics {
 			// see https://www.sitepoint.com/php-dom-working-with-xml/
 			// see https://stackoverflow.com/questions/8964674/php-domdocument-how-to-convert-node-value-to-string
 			libxml_use_internal_errors(true);
-			$dom->loadHTML( $description_html);
-			$description = $dom->getElementsByTagName( 'blockquote' );
-			$description = $description->item(0)->textContent;
+			$dom->loadHTML( $description_html );
+//			$description = $dom->getElementsByTagName( 'blockquote' );
+			$paragraphs  = $dom->getElementsByTagName( 'p' );
+			$description = [];
+			$reply_count = 0;
+
+			foreach ( $paragraphs as $index => $paragraph ) {
+				if ( $paragraph->textContent && $index !== 0 && $index < $paragraphs->length - 3 ) {
+					$description[] = $dom->saveHTML( $paragraph );
+				}
+
+				if ( $index === $paragraphs->length - 3 ) {
+					$reply_count = filter_var( $paragraph->textContent, FILTER_SANITIZE_NUMBER_INT ) - 1;
+					write_log('reply count', $reply_count );
+				}
+			}
+
+			$image_tags = $dom->getElementsByTagName( 'img' );
+			$images     = [];
+			if ( $image_tags->length ) {
+				foreach ( $image_tags as $image_tag ) {
+					$images[] = $dom->saveHTML( $image_tag );
+				}
+			}
+
+//			$description = $description->item(0)->textContent;
 //			preg_match( '/\<blockquote\>(.*)\<\/blockquote\>/', $description, $match );
 			$latest[ $key ]['title']       = $title;
 			$latest[ $key ]['permalink']   = $permalink;
@@ -237,9 +261,13 @@ class LatestTopics {
 			$latest[ $key ]['author']      = $author;
 			$latest[ $key ]['date']        = $date;
 			$latest[ $key ]['description'] = $description;
+			$latest[ $key ]['images']      = $images;
+			$latest[ $key ]['reply_count'] = $reply_count;
 		}
 
 		remove_filter( 'wp_kses_allowed_html', array( $this, 'feed_allowed_tags' ) );
+
+//		unset( $dom );
 
 		return $latest;
 	}

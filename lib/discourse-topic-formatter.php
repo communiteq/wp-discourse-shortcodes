@@ -111,11 +111,11 @@ class TopicFormatter {
 			$category     = $this->find_discourse_category_by_name( $topic['category'] );
 			$output       .= '<li class="wpds-rss-topic">';
 
-			$output .= '<h3 class="wpds-topic-title"><a href="' . esc_url( $topic['permalink'] ) . '">' . esc_html( $topic['title'] ) . '</a></h3>';
 			$output .= '<div class="wpds-topic-poster-meta"><a href="' . esc_url( $author_url ) . '">' . esc_html( $topic['author'] ) . '</a></span>'
 			           . '<span class="wpds-term"> posted on </span><span class="wpds-created-at">' . $topic['date']
 			           . '</span><br><span class="wpds-term">in </span><span class="wpds-shortcode-category" >' . $this->discourse_category_badge( $category ) . '</span></div>';
-			$output .= $topic['description'];
+			$output .= '<h3 class="wpds-topic-title"><a href="' . esc_url( $topic['permalink'] ) . '">' . esc_html( $topic['title'] ) . '</a></h3>';
+			$output .= join( '', $topic['description'] );
 		}
 
 
