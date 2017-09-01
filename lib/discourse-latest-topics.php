@@ -157,6 +157,78 @@ class LatestTopics {
 				return null;
 			}
 		}
+		$formatted_topics = $this->topic_formatter->format_topics( $latest_topics, array(
+			'max_topics' => 5,
+			'display_avatars' => true,
+		) );
+
+		write_log('formatted', $formatted_topics);
+
+		return $formatted_topics;
+	}
+
+	/**
+	 * Fetch the latest topics from Discourse.
+	 *
+	 * @return array|mixed|null|object
+	 */
+	protected function fetch_latest_topics() {
+		if ( empty( $this->discourse_url ) || empty( $this->api_key ) || empty( $this->api_username ) ) {
+
+			return new \WP_Error( 'wp_discourse_configuration_error', 'The WP Discourse plugin is not properly configured.' );
+		}
+
+		$latest_url = $this->discourse_url . '/latest.json';
+		if ( ! empty( $this->options['wpds_display_private_topics'] ) ) {
+			$latest_url = add_query_arg( array(
+				'api_key'      => $this->api_key,
+				'api_username' => $this->api_username,
+			), $latest_url );
+		}
+
+		$latest_url = esc_url_raw( $latest_url );
+
+		$remote = wp_remote_get( $latest_url );
+
+		if ( ! $this->validate( $remote ) ) {
+
+			return new \WP_Error( 'wp_discourse_response_error', 'An error was returned from Discourse when fetching the latest topics.' );
+		}
+
+		return json_decode( wp_remote_retrieve_body( $remote ), true );
+	}
+
+	/**
+	 * Get the latest topics from either from the stored transient, or from Discourse.
+	 *
+	 * @return string|null
+	 */
+	public function get_latest_rss() {
+		$latest_topics = get_transient( 'wpds_latest_rss' );
+		$force         = ! empty( $this->options['wpds_clear_topics_cache'] );
+
+		if ( $force ) {
+			// Reset the force option.
+			$plugin_options                            = get_option( $this->option_key );
+			$plugin_options['wpds_clear_topics_cache'] = 0;
+
+			// Todo: uncomment this!
+//			update_option( $this->option_key, $plugin_options );
+		}
+
+		if ( empty( $latest_topics ) || $force ) {
+
+			$latest_topics = $this->fetch_latest_topics();
+
+
+			if ( ! empty( $latest_topics ) && ! is_wp_error( $latest_topics ) ) {
+
+				set_transient( 'wpds_latest_rss', $latest_topics, DAY_IN_SECONDS );
+			} else {
+
+				return null;
+			}
+		}
 
 		$formatted_topics = $this->topic_formatter->format_rss_topics( $latest_topics );
 
@@ -168,13 +240,13 @@ class LatestTopics {
 	}
 
 	/**
-	 * Fetch the latest topics from Discourse.
+	 * Fetch and parse the latest RSS feed from Discourse.
 	 *
 	 * This function should only be run when content has been updated on Discourse.
 	 *
 	 * @return array|mixed|null|object
 	 */
-	protected function fetch_latest_topics() {
+	protected function fetch_latest_rss() {
 		if ( empty( $this->discourse_url ) || empty( $this->api_key ) || empty( $this->api_username ) ) {
 
 			return new \WP_Error( 'wp_discourse_configuration_error', 'The WP Discourse plugin is not properly configured.' );

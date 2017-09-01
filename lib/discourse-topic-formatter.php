@@ -34,6 +34,7 @@ class TopicFormatter {
 	 * @return string
 	 */
 	public function format_topics( $discourse_topics, $args ) {
+		write_log( 'discourse topics', $discourse_topics );
 
 		if ( empty( $this->discourse_url ) || empty( $discourse_topics['topic_list'] ) ) {
 
@@ -91,6 +92,7 @@ class TopicFormatter {
 		}
 		$output .= '</ul>';
 
+		write_log('output', $output );
 		return $output;
 	}
 
@@ -137,9 +139,7 @@ class TopicFormatter {
 		return $output;
 	}
 
-// Todo: add an option to exclude categories.
-	protected
-	function display_topic(
+	protected function display_topic(
 		$topic
 	) {
 
@@ -168,8 +168,7 @@ class TopicFormatter {
 	 *
 	 * @return null
 	 */
-	protected
-	function find_discourse_category(
+	protected function find_discourse_category(
 		$topic
 	) {
 		$categories  = $this->get_discourse_categories();
@@ -191,8 +190,7 @@ class TopicFormatter {
 	 *
 	 * @return string
 	 */
-	protected
-	function discourse_category_badge(
+	protected function discourse_category_badge(
 		$category
 	) {
 		$category_name  = $category['name'];
@@ -210,8 +208,7 @@ class TopicFormatter {
 	 *
 	 * @return string
 	 */
-	protected
-	function calculate_last_activity(
+	protected function calculate_last_activity(
 		$last_activity
 	) {
 		$now           = time();

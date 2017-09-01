@@ -69,7 +69,7 @@ class DiscourseLatestShortcode {
 
 	public function discourse_latest_rss() {
 
-		$discourse_topics = $this->latest_topics->get_latest_topics();
+		$discourse_topics = $this->latest_topics->get_latest_rss();
 
 		if ( is_wp_error( $discourse_topics ) ) {
 
