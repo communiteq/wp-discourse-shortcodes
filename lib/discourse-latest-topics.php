@@ -73,7 +73,7 @@ class LatestTopics {
 				return $args;
 			} );
 		}
-		add_action( 'wp_feed_options', array( $this, 'feed_options' ) );
+		add_filter( 'wp_feed_options', array( $this, 'feed_options' ), 10, 2 );
 	}
 
 	/**
@@ -160,18 +160,29 @@ class LatestTopics {
 		}
 
 		$formatted_topics = $this->topic_formatter->format_rss_topics( $latest_topics );
+
 //		$formatted_topics = '';
 
 		return $formatted_topics;
 	}
 
 	public function feed_cache_duration() {
-		return 12000;
+		return 30;
 	}
 
-	public function feed_options( $feed ) {
-		// Todo: only in development!
+	public function feed_allowed_tags( $tags ) {
+		write_log( 'tags', $tags );
+		unset( $tags['img'] );
+		unset( $tags['div'] );
+		unset( $tags['a'] );
+		unset( $tags['span']);
 
+		return $tags;
+	}
+
+	public function feed_options( &$feed ) {
+		// Todo: make this an option.
+//		add_filter( 'wp_kses_allowed_html', array( $this, 'feed_allowed_tags' ) );
 	}
 
 	/**
@@ -189,37 +200,45 @@ class LatestTopics {
 
 		include_once( ABSPATH . WPINC . '/feed.php' );
 		add_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'feed_cache_duration' ) );
-		$feed     = fetch_feed( $latest_url );
-		remove_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'feed_cache_duration'  ) );
+		$feed = fetch_feed( $latest_url );
+		remove_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'feed_cache_duration' ) );
 		if ( is_wp_error( $feed ) ) {
 
 			return new \WP_Error( 'wp_discourse_rss_error', 'An RSS feed was not returned by Discourse.' );
 		}
 
-		$maxitems = $feed->get_item_quantity( 5 );
+		$maxitems   = $feed->get_item_quantity( 5 );
 		$feed_items = $feed->get_items( 0, $maxitems );
-		$latest = [];
+		$latest     = [];
+		$dom = new \domDocument('1.0', 'utf-8');
 		foreach ( $feed_items as $key => $item ) {
-			$title       = $item->get_title();
-			$permalink = $item->get_permalink();
-			$category    = $item->get_category()->get_term();
-			$author      = $item->get_author()->get_name();
-			$date        = $item->get_date();
+			$title            = $item->get_title();
+			$permalink        = $item->get_permalink();
+			$category         = $item->get_category()->get_term();
+			$author           = $item->get_author()->get_name();
+			$date             = $item->get_date();
 			$description_html = $item->get_description();
 //			$description = $description_html;
-			preg_match("'<blockquote>(.*?)</blockquote>'si", $description_html, $match);
-			$description = $match[1];
-			$latest[$key]['title'] = $title;
-			$latest[$key]['permalink'] = $permalink;
-			$latest[$key]['category'] = $category;
-			$latest[$key]['author'] = $author;
-			$latest[$key]['date'] = $date;
-			$latest[$key]['description'] = $description;
-//			libxml_use_internal_errors(true);
-//			$dom->loadHTML( $description);
-//			$raw = $dom->getElementsByTagName( 'blockquote' );
+			// If 'show_full_topic'.
+//			preg_match( "'<blockquote>(.*?)</blockquote>'si", $description_html, $match );
+//			$description = $match[1];
+			// Else...
+			// see https://www.sitepoint.com/php-dom-working-with-xml/
+			// see https://stackoverflow.com/questions/8964674/php-domdocument-how-to-convert-node-value-to-string
+			libxml_use_internal_errors(true);
+			$dom->loadHTML( $description_html);
+			$description = $dom->getElementsByTagName( 'blockquote' );
+			$description = $description->item(0)->textContent;
 //			preg_match( '/\<blockquote\>(.*)\<\/blockquote\>/', $description, $match );
+			$latest[ $key ]['title']       = $title;
+			$latest[ $key ]['permalink']   = $permalink;
+			$latest[ $key ]['category']    = $category;
+			$latest[ $key ]['author']      = $author;
+			$latest[ $key ]['date']        = $date;
+			$latest[ $key ]['description'] = $description;
 		}
+
+		remove_filter( 'wp_kses_allowed_html', array( $this, 'feed_allowed_tags' ) );
 
 		return $latest;
 	}
