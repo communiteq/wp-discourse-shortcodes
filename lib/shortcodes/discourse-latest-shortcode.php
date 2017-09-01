@@ -39,7 +39,7 @@ class DiscourseLatestShortcode {
 
 		add_action( 'init', array( $this, 'setup_options' ) );
 		add_shortcode( 'discourse_latest', array( $this, 'discourse_latest' ) );
-		add_shortcode( 'discourse_latest_rss', array( $this, 'discourse_latest_srr' ) );
+		add_shortcode( 'discourse_latest_rss', array( $this, 'discourse_latest_rss' ) );
 	}
 
 	/**

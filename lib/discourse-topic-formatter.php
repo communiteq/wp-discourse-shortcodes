@@ -34,7 +34,6 @@ class TopicFormatter {
 	 * @return string
 	 */
 	public function format_topics( $discourse_topics, $args ) {
-		write_log( 'discourse topics', $discourse_topics );
 
 		if ( empty( $this->discourse_url ) || empty( $discourse_topics['topic_list'] ) ) {
 
@@ -92,7 +91,6 @@ class TopicFormatter {
 		}
 		$output .= '</ul>';
 
-		write_log('output', $output );
 		return $output;
 	}
 

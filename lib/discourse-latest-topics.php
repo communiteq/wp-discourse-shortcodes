@@ -119,9 +119,10 @@ class LatestTopics {
 			latest_topics webhook.' );
 		}
 
-		$latest = $this->fetch_latest_topics();
+//		$latest = $this->fetch_latest_topics();
 
-		set_transient( 'wpds_latest_topics', $latest, DAY_IN_SECONDS );
+//		set_transient( 'wpds_latest_topics', $latest, DAY_IN_SECONDS );
+		update_option( 'wpds_update_content', 1 );
 
 		return null;
 	}
@@ -133,9 +134,10 @@ class LatestTopics {
 	 */
 	public function get_latest_topics() {
 		$latest_topics = get_transient( 'wpds_latest_topics' );
-		$force         = ! empty( $this->options['wpds_clear_topics_cache'] );
+		$force         = ! empty( get_option( 'wpds_update_content' ) ) || ! empty( $this->options['wpds_clear_topics_cache'] );
 
 		if ( $force ) {
+			update_option( 'wpds_update_content', 0 );
 			// Reset the force option.
 			$plugin_options                            = get_option( $this->option_key );
 			$plugin_options['wpds_clear_topics_cache'] = 0;
@@ -161,8 +163,6 @@ class LatestTopics {
 			'max_topics' => 5,
 			'display_avatars' => true,
 		) );
-
-		write_log('formatted', $formatted_topics);
 
 		return $formatted_topics;
 	}
@@ -204,10 +204,11 @@ class LatestTopics {
 	 * @return string|null
 	 */
 	public function get_latest_rss() {
-		$latest_topics = get_transient( 'wpds_latest_rss' );
-		$force         = ! empty( $this->options['wpds_clear_topics_cache'] );
+		$latest_rss = get_transient( 'wpds_latest_rss' );
+		$force         = ! empty( get_option( 'wpds_update_content' ) ) || ! empty( $this->options['wpds_clear_topics_cache'] );
 
 		if ( $force ) {
+			update_option( 'wpds_update_content', 0 );
 			// Reset the force option.
 			$plugin_options                            = get_option( $this->option_key );
 			$plugin_options['wpds_clear_topics_cache'] = 0;
@@ -216,26 +217,27 @@ class LatestTopics {
 //			update_option( $this->option_key, $plugin_options );
 		}
 
-		if ( empty( $latest_topics ) || $force ) {
+		if ( empty( $latest_rss ) || $force ) {
 
-			$latest_topics = $this->fetch_latest_topics();
+			$latest_rss = $this->fetch_latest_rss();
 
 
-			if ( ! empty( $latest_topics ) && ! is_wp_error( $latest_topics ) ) {
+			if ( ! empty( $latest_rss ) && ! is_wp_error( $latest_rss ) ) {
 
-				set_transient( 'wpds_latest_rss', $latest_topics, DAY_IN_SECONDS );
+				set_transient( 'wpds_latest_rss', $latest_rss, DAY_IN_SECONDS );
 			} else {
 
 				return null;
 			}
 		}
 
-		$formatted_topics = $this->topic_formatter->format_rss_topics( $latest_topics );
+		$formatted_rss = $this->topic_formatter->format_rss_topics( $latest_rss );
 
-		return $formatted_topics;
+		return $formatted_rss;
 	}
 
 	public function feed_cache_duration() {
+		// Todo: set this to a sane value.
 		return 30;
 	}
 
@@ -244,7 +246,7 @@ class LatestTopics {
 	 *
 	 * This function should only be run when content has been updated on Discourse.
 	 *
-	 * @return array|mixed|null|object
+	 * @return array|\WP_Error
 	 */
 	protected function fetch_latest_rss() {
 		if ( empty( $this->discourse_url ) || empty( $this->api_key ) || empty( $this->api_username ) ) {
@@ -264,7 +266,7 @@ class LatestTopics {
 			return new \WP_Error( 'wp_discourse_rss_error', 'An RSS feed was not returned by Discourse.' );
 		}
 
-		$maxitems   = $feed->get_item_quantity( 5 );
+		$maxitems   = $feed->get_item_quantity( 45 );
 		$feed_items = $feed->get_items( 0, $maxitems );
 		$latest     = [];
 		// Don't create warnings for misformed HTML.
@@ -332,8 +334,6 @@ class LatestTopics {
 			$latest[ $key ]['images']       = $images;
 			$latest[ $key ]['reply_count']  = $reply_count;
 		}
-
-		remove_filter( 'wp_kses_allowed_html', array( $this, 'feed_allowed_tags' ) );
 
 		unset( $dom );
 
