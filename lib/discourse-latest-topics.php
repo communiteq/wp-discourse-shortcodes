@@ -211,6 +211,7 @@ class LatestTopics {
 		$feed_items = $feed->get_items( 0, $maxitems );
 		$latest     = [];
 		$dom = new \domDocument('1.0', 'utf-8');
+		// Todo: unset( $dom );
 		foreach ( $feed_items as $key => $item ) {
 			$title            = $item->get_title();
 			$permalink        = $item->get_permalink();
