@@ -17,10 +17,11 @@ class TopicFormatter {
 
 	public function __construct() {
 		add_action( 'init', array( $this, 'setup_options' ) );
+
 	}
 
 	public function setup_options() {
-		$this->options = $this->get_options();
+		$this->options       = $this->get_options();
 		$this->discourse_url = ! empty( $this->options['url'] ) ? $this->options['url'] : null;
 	}
 
@@ -39,7 +40,7 @@ class TopicFormatter {
 			return '';
 		}
 
-		$topics = $discourse_topics['topic_list']['topics'];
+		$topics            = $discourse_topics['topic_list']['topics'];
 		$users             = $discourse_topics['users'];
 		$poster_avatar_url = '';
 		$poster_username   = '';
@@ -93,10 +94,58 @@ class TopicFormatter {
 		return $output;
 	}
 
-	// Todo: add an option to exclude categories.
-	protected function display_topic( $topic ) {
+	/**
+	 * Format the Discourse RSS feed.
+	 *
+	 * @param array $discourse_topics The array of topics.
+	 * @param array $args The shortcode attributes.
+	 *
+	 * @return string
+	 */
+	public function format_rss_topics( $topics ) {
+		$output = '<ul class="wpds-topiclist">';
+		foreach ( $topics as $topic ) {
+			$author       = $topic['author'];
+			$cleaned_name = trim( $author, '\@' );
+			$author_url   = $this->discourse_url . '/u/' . $cleaned_name;
+			$category     = $this->find_discourse_category_by_name( $topic['category'] );
+			$output       .= '<li class="wpds-rss-topic">';
 
-		return ! $topic['pinned_globally'] && 'regular' === $topic['archetype'] && -1 !== $topic['posters'][0]['user_id'];
+			$output .= '<h3 class="wpds-topic-title"><a href="' . esc_url( $topic['permalink'] ) . '">' . esc_html( $topic['title'] ) . '</a></h3>';
+			$output .= '<div class="wpds-topic-poster-meta"><a href="' . esc_url( $author_url ) . '">' . esc_html( $topic['author'] ) . '</a></span>'
+			           . '<span class="wpds-term"> posted on </span><span class="wpds-created-at">' . $topic['date']
+			           . '</span><br><span class="wpds-term">in </span><span class="wpds-shortcode-category" >' . $this->discourse_category_badge( $category ) . '</span></div>';
+			$output .= $topic['description'];
+		}
+
+
+		$output .= '</ul>';
+
+		return $output;
+	}
+
+// Todo: add an option to exclude categories.
+	protected
+	function display_topic(
+		$topic
+	) {
+
+		return ! $topic['pinned_globally'] && 'regular' === $topic['archetype'] && - 1 !== $topic['posters'][0]['user_id'];
+	}
+
+	protected
+	function find_discourse_category_by_name(
+		$name
+	) {
+		$categories = $this->get_discourse_categories();
+		foreach ( $categories as $category ) {
+			if ( $name === $category['name'] ) {
+
+				return $category;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -106,7 +155,10 @@ class TopicFormatter {
 	 *
 	 * @return null
 	 */
-	protected function find_discourse_category( $topic ) {
+	protected
+	function find_discourse_category(
+		$topic
+	) {
 		$categories  = $this->get_discourse_categories();
 		$category_id = $topic['category_id'];
 
@@ -126,7 +178,10 @@ class TopicFormatter {
 	 *
 	 * @return string
 	 */
-	protected function discourse_category_badge( $category ) {
+	protected
+	function discourse_category_badge(
+		$category
+	) {
 		$category_name  = $category['name'];
 		$category_color = '#' . $category['color'];
 		$category_badge = '<span class="discourse-shortcode-category-badge" style="width: 8px; height: 8px; background-color: ' .
@@ -142,7 +197,10 @@ class TopicFormatter {
 	 *
 	 * @return string
 	 */
-	protected function calculate_last_activity( $last_activity ) {
+	protected
+	function calculate_last_activity(
+		$last_activity
+	) {
 		$now           = time();
 		$last_activity = strtotime( $last_activity );
 		$seconds       = $now - $last_activity;

@@ -66,13 +66,14 @@ class LatestTopics {
 		add_action( 'init', array( $this, 'setup_options' ) );
 		add_action( 'rest_api_init', array( $this, 'initialize_topic_route' ) );
 		// Todo: workaround for accessing rss URLs with a port number. Remove this code!
-		if ( defined( 'DEV_MODE') && 'DEV_MODE' ) {
+		if ( defined( 'DEV_MODE' ) && 'DEV_MODE' ) {
 			add_filter( 'http_request_args', function ( $args ) {
 				$args['reject_unsafe_urls'] = false;
 
 				return $args;
 			} );
 		}
+		add_action( 'wp_feed_options', array( $this, 'feed_options' ) );
 	}
 
 	/**
@@ -133,14 +134,15 @@ class LatestTopics {
 	 */
 	public function get_latest_topics() {
 		$latest_topics = get_transient( 'wpds_latest_topics' );
-		$force            = ! empty( $this->options['wpds_clear_topics_cache'] );
+		$force         = ! empty( $this->options['wpds_clear_topics_cache'] );
 
 		if ( $force ) {
 			// Reset the force option.
 			$plugin_options                            = get_option( $this->option_key );
 			$plugin_options['wpds_clear_topics_cache'] = 0;
 
-			update_option( $this->option_key, $plugin_options );
+			// Todo: uncomment this!
+//			update_option( $this->option_key, $plugin_options );
 		}
 
 		if ( empty( $latest_topics ) || $force ) {
@@ -157,12 +159,19 @@ class LatestTopics {
 			}
 		}
 
-		$formatted_topics = $this->topic_formatter->format_topics( $latest_topics, array(
-			'max_topics'      => 5,
-			'display_avatars' => 'true',
-		) );
+		$formatted_topics = $this->topic_formatter->format_rss_topics( $latest_topics );
+//		$formatted_topics = '';
 
 		return $formatted_topics;
+	}
+
+	public function feed_cache_duration() {
+		return 12000;
+	}
+
+	public function feed_options( $feed ) {
+		// Todo: only in development!
+
 	}
 
 	/**
@@ -178,29 +187,40 @@ class LatestTopics {
 
 		$latest_url = $this->discourse_url . '/latest.rss';
 
-		include_once(ABSPATH . WPINC . '/feed.php');
-		$feed = fetch_feed( $latest_url );
-		$maxitems = 0;
+		include_once( ABSPATH . WPINC . '/feed.php' );
+		add_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'feed_cache_duration' ) );
+		$feed     = fetch_feed( $latest_url );
+		remove_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'feed_cache_duration'  ) );
 		if ( is_wp_error( $feed ) ) {
 
 			return new \WP_Error( 'wp_discourse_rss_error', 'An RSS feed was not returned by Discourse.' );
 		}
 
 		$maxitems = $feed->get_item_quantity( 5 );
-		write_log('max items', $maxitems );
 		$feed_items = $feed->get_items( 0, $maxitems );
-		foreach ( $feed_items as $item ) {
-			$title = $item->get_title();
-			$category = $item->get_category();
-			$author = $item->get_author();
-			$date = $item->get_date();
-			$description = $item->get_description();
-			write_log('title', $title);
-			write_log('category', $category);
-			write_log('author', $author);
-			write_log('date', $date);
-			write_log('description', $description);
+		$latest = [];
+		foreach ( $feed_items as $key => $item ) {
+			$title       = $item->get_title();
+			$permalink = $item->get_permalink();
+			$category    = $item->get_category()->get_term();
+			$author      = $item->get_author()->get_name();
+			$date        = $item->get_date();
+			$description_html = $item->get_description();
+//			$description = $description_html;
+			preg_match("'<blockquote>(.*?)</blockquote>'si", $description_html, $match);
+			$description = $match[1];
+			$latest[$key]['title'] = $title;
+			$latest[$key]['permalink'] = $permalink;
+			$latest[$key]['category'] = $category;
+			$latest[$key]['author'] = $author;
+			$latest[$key]['date'] = $date;
+			$latest[$key]['description'] = $description;
+//			libxml_use_internal_errors(true);
+//			$dom->loadHTML( $description);
+//			$raw = $dom->getElementsByTagName( 'blockquote' );
+//			preg_match( '/\<blockquote\>(.*)\<\/blockquote\>/', $description, $match );
 		}
 
+		return $latest;
 	}
 }

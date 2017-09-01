@@ -39,6 +39,7 @@ class DiscourseLatestShortcode {
 
 		add_action( 'init', array( $this, 'setup_options' ) );
 		add_shortcode( 'discourse_latest', array( $this, 'discourse_latest' ) );
+		add_shortcode( 'discourse_latest_rss', array( $this, 'discourse_latest_srr' ) );
 	}
 
 	/**
@@ -55,6 +56,18 @@ class DiscourseLatestShortcode {
 	 * @return string
 	 */
 	public function discourse_latest() {
+
+		$discourse_topics = $this->latest_topics->get_latest_topics();
+
+		if ( is_wp_error( $discourse_topics ) ) {
+
+			return '';
+		}
+
+		return $discourse_topics;
+	}
+
+	public function discourse_latest_rss() {
 
 		$discourse_topics = $this->latest_topics->get_latest_topics();
 
