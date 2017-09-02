@@ -86,9 +86,8 @@ class TopicFormatter {
 				           $this->calculate_last_activity( $last_activity ) . '</span></p></li>';
 
 				$topic_count += 1;
-			}
-
-		}
+			}// End if().
+		}// End foreach().
 		$output .= '</ul>';
 
 		return $output;
@@ -130,7 +129,6 @@ class TopicFormatter {
 			}
 			$output .= '<p><a href="' . esc_url( $topic['permalink'] ) . '">join the discussion</a></p>';
 		}
-
 
 		$output .= '</ul>';
 

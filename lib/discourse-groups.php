@@ -93,7 +93,7 @@ class DiscourseGroups {
 			}
 			$output .= '</div>';
 
-		}
+		}// End foreach().
 
 		$output .= '</div>';
 

@@ -46,7 +46,7 @@ class Admin {
 	 * Admin constructor.
 	 *
 	 * @param \WPDiscourse\Admin\OptionsPage $options_page An instance of the OptionsPage class.
-	 * @param \WPDiscourse\Admin\FormHelper $form_helper An instance of the FormHelper class.
+	 * @param \WPDiscourse\Admin\FormHelper  $form_helper An instance of the FormHelper class.
 	 */
 	public function __construct( $options_page, $form_helper ) {
 		$this->options_page = $options_page;
@@ -158,7 +158,7 @@ class Admin {
 	 */
 	public function add_latest_topics_page() {
 		$latest_topics_settings = add_submenu_page(
-		// The parent page from the wp-discourse plugin.
+			// The parent page from the wp-discourse plugin.
 			'wp_discourse_options',
 			__( 'Shortcodes', 'wpds' ),
 			__( 'Shortcodes', 'wpds' ),
@@ -189,9 +189,9 @@ class Admin {
 	public function settings_tab( $tab ) {
 		$active = 'wpds_options' === $tab;
 		?>
-        <a href="?page=wp_discourse_options&tab=wpds_options"
-           class="nav-tab <?php echo $active ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Shortcodes', 'wpds' ); ?>
-        </a>
+		<a href="?page=wp_discourse_options&tab=wpds_options"
+		   class="nav-tab <?php echo $active ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Shortcodes', 'wpds' ); ?>
+		</a>
 		<?php
 	}
 
@@ -200,33 +200,33 @@ class Admin {
 	 */
 	public function shortcode_settings_details() {
 		?>
-        <p>
-            <em>The following shortcodes are available:</em>
-        </p>
-        <ul>
-            <li><code>[discourse_latest]</code> <em>paramaters:</em> <code>max_topics</code> <em>(default '5')</em>
-                <code>display_avatars</code> <em>(default 'true')</em></li>
-            <br>
-            <li><code>[discourse_link]</code> <em>paramaters:</em> <code>link_text</code> <em>(default 'Visit Our
-                    Forum')</em> <code>path</code> <em>(default '/')</em><br>
-                <code>classes</code> <em>(default '')</em> <code>login</code> <em>(default 'true', requires SSO Provider
-                    to be enabled)</em></li>
-            <br>
-            <li><code>[discourse_prefilled_message]</code> <em>paramaters:</em> <code>link_text</code> <em>(default
-                    'Contact Us')</em> <code>classes</code> <em>(default '')</em><br>
-                <code>title</code> <em>(default '')</em> <code>message</code> <em>(default '')</em>
-                <code>username</code> <em>(default '')</em> <code>groupname</code> <em>(default ''.) If
-                    both a username and a groupname are supplied, will default to groupname. The
-                    discourse_prefilled_message shortcode requires
-                    WordPress to be enabled as the SSO Provider for Discourse.</em></li>
-            <br>
-            <li><code>[discourse_groups]</code> <em>parameters:</em> <code>link_type</code> <em>(default 'visit',
-                    available 'visit', 'message')</em> <code>group_list</code>
-                <em>(If left empty, will default to all non-automatic groups, otherwise, supply a comma separated list
-                    of group_names.)</em>
-                <code>link_open_text</code> <em>(default 'Join')</em> <code>link_close_text</code> <em>(default '')</em>
-            </li>
-        </ul>
+		<p>
+			<em>The following shortcodes are available:</em>
+		</p>
+		<ul>
+			<li><code>[discourse_latest]</code> <em>paramaters:</em> <code>max_topics</code> <em>(default '5')</em>
+				<code>display_avatars</code> <em>(default 'true')</em></li>
+			<br>
+			<li><code>[discourse_link]</code> <em>paramaters:</em> <code>link_text</code> <em>(default 'Visit Our
+					Forum')</em> <code>path</code> <em>(default '/')</em><br>
+				<code>classes</code> <em>(default '')</em> <code>login</code> <em>(default 'true', requires SSO Provider
+					to be enabled)</em></li>
+			<br>
+			<li><code>[discourse_prefilled_message]</code> <em>paramaters:</em> <code>link_text</code> <em>(default
+					'Contact Us')</em> <code>classes</code> <em>(default '')</em><br>
+				<code>title</code> <em>(default '')</em> <code>message</code> <em>(default '')</em>
+				<code>username</code> <em>(default '')</em> <code>groupname</code> <em>(default ''.) If
+					both a username and a groupname are supplied, will default to groupname. The
+					discourse_prefilled_message shortcode requires
+					WordPress to be enabled as the SSO Provider for Discourse.</em></li>
+			<br>
+			<li><code>[discourse_groups]</code> <em>parameters:</em> <code>link_type</code> <em>(default 'visit',
+					available 'visit', 'message')</em> <code>group_list</code>
+				<em>(If left empty, will default to all non-automatic groups, otherwise, supply a comma separated list
+					of group_names.)</em>
+				<code>link_open_text</code> <em>(default 'Join')</em> <code>link_close_text</code> <em>(default '')</em>
+			</li>
+		</ul>
 		<?php
 	}
 
@@ -286,7 +286,7 @@ class Admin {
 	 */
 	public function ajax_timeout_input() {
 		$this->form_helper->input( 'wpds_ajax_timeout', 'wpds_options', __( 'Ajax refresh period in seconds (minimum value: 60, default: 120).', 'wpds' ),
-			'number', 10 );
+		'number', 10 );
 	}
 
 	public function max_topics_input() {
@@ -295,7 +295,7 @@ class Admin {
 
 	public function rss_excerpt_length_input() {
 		$this->form_helper->input( 'wpds_rss_excerpt_length', 'wpds_options', __( 'Excerpt length, in words, to display for RSS topics.', 'wpds' ),
-			'number', 0 );
+		'number', 0 );
 	}
 
 	public function cache_period_input() {
@@ -344,7 +344,7 @@ class Admin {
 
 	public function rss_display_images_checkbox() {
 	    $this->form_helper->checkbox_input( 'wpds_rss_display_images', 'wpds_options', __( "Display topic's first image at the top of the RSS feed.", 'wpds' ) );
-    }
+	}
 
 	public function fetch_discourse_groups_checkbox() {
 		$this->form_helper->checkbox_input( 'wpds_fetch_discourse_groups', 'wpds_options', __( 'Refresh Discourse groups.', 'wpds' ) );

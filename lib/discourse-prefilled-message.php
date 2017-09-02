@@ -19,7 +19,7 @@ class DiscoursePrefilledMessage {
 
 	public function setup_options() {
 		$this->options = $this->get_options();
-		$this->base_url = ! empty( $this->options['url']) ? $this->options['url'] : '';
+		$this->base_url = ! empty( $this->options['url'] ) ? $this->options['url'] : '';
 	}
 
 	public function discourse_prefilled_message( $attributes ) {
@@ -40,7 +40,7 @@ class DiscoursePrefilledMessage {
 		$username  = ! empty( $attributes['username'] ) ? explode( ',', $attributes['username'] )[0] : '';
 		$groupname = ! empty( $attributes['groupname'] ) ? explode( ',', $attributes['groupname'] )[0] : '';
 
-		if ( empty( $this->options['enable-sso'])) {
+		if ( empty( $this->options['enable-sso'] ) ) {
 
 			return new \WP_Error( 'discourse_shortcode_configuration_error', 'The Discourse Prefilled Message shortcode
 			requires WordPress to be enabled as the SSO Provider for your Discourse forum.' );
