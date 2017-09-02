@@ -111,9 +111,7 @@ class DiscourseTopics {
 			latest_topics webhook.' );
 		}
 
-		// $latest = $this->fetch_latest_topics();
-		// set_transient( 'wpds_latest_topics', $latest, DAY_IN_SECONDS );
-		update_option( 'wpds_update_content', 1 );
+		update_option( 'wpds_update_latest_content', 1 );
 
 		return null;
 	}
@@ -128,23 +126,23 @@ class DiscourseTopics {
 			'max_topics'      => 5,
 			'display_avatars' => 'true',
 			'source'          => 'latest',
+			'cache_duration'  => 10,
 		), $args );
+		$time = time();
 
 		if ( 'latest' === $args['source'] ) {
 			$formatted_topics = get_transient( 'wpds_latest_topics' );
-			$force         = ! empty( get_option( 'wpds_update_content' ) ) || ! empty( $this->options['wpds_clear_topics_cache'] );
 
-			if ( $force ) {
-				update_option( 'wpds_update_content', 0 );
-				// Reset the force option.
-				$plugin_options                            = get_option( $this->option_key );
-				$plugin_options['wpds_clear_topics_cache'] = 0;
-
-				// Todo: uncomment this!
-				// update_option( $this->option_key, $plugin_options );
+			if ( empty( $this->options['wpds_topic_webhook_refresh'] ) ) {
+				// Webhooks aren't enabled, use the cache_duration arg.
+				$last_sync = get_option( 'wpds_latest_last_sync' );
+				$cache_duration = $args['cache_duration'] * 60;
+				$update          = $cache_duration + $last_sync < $time;
+			} else {
+				$update = ! empty( get_option( 'wpds_update_latest_content' ) );
 			}
 
-			if ( empty( $formatted_topics ) || $force ) {
+			if ( empty( $formatted_topics ) || $update ) {
 
 				$latest_topics = $this->fetch_latest_topics();
 
@@ -153,6 +151,8 @@ class DiscourseTopics {
 					return new \WP_Error( 'wpds_get_topics_error', 'There was an error retrieving the formatted latest topics.' );
 				} else {
 					$formatted_topics = $this->topic_formatter->format_topics( $latest_topics, $args );
+					update_option( 'wpds_update_latest_content', 0 );
+					update_option( 'wpds_latest_last_sync', $time );
 					set_transient( 'wpds_latest_topics', $formatted_topics, DAY_IN_SECONDS );
 				}
 			}
