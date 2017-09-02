@@ -5,7 +5,7 @@ namespace WPDiscourse\Shortcodes;
 class DiscourseTopicsShortcode {
 
 	/**
-	 * An instance of the LatestTopics class.
+	 * An instance of the DiscourseTopics class.
 	 *
 	 * @access protected
 	 * @var DiscourseTopics
@@ -15,7 +15,7 @@ class DiscourseTopicsShortcode {
 	/**
 	 * DiscourseLatestShortcode constructor.
 	 *
-	 * @param DiscourseTopics $latest_topics An instance of the LatestTopics class.
+	 * @param DiscourseTopics $discourse_topics An instance of the DiscourseTopics class.
 	 */
 	public function __construct( $discourse_topics ) {
 		$this->discourse_topics = $discourse_topics;
