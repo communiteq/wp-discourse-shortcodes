@@ -2,7 +2,7 @@
 
 namespace WPDiscourse\Shortcodes;
 
-class TopicFormatter {
+class DiscourseTopicFormatter {
 	use Utilities;
 
 	protected $options;

@@ -32,7 +32,7 @@ function init() {
 		require_once( __DIR__ . '/lib/shortcodes/discourse-prefilled-message-shortcode.php' );
 
 		new DiscourseShortcodes();
-		$topic_formatter = new TopicFormatter();
+		$topic_formatter = new DiscourseTopicFormatter();
 		$discourse_topics = new DiscourseTopics( $topic_formatter );
 		$rss_formatter = new DiscourseRSSFormatter();
 		$discourse_rss = new DiscourseRSS( $rss_formatter );

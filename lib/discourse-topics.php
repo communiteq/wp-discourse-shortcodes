@@ -51,14 +51,14 @@ class DiscourseTopics {
 	 * An instance of the TopicFormatter class.
 	 *
 	 * @access protected
-	 * @var TopicFormatter
+	 * @var DiscourseTopicFormatter
 	 */
 	protected $topic_formatter;
 
 	/**
 	 * LatestTopics constructor.
 	 *
-	 * @param TopicFormatter $topic_formatter An instance of TopicFormatter.
+	 * @param DiscourseTopicFormatter $topic_formatter An instance of DiscourseTopicFormatter.
 	 */
 	public function __construct( $topic_formatter ) {
 		$this->topic_formatter = $topic_formatter;
