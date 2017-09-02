@@ -11,7 +11,7 @@ class DiscourseLatestShortcode {
 	 * @access protected
 	 * @var array
 	 */
-	protected $options;
+//	protected $options;
 
 	/**
 	 * The Discourse forum URL.
@@ -19,25 +19,25 @@ class DiscourseLatestShortcode {
 	 * @access protected
 	 * @var string
 	 */
-	protected $discourse_url;
+//	protected $discourse_url;
 
 	/**
 	 * An instance of the LatestTopics class.
 	 *
 	 * @access protected
-	 * @var LatestTopics
+	 * @var DiscourseTopics
 	 */
-	protected $latest_topics;
+	protected $discourse_topics;
 
 	/**
 	 * DiscourseLatestShortcode constructor.
 	 *
-	 * @param LatestTopics $latest_topics An instance of the LatestTopics class.
+	 * @param DiscourseTopics $latest_topics An instance of the LatestTopics class.
 	 */
-	public function __construct( $latest_topics ) {
-		$this->latest_topics = $latest_topics;
+	public function __construct( $discourse_topics ) {
+		$this->discourse_topics = $discourse_topics;
 
-		add_action( 'init', array( $this, 'setup_options' ) );
+//		add_action( 'init', array( $this, 'setup_options' ) );
 		add_shortcode( 'discourse_latest', array( $this, 'discourse_latest' ) );
 		add_shortcode( 'discourse_latest_rss', array( $this, 'discourse_latest_rss' ) );
 	}
@@ -45,10 +45,10 @@ class DiscourseLatestShortcode {
 	/**
 	 * Set the plugin options.
 	 */
-	public function setup_options() {
-		$this->options       = $this->get_options();
-		$this->discourse_url = ! empty( $this->options['url'] ) ? $this->options['url'] : null;
-	}
+//	public function setup_options() {
+//		$this->options       = $this->get_options();
+//		$this->discourse_url = ! empty( $this->options['url'] ) ? $this->options['url'] : null;
+//	}
 
 	/**
 	 * Create the shortcode.
@@ -57,19 +57,19 @@ class DiscourseLatestShortcode {
 	 */
 	public function discourse_latest() {
 
-		$discourse_topics = $this->latest_topics->get_latest_topics();
+		$discourse_latest = $this->discourse_topics->get_latest_topics();
 
-		if ( is_wp_error( $discourse_topics ) ) {
+		if ( is_wp_error( $discourse_latest ) ) {
 
 			return '';
 		}
 
-		return $discourse_topics;
+		return $discourse_latest;
 	}
 
 	public function discourse_latest_rss() {
 
-		$discourse_topics = $this->latest_topics->get_latest_rss();
+		$discourse_topics = $this->discourse_topics->get_latest_rss();
 
 		if ( is_wp_error( $discourse_topics ) ) {
 

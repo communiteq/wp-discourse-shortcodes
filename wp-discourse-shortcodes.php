@@ -30,7 +30,7 @@ function init() {
 
 		new DiscourseShortcodes();
 		$topic_formatter = new TopicFormatter();
-		$latest_topics = new LatestTopics( $topic_formatter );
+		$latest_topics = new DiscourseTopics( $topic_formatter );
 		$discourse_link = new DiscourseLink();
 		$prefilled_message = new DiscoursePrefilledMessage( $discourse_link );
 		$discourse_groups = new DiscourseGroups( $discourse_link, $prefilled_message );

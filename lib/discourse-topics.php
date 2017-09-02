@@ -2,7 +2,7 @@
 
 namespace WPDiscourse\Shortcodes;
 
-class LatestTopics {
+class DiscourseTopics {
 	use Utilities;
 
 	/**
