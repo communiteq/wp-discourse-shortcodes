@@ -109,9 +109,9 @@ class TopicFormatter {
 			$cleaned_name = trim( $author, '\@' );
 			$author_url   = $this->discourse_url . '/u/' . $cleaned_name;
 			$category     = $this->find_discourse_category_by_name( $topic['category'] );
-			$wp_permalink = ! empty( $topic['wp_permalink']) ? $topic['wp_permalink'] : null;
+			$wp_permalink = ! empty( $topic['wp_permalink'] ) ? $topic['wp_permalink'] : null;
 
-			$output       .= '<li class="wpds-rss-topic">';
+			$output .= '<li class="wpds-rss-topic">';
 			$output .= '<h3 class="wpds-topic-title"><a href="' . esc_url( $topic['permalink'] ) . '">' . esc_html( $topic['title'] ) . '</a></h3>';
 			$output .= '<div class="wpds-topic-poster-meta"><span class="wpds-term">posted by </span><a href="' . esc_url( $author_url ) . '">' . esc_html( $cleaned_name ) . '</a>'
 			           . '<span class="wpds-term"> on </span><span class="wpds-created-at">' . $topic['date']
@@ -121,14 +121,14 @@ class TopicFormatter {
 			}
 
 			$output .= '</div>';
-			if ( count( $topic['images'])) {
+			if ( count( $topic['images'] ) ) {
 				$output .= '<p>' . $topic['images'][0] . '</p>';
 			}
 			$output .= join( '', $topic['description'] );
 			if ( $topic['reply_count'] ) {
 				$output .= '<p class="wpds-topic-activity-meta"><span class="wpds-term">Replies </span>' . $topic['reply_count'] . '</p>';
 			}
-			$output .= '<p><a href="' . esc_url( $topic['permalink']) . '">join the discussion</a></p>';
+			$output .= '<p><a href="' . esc_url( $topic['permalink'] ) . '">join the discussion</a></p>';
 		}
 
 
@@ -137,17 +137,13 @@ class TopicFormatter {
 		return $output;
 	}
 
-	protected function display_topic(
-		$topic
-	) {
+	protected function display_topic( $topic ) {
 
 		return ! $topic['pinned_globally'] && 'regular' === $topic['archetype'] && - 1 !== $topic['posters'][0]['user_id'];
 	}
 
 	protected
-	function find_discourse_category_by_name(
-		$name
-	) {
+	function find_discourse_category_by_name( $name ) {
 		$categories = $this->get_discourse_categories();
 		foreach ( $categories as $category ) {
 			if ( $name === $category['name'] ) {
