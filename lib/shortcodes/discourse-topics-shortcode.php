@@ -26,17 +26,18 @@ class DiscourseTopicsShortcode {
 	/**
 	 * Create the shortcode.
 	 *
+	 * @param array $args The shortcode arguments.
 	 * @return string
 	 */
-	public function discourse_topics() {
+	public function discourse_topics( $args ) {
 
-		$discourse_latest = $this->discourse_topics->get_latest_topics();
+		$discourse_topics = $this->discourse_topics->get_topics( $args );
 
-		if ( is_wp_error( $discourse_latest ) ) {
+		if ( is_wp_error( $discourse_topics ) ) {
 
 			return '';
 		}
 
-		return $discourse_latest;
+		return $discourse_topics;
 	}
 }

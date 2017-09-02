@@ -123,38 +123,44 @@ class DiscourseTopics {
 	 *
 	 * @return string|null
 	 */
-	public function get_latest_topics() {
-		$latest_topics = get_transient( 'wpds_latest_topics' );
-		$force         = ! empty( get_option( 'wpds_update_content' ) ) || ! empty( $this->options['wpds_clear_topics_cache'] );
+	public function get_topics( $args ) {
+		$args = shortcode_atts( array(
+			'max_topics'      => 5,
+			'display_avatars' => 'true',
+			'source'          => 'latest',
+		), $args );
 
-		if ( $force ) {
-			update_option( 'wpds_update_content', 0 );
-			// Reset the force option.
-			$plugin_options                            = get_option( $this->option_key );
-			$plugin_options['wpds_clear_topics_cache'] = 0;
+		if ( 'latest' === $args['source'] ) {
+			// Todo: store formatted topics in a transient instead of storing raw data.
+			$latest_topics = get_transient( 'wpds_latest_topics' );
+			$force         = ! empty( get_option( 'wpds_update_content' ) ) || ! empty( $this->options['wpds_clear_topics_cache'] );
 
-			// Todo: uncomment this!
-			// update_option( $this->option_key, $plugin_options );
-		}
+			if ( $force ) {
+				update_option( 'wpds_update_content', 0 );
+				// Reset the force option.
+				$plugin_options                            = get_option( $this->option_key );
+				$plugin_options['wpds_clear_topics_cache'] = 0;
 
-		if ( empty( $latest_topics ) || $force ) {
-
-			$latest_topics = $this->fetch_latest_topics();
-
-			if ( ! empty( $latest_topics ) && ! is_wp_error( $latest_topics ) ) {
-
-				set_transient( 'wpds_latest_topics', $latest_topics, DAY_IN_SECONDS );
-			} else {
-
-				return null;
+				// Todo: uncomment this!
+				// update_option( $this->option_key, $plugin_options );
 			}
-		}
-		$formatted_topics = $this->topic_formatter->format_topics( $latest_topics, array(
-			'max_topics' => 5,
-			'display_avatars' => true,
-		) );
 
-		return $formatted_topics;
+			if ( empty( $latest_topics ) || $force ) {
+
+				$latest_topics = $this->fetch_latest_topics();
+
+				if ( ! empty( $latest_topics ) && ! is_wp_error( $latest_topics ) ) {
+
+					set_transient( 'wpds_latest_topics', $latest_topics, DAY_IN_SECONDS );
+				} else {
+
+					return new \WP_Error( 'wpds_get_topics_error', 'There was an error retrieving the formatted latest topics.' );
+				}
+			}
+			$formatted_topics = $this->topic_formatter->format_topics( $latest_topics, $args );
+
+			return $formatted_topics;
+		}
 	}
 
 	/**

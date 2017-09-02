@@ -44,10 +44,10 @@ class DiscourseTopicFormatter {
 		$users             = $discourse_topics['users'];
 		$poster_avatar_url = '';
 		$poster_username   = '';
+		$topic_count       = 0;
 
 		$output = '<ul class="wpds-topiclist">';
 
-		$topic_count = 0;
 		foreach ( $topics as $topic ) {
 			if ( $topic_count < $args['max_topics'] && $this->display_topic( $topic ) ) {
 				$topic_url            = $this->options['url'] . "/t/{$topic['slug']}/{$topic['id']}";
@@ -55,27 +55,29 @@ class DiscourseTopicFormatter {
 				$created_at_formatted = date_format( $created_at, 'F j, Y' );
 				$last_activity        = $topic['last_posted_at'];
 				$category             = $this->find_discourse_category( $topic );
+				$posters              = $topic['posters'];
 
-				$output .= '<li class="wpds-topic"><div class="wpds-topic-poster-meta">';
-				if ( 'true' === $args['display_avatars'] ) {
-					$posters = $topic['posters'];
-					foreach ( $posters as $poster ) {
-						if ( preg_match( '/Original Poster/', $poster['description'] ) ) {
-							$original_poster_id = $poster['user_id'];
-							foreach ( $users as $user ) {
-								if ( $original_poster_id === $user['id'] ) {
-									$poster_username   = $user['username'];
-									$avatar_template   = str_replace( '{size}', 22, $user['avatar_template'] );
-									$poster_avatar_url = $this->options['url'] . $avatar_template;
-								}
+				foreach ( $posters as $poster ) {
+					if ( preg_match( '/Original Poster/', $poster['description'] ) ) {
+						$original_poster_id = $poster['user_id'];
+						foreach ( $users as $user ) {
+							if ( $original_poster_id === $user['id'] ) {
+								$poster_username   = $user['username'];
+								$avatar_template   = str_replace( '{size}', 22, $user['avatar_template'] );
+								$poster_avatar_url = $this->options['url'] . $avatar_template;
 							}
 						}
 					}
+				}
 
+				$output .= '<li class="wpds-topic"><div class="wpds-topic-poster-meta">';
+
+				if ( 'true' === $args['display_avatars'] ) {
 					$avatar_image = '<img class="wpds-latest-avatar" src="' . esc_url( $poster_avatar_url ) . '">';
 
 					$output .= apply_filters( 'wpds_shorcodes_avatar', $avatar_image, esc_url( $poster_avatar_url ) );
 				}
+
 				$output .= '<span class="wpds-username">' . esc_html( $poster_username ) . '</span>' . '<span class="wpds-term"> posted on </span><span class="wpds-created-at">' . $created_at_formatted . '</span><br>
 						<span class="wpds-term">in </span><span class="wpds-shortcode-category" >' . $this->discourse_category_badge( $category ) . '</span></div>
 						<p class="wpds-topic-title"><a href="' . esc_url( $topic_url ) . '">' . esc_html( $topic['title'] ) . '</a></p>
