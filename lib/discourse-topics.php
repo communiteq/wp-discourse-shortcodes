@@ -112,6 +112,7 @@ class DiscourseTopics {
 		}
 
 		update_option( 'wpds_update_latest_content', 1 );
+		update_option( 'wpds_update_latest_rss_content', 1 );
 
 		return null;
 	}
@@ -151,9 +152,9 @@ class DiscourseTopics {
 					return new \WP_Error( 'wpds_get_topics_error', 'There was an error retrieving the formatted latest topics.' );
 				} else {
 					$formatted_topics = $this->topic_formatter->format_topics( $latest_topics, $args );
+					set_transient( 'wpds_latest_topics', $formatted_topics, DAY_IN_SECONDS );
 					update_option( 'wpds_update_latest_content', 0 );
 					update_option( 'wpds_latest_last_sync', $time );
-					set_transient( 'wpds_latest_topics', $formatted_topics, DAY_IN_SECONDS );
 				}
 			}
 

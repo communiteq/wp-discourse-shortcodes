@@ -85,27 +85,28 @@ class DiscourseRSS {
 		$this->api_username  = ! empty( $this->options['publish-username'] ) ? $this->options['publish-username'] : null;
 	}
 
-	public function get_latest_rss( $args ) {
+	public function get_rss( $args ) {
 		$args = shortcode_atts( array(
 			'max_topics' => 5,
 			'source'     => 'latest',
+			'cache_duration' => 10,
 		), $args );
+		$time = time();
 
 		if ( 'latest' === $args['source'] ) {
 			$formatted_rss = get_transient( 'wpds_latest_rss' );
-			$force      = ! empty( get_option( 'wpds_update_content' ) ) || ! empty( $this->options['wpds_clear_topics_cache'] );
 
-			if ( $force ) {
-				update_option( 'wpds_update_content', 0 );
-				// Reset the force option.
-				$plugin_options                            = get_option( $this->option_key );
-				$plugin_options['wpds_clear_topics_cache'] = 0;
-
-				// Todo: uncomment this!
-				// update_option( $this->option_key, $plugin_options );
+			if ( empty( $this->options['wpds_topic_webhook_refresh'] ) ) {
+				// Webhooks aren't enabled, use the cache_duration arg.
+				$last_sync = get_option( 'wpds_latest_rss_last_sync' );
+				$cache_duration = $args['cache_duration'] * 60;
+				$update          = $cache_duration + $last_sync < $time;
+			} else {
+				// Todo: value is being set in discourse-topic.php, move to webhook class.
+				$update = ! empty( get_option( 'wpds_update_latest_rss_content' ) );
 			}
 
-			if ( empty( $latest_rss ) || $force ) {
+			if ( empty( $formatted_rss ) || $update ) {
 
 				$latest_rss = $this->fetch_latest_rss( $args['max_topics'] );
 
@@ -115,7 +116,9 @@ class DiscourseRSS {
 				} else {
 
 					$formatted_rss = $this->rss_formatter->format_rss_topics( $latest_rss, $args );
-					set_transient( 'wpds_latest_rss', $latest_rss, DAY_IN_SECONDS );
+					set_transient( 'wpds_latest_rss', $formatted_rss, DAY_IN_SECONDS );
+					update_option( 'wpds_update_latest_rss_content', 0 );
+					update_option( 'wpds_latest_rss_last_sync', $time );
 				}
 			}
 
@@ -146,6 +149,7 @@ class DiscourseRSS {
 		include_once( ABSPATH . WPINC . '/feed.php' );
 		// Break and then restore the cache.
 		add_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'feed_cache_duration' ) );
+		// Todo: look at this error: Non-static method WP_Feed_Cache::create() should not be called statically.
 		$feed = fetch_feed( $latest_url );
 		remove_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'feed_cache_duration' ) );
 		if ( is_wp_error( $feed ) ) {

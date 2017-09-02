@@ -25,7 +25,7 @@ class DiscourseRSSShortcode {
 
 	public function discourse_rss( $args ) {
 
-		$discourse_rss = $this->discourse_rss->get_latest_rss( $args );
+		$discourse_rss = $this->discourse_rss->get_rss( $args );
 
 		if ( is_wp_error( $discourse_rss ) ) {
 
