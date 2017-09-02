@@ -20,7 +20,7 @@ function init() {
 		require_once( __DIR__ . '/lib/discourse-shortcodes.php' );
 		require_once( __DIR__ . '/lib/discourse-link.php' );
 		require_once( __DIR__ . '/lib/discourse-prefilled-message.php' );
-		require_once( __DIR__ . '/lib/discourse-latest-topics.php' );
+		require_once( __DIR__ . '/lib/discourse-topics.php' );
 		require_once( __DIR__ . '/lib/discourse-groups.php' );
 		require_once( __DIR__ . '/lib/discourse-topic-formatter.php' );
 		require_once( __DIR__ . '/lib/shortcodes/discourse-latest-shortcode.php' );
