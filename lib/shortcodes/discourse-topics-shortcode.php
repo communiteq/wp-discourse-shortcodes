@@ -3,7 +3,7 @@
 namespace WPDiscourse\Shortcodes;
 
 class DiscourseTopicsShortcode {
-	use Utilities;
+//	use Utilities;
 
 	/**
 	 * The plugin options.
@@ -39,7 +39,7 @@ class DiscourseTopicsShortcode {
 
 //		add_action( 'init', array( $this, 'setup_options' ) );
 		add_shortcode( 'discourse_topics', array( $this, 'discourse_topics' ) );
-		add_shortcode( 'discourse_latest_rss', array( $this, 'discourse_latest_rss' ) );
+//		add_shortcode( 'discourse_latest_rss', array( $this, 'discourse_latest_rss' ) );
 	}
 
 	/**
@@ -67,16 +67,16 @@ class DiscourseTopicsShortcode {
 		return $discourse_latest;
 	}
 
-	public function discourse_latest_rss() {
-
-		$discourse_topics = $this->discourse_topics->get_latest_rss();
-
-		if ( is_wp_error( $discourse_topics ) ) {
-
-			return '';
-		}
-
-		return $discourse_topics;
-	}
+//	public function discourse_latest_rss() {
+//
+//		$discourse_topics = $this->discourse_topics->get_latest_rss();
+//
+//		if ( is_wp_error( $discourse_topics ) ) {
+//
+//			return '';
+//		}
+//
+//		return $discourse_topics;
+//	}
 
 }
