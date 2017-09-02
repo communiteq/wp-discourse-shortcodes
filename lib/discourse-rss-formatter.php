@@ -33,7 +33,7 @@ class DiscourseRSSFormatter {
 	 *
 	 * @return string
 	 */
-	public function format_rss_topics( $topics ) {
+	public function format_rss_topics( $topics, $args ) {
 		$output = '<ul class="wpds-topiclist">';
 		foreach ( $topics as $topic ) {
 			$author       = $topic['author'];

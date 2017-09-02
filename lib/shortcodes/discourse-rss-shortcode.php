@@ -23,9 +23,9 @@ class DiscourseRSSShortcode {
 		add_shortcode( 'discourse_rss', array( $this, 'discourse_rss' ) );
 	}
 
-	public function discourse_rss() {
+	public function discourse_rss( $args ) {
 
-		$discourse_rss = $this->discourse_rss->get_latest_rss();
+		$discourse_rss = $this->discourse_rss->get_latest_rss( $args );
 
 		if ( is_wp_error( $discourse_rss ) ) {
 
