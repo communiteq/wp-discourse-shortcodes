@@ -2,7 +2,7 @@
 
 namespace WPDiscourse\Shortcodes;
 
-class DiscourseLatestShortcode {
+class DiscourseTopicsShortcode {
 	use Utilities;
 
 	/**
@@ -38,7 +38,7 @@ class DiscourseLatestShortcode {
 		$this->discourse_topics = $discourse_topics;
 
 //		add_action( 'init', array( $this, 'setup_options' ) );
-		add_shortcode( 'discourse_latest', array( $this, 'discourse_latest' ) );
+		add_shortcode( 'discourse_topics', array( $this, 'discourse_topics' ) );
 		add_shortcode( 'discourse_latest_rss', array( $this, 'discourse_latest_rss' ) );
 	}
 
@@ -55,7 +55,7 @@ class DiscourseLatestShortcode {
 	 *
 	 * @return string
 	 */
-	public function discourse_latest() {
+	public function discourse_topics() {
 
 		$discourse_latest = $this->discourse_topics->get_latest_topics();
 
