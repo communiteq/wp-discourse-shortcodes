@@ -37,6 +37,10 @@ class DiscourseRSSFormatter {
 		$output = '<ul class="wpds-topiclist">';
 		foreach ( $topics as $topic ) {
 			// Todo: make sure the attributes are set!
+			$description = join( '', $topic['description'] );
+			if ( $args['excerpt_length'] && 'full' !== $args['excerpt_length'] ) {
+				$description = wp_trim_words( wp_strip_all_tags( $description ), $args['excerpt_length'] );
+			}
 			$author       = $topic['author'];
 			$cleaned_name = trim( $author, '\@' );
 			$author_url   = $this->discourse_url . '/u/' . $cleaned_name;
@@ -53,10 +57,10 @@ class DiscourseRSSFormatter {
 			}
 
 			$output .= '</div>';
-			if ( count( $topic['images'] ) ) {
+			if ( count( $topic['images'] ) && 'true' === $args['display_images'] ) {
 				$output .= '<p>' . $topic['images'][0] . '</p>';
 			}
-			$output .= join( '', $topic['description'] );
+			$output .= $description;
 			if ( $topic['reply_count'] ) {
 				$output .= '<p class="wpds-topic-activity-meta"><span class="wpds-term">Replies </span>' . $topic['reply_count'] . '</p>';
 			}
@@ -74,7 +78,9 @@ class DiscourseRSSFormatter {
 	}
 
 	protected
-	function find_discourse_category_by_name( $name ) {
+	function find_discourse_category_by_name(
+		$name
+	) {
 		$categories = $this->get_discourse_categories();
 		foreach ( $categories as $category ) {
 			if ( $name === $category['name'] ) {
