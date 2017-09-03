@@ -34,7 +34,7 @@ class DiscourseRSSFormatter {
 	 * @return string
 	 */
 	public function format_rss_topics( $topics, $args ) {
-		$output = '<ul class="wpds-topiclist">';
+		$output = '<ul class="wpds-rss-list">';
 		foreach ( $topics as $topic ) {
 			// Todo: make sure the attributes are set!
 //			$description = join( '', $topic['description'] );
@@ -54,13 +54,10 @@ class DiscourseRSSFormatter {
 			           . '<span class="wpds-term"> on </span><span class="wpds-created-at">' . $topic['date']
 			           . '</span><br><span class="wpds-term">in </span><span class="wpds-shortcode-category" >' . $this->discourse_category_badge( $category ) . '</span>';
 			if ( $wp_permalink ) {
-				$output .= '<br><span class="wpds-term"> orginally posted at </span><a href="' . esc_url( $wp_permalink ) . '">' . esc_url( $wp_permalink ) . '</a>';
+				$output .= '<br><span class="wpds-term"> orginally published at </span><a href="' . esc_url( $wp_permalink ) . '">' . esc_url( $wp_permalink ) . '</a>';
 			}
 
 			$output .= '</div>';
-			if ( count( $topic['images'] ) && 'true' === $args['display_images'] ) {
-				$output .= '<p>' . $topic['images'][0] . '</p>';
-			}
 			$output .= $description;
 			if ( $topic['reply_count'] ) {
 				$output .= '<p class="wpds-topic-activity-meta"><span class="wpds-term">Replies </span>' . $topic['reply_count'] . '</p>';
@@ -69,6 +66,8 @@ class DiscourseRSSFormatter {
 		}
 
 		$output .= '</ul>';
+
+		apply_filters( 'wpds_after_formatting_rss', $output, $topics, $args );
 
 		return $output;
 	}

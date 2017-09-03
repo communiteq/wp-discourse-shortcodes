@@ -113,7 +113,7 @@ class DiscourseRSS {
 
 				$latest_rss = $this->fetch_rss( 'latest', $args );
 
-				if ( empty( $latest_rss ) && ! is_wp_error( $latest_rss ) ) {
+				if ( empty( $latest_rss ) || is_wp_error( $latest_rss ) ) {
 
 					return new \WP_Error( 'wpds_get_rss_error', 'There was an error retrieving the formatted RSS.' );
 				} else {
@@ -143,7 +143,7 @@ class DiscourseRSS {
 			if ( empty( $formatted_rss ) || $update ) {
 				$source  = 'top/' . $period;
 				$top_rss = $this->fetch_rss( $source, $args );
-				if ( empty( $top_rss ) && ! is_wp_error( $top_rss ) ) {
+				if ( empty( $top_rss ) || is_wp_error( $top_rss ) ) {
 
 					return new \WP_Error( 'wpds_get_rss_error', 'There was an error retrieving the formatted RSS.' );
 				} else {
@@ -179,24 +179,21 @@ class DiscourseRSS {
 			return new \WP_Error( 'wp_discourse_configuration_error', 'The WP Discourse plugin is not properly configured.' );
 		}
 
-		// Todo: esc_url_raw!
-//		$rss_url = $this->discourse_url . '/' . $source . '.rss';
 		$rss_url = esc_url_raw( "{$this->discourse_url}/{$source}.rss" );
-
 		include_once( ABSPATH . WPINC . '/feed.php' );
+
 		// Break and then restore the cache.
 		add_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'feed_cache_duration' ) );
 		// Todo: look at this error: Non-static method WP_Feed_Cache::create() should not be called statically.
 		$feed = fetch_feed( $rss_url );
 		remove_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'feed_cache_duration' ) );
 
-		// Todo: add some more validation to this.
-		if ( is_wp_error( $feed ) ) {
+		if ( ! empty ( $feed->errors ) ||  is_wp_error( $feed ) ) {
 
 			return new \WP_Error( 'wp_discourse_rss_error', 'An RSS feed was not returned by Discourse.' );
 		}
 
-		$max_items  = $feed->get_item_quantity( $args['max_items'] );
+		$max_items  = $feed->get_item_quantity( $args['max_topics'] );
 		$feed_items = $feed->get_items( 0, $max_items );
 		$rss_data   = [];
 		// Don't create warnings for misformed HTML.
