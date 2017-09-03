@@ -91,6 +91,8 @@ class DiscourseRSS {
 			'source'         => 'latest',
 			'period'         => 'yearly',
 			'cache_duration' => 10,
+			'excerpt_length' => 55,
+			'display_images' => 'false',
 		), $args );
 		$time = time();
 
@@ -221,6 +223,7 @@ class DiscourseRSS {
 			foreach ( $paragraphs as $paragraph_index => $paragraph ) {
 				if ( $paragraph->textContent && $paragraph_index > 0 && $paragraph_index < $paragraphs->length - 3 ) {
 					if ( 1 === $paragraph_index ) {
+						// For posts published through the WP Discourse plugin, extract the permalink.
 						$small_tags = $paragraph->getElementsByTagName( 'small' );
 						if ( $small_tags->length ) {
 							$link_nodes = $small_tags->item( 0 )->getElementsByTagName( 'a' );
@@ -229,6 +232,11 @@ class DiscourseRSS {
 								// Save and then remove the WordPress link that's added when posts are published from WP to Discourse.
 								$wp_permalink = $wp_link_node->getElementsByTagName( 'a' )->item( 0 )->getAttribute( 'href' );
 								$paragraph->removeChild( $wp_link_node );
+								// The WP Discourse publish format adds a br node to the text returned from Discourse.
+								$br_nodes = $paragraph->getElementsByTagName( 'br' );
+								foreach ( $br_nodes as $br_node ) {
+									$paragraph->removeChild( $br_node );
+								}
 							}
 						}
 					}
