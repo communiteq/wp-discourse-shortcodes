@@ -37,7 +37,8 @@ class DiscourseRSSFormatter {
 		$output = '<ul class="wpds-topiclist">';
 		foreach ( $topics as $topic ) {
 			// Todo: make sure the attributes are set!
-			$description = join( '', $topic['description'] );
+//			$description = join( '', $topic['description'] );
+			$description = $topic['description'];
 			if ( $args['excerpt_length'] && 'full' !== $args['excerpt_length'] ) {
 				$description = wp_trim_words( wp_strip_all_tags( $description ), $args['excerpt_length'] );
 			}
