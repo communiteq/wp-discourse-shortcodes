@@ -35,7 +35,8 @@ class DiscourseRSSFormatter {
 	 */
 	public function format_rss_topics( $topics, $args ) {
 		$excerpt_length = $args['excerpt_length'];
-		$output         = '<ul class="wpds-rss-list">';
+		$topic_list_id  = 'wpds_rss_list_' . time();
+		$output         = '<ul class="wpds-rss-list" id="' . esc_attr( $topic_list_id) . '">';
 		foreach ( $topics as $topic ) {
 			$description = ! empty( $topic['description'] ) ? $topic['description'] : '';
 			if ( 'full' !== $excerpt_length ) {
@@ -51,14 +52,15 @@ class DiscourseRSSFormatter {
 
 			$output .= '<li class="wpds-rss-topic ' . esc_attr( $category['slug'] ) . '">';
 			$output .= '<h3 class="wpds-rss-title"><a href="' . esc_url( $topic['permalink'] ) . '">' . esc_html( $topic['title'] ) . '</a></h3>';
-			$output .= '<div class="wpds-rss-poster-meta"><span class="wpds-term">posted by </span><a href="' . esc_url( $author_url ) . '">' . esc_html( $cleaned_name ) . '</a>'
-			           . '<span class="wpds-term"> on </span><span class="wpds-created-at">' . esc_html( $topic['date'] )
-			           . '</span><br><span class="wpds-term">in </span><span class="wpds-shortcode-category" >' . $this->discourse_category_badge( $category ) . '</span>';
+			$output .= '<div class="wpds-rss-poster-meta"><span class="wpds-term"> ' . __( 'posted by', 'wpds' ) . '</span> <a href="' .
+			           esc_url( $author_url ) . '">' . esc_html( $cleaned_name ) . '</a> <span class="wpds-term">' . __( 'on', 'wpds' ) .
+			           '</span> <span class="wpds-created-at">' . esc_html( $topic['date'] ) . '</span><br><span class="wpds-term">' .
+			           __( 'in', 'wpds' ) . '</span> <span class="wpds-shortcode-category" >' . $this->discourse_category_badge( $category ) . '</span>';
 			if ( $wp_permalink ) {
 				$output .= '<br><span class="wpds-term"> orginally published at </span><a href="' . esc_url( $wp_permalink ) . '">' . esc_url( $wp_permalink ) . '</a>';
 			}
-
 			$output .= '</div>';
+
 			if ( 'full' !== $excerpt_length ) {
 				$output .= '<p>' . wp_kses_post( $description ) . '</p>';
 			} else {
@@ -67,9 +69,10 @@ class DiscourseRSSFormatter {
 				$output .= $description;
 			}
 			if ( $topic['reply_count'] ) {
-				$output .= '<p class="wpds-topic-activity-meta"><span class="wpds-term">Replies </span>' . esc_html( $topic['reply_count'] ) . '</p>';
+				$output .= '<p class="wpds-topic-activity-meta"><span class="wpds-term">' . __( 'replies', 'wpds' ) . '</span> ' . esc_html( $topic['reply_count'] ) . '</p>';
 			}
-			$output .= '<p><a href="' . esc_url( $topic['permalink'] ) . '">join the discussion</a></p>';
+
+			$output .= '<p><a href="' . esc_url( $topic['permalink'] ) . '">' . __( 'join the discussion', 'wpds' ) . '</p>';
 		}
 
 		$output .= '</ul>';
