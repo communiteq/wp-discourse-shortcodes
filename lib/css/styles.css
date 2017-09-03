@@ -17,7 +17,8 @@ p.wpds-topic-title a {
 }
 
 .wpds-topic-poster-meta,
-.wpds-topic-activity-meta {
+.wpds-topic-activity-meta,
+.wpds-rss-poster-meta {
 	font-size: 0.8125rem;
 	color: #686868;
 }
@@ -49,6 +50,6 @@ p.wpds-topic-title a {
     margin-bottom: 0;
 }
 
-.wpds-rss-topic .wpds-topic-poster-meta {
-	margin-bottom: 20px;
+.wpds-rss-topic .wpds-rss-poster-meta {
+	margin-bottom: 1.5em;
 }
