@@ -72,7 +72,7 @@ class DiscourseRSSFormatter {
 				$output .= '<p class="wpds-topic-activity-meta"><span class="wpds-term">' . __( 'replies', 'wpds' ) . '</span> ' . esc_html( $topic['reply_count'] ) . '</p>';
 			}
 
-			$output .= '<p><a href="' . esc_url( $topic['permalink'] ) . '">' . __( 'join the discussion', 'wpds' ) . '</p>';
+			$output .= '<p><a href="' . esc_url( $topic['permalink'] ) . '">' . __( 'join the discussion', 'wpds' ) . '</a></p></li>';
 		}
 
 		$output .= '</ul>';
