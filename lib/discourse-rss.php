@@ -154,6 +154,9 @@ class DiscourseRSS {
 
 			return $formatted_rss;
 		}
+
+		// Todo: add error message.
+		return new \WP_Error();
 	}
 
 	public function feed_cache_duration() {
@@ -174,6 +177,7 @@ class DiscourseRSS {
 			return new \WP_Error( 'wp_discourse_configuration_error', 'The WP Discourse plugin is not properly configured.' );
 		}
 
+		// Todo: esc_url_raw!
 		$rss_url = $this->discourse_url . '/' . $source . '.rss';
 
 		include_once( ABSPATH . WPINC . '/feed.php' );
@@ -182,6 +186,8 @@ class DiscourseRSS {
 		// Todo: look at this error: Non-static method WP_Feed_Cache::create() should not be called statically.
 		$feed = fetch_feed( $rss_url );
 		remove_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'feed_cache_duration' ) );
+
+		// Todo: add some more validation to this.
 		if ( is_wp_error( $feed ) ) {
 
 			return new \WP_Error( 'wp_discourse_rss_error', 'An RSS feed was not returned by Discourse.' );

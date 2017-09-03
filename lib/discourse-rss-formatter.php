@@ -36,6 +36,7 @@ class DiscourseRSSFormatter {
 	public function format_rss_topics( $topics, $args ) {
 		$output = '<ul class="wpds-topiclist">';
 		foreach ( $topics as $topic ) {
+			// Todo: make sure the attributes are set!
 			$author       = $topic['author'];
 			$cleaned_name = trim( $author, '\@' );
 			$author_url   = $this->discourse_url . '/u/' . $cleaned_name;
