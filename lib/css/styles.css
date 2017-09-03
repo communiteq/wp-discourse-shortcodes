@@ -30,11 +30,13 @@ p.wpds-topic-title a {
 }
 
 .wpds-rss-topic blockquote {
-	font-size: 1rem;
-	font-style: normal;
+	/*font-size: 1rem;*/
+	/*font-style: normal;*/
 }
 
-.wpds-rss-topic blockquote blockquote {
+.wpds-rss-topic blockquote {
+    font-size: 1rem;
+    font-style: normal;
     margin-left: 0;
     margin-right: 0;
     padding: 12px;
@@ -43,7 +45,7 @@ p.wpds-topic-title a {
     margin-bottom: 1.5em;
 }
 
-.wpds-rss-topic blockquote blockquote p:last-child {
+.wpds-rss-topic blockquote p:last-child {
     margin-bottom: 0;
 }
 

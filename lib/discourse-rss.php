@@ -92,7 +92,7 @@ class DiscourseRSS {
 			'period'         => 'yearly',
 			'cache_duration' => 10,
 			'excerpt_length' => 55,
-			'display_images' => 'false',
+			'display_images' => 'true',
 		), $args );
 		$time = time();
 
@@ -111,7 +111,7 @@ class DiscourseRSS {
 
 			if ( empty( $formatted_rss ) || $update ) {
 
-				$latest_rss = $this->fetch_rss( 'latest', $args['max_topics'] );
+				$latest_rss = $this->fetch_rss( 'latest', $args );
 
 				if ( empty( $latest_rss ) && ! is_wp_error( $latest_rss ) ) {
 
@@ -142,7 +142,7 @@ class DiscourseRSS {
 
 			if ( empty( $formatted_rss ) || $update ) {
 				$source  = 'top/' . $period;
-				$top_rss = $this->fetch_rss( $source, $args['max_topics'] );
+				$top_rss = $this->fetch_rss( $source, $args );
 				if ( empty( $top_rss ) && ! is_wp_error( $top_rss ) ) {
 
 					return new \WP_Error( 'wpds_get_rss_error', 'There was an error retrieving the formatted RSS.' );
@@ -173,14 +173,15 @@ class DiscourseRSS {
 	 *
 	 * @return array|\WP_Error
 	 */
-	protected function fetch_rss( $source, $max_items ) {
+	protected function fetch_rss( $source, $args ) {
 		if ( empty( $this->discourse_url ) ) {
 
 			return new \WP_Error( 'wp_discourse_configuration_error', 'The WP Discourse plugin is not properly configured.' );
 		}
 
 		// Todo: esc_url_raw!
-		$rss_url = $this->discourse_url . '/' . $source . '.rss';
+//		$rss_url = $this->discourse_url . '/' . $source . '.rss';
+		$rss_url = esc_url_raw( "{$this->discourse_url}/{$source}.rss" );
 
 		include_once( ABSPATH . WPINC . '/feed.php' );
 		// Break and then restore the cache.
@@ -195,7 +196,7 @@ class DiscourseRSS {
 			return new \WP_Error( 'wp_discourse_rss_error', 'An RSS feed was not returned by Discourse.' );
 		}
 
-		$max_items  = $feed->get_item_quantity( $max_items );
+		$max_items  = $feed->get_item_quantity( $args['max_items'] );
 		$feed_items = $feed->get_items( 0, $max_items );
 		$rss_data   = [];
 		// Don't create warnings for misformed HTML.
@@ -213,55 +214,44 @@ class DiscourseRSS {
 			$description_html = $item->get_description();
 			$description_html = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' . $description_html . '</body></html>';
 			$dom->loadHTML( $description_html );
-			$description  = [];
 			$wp_permalink = '';
-			$reply_count  = 0;
-			// Getting content from <p> elements avoids having to deal with Discourse lightboxes.
 
 			$paragraphs = $dom->getElementsByTagName( 'p' );
 
-			// This is relying on the structure of the topic description that's returned by Discourse - will probably need tweaking.
-			foreach ( $paragraphs as $paragraph_index => $paragraph ) {
-				// Use $paragraphs->item()
-				if ( 1 === $paragraph_index ) {
-					// For posts published through the WP Discourse plugin, extract the permalink.
-					$small_tags = $paragraph->getElementsByTagName( 'small' );
-					if ( $small_tags->length ) {
-						$link_nodes = $small_tags->item( 0 )->getElementsByTagName( 'a' );
-						if ( $link_nodes->length ) {
-							$wp_link_node = $small_tags->item( 0 );
-							// Save and then remove the WordPress link that's added when posts are published from WP to Discourse.
-							$wp_permalink = $wp_link_node->getElementsByTagName( 'a' )->item( 0 )->getAttribute( 'href' );
-							$paragraph->removeChild( $wp_link_node );
-							// The WP Discourse publish format adds a br node to the text returned from Discourse.
-							$br_nodes = $paragraph->getElementsByTagName( 'br' );
-							foreach ( $br_nodes as $br_node ) {
-								$paragraph->removeChild( $br_node );
-							}
-						}
+			// If the post begins with 'Originally published at...' text, save the link and remove its enclosing small tags.
+			$possible_link_p     = $paragraphs->item( 1 );
+			$possible_link_nodes = $possible_link_p->getElementsByTagName( 'small' );
+			if ( $possible_link_nodes->length ) {
+				$link_nodes = $possible_link_nodes->item( 0 )->getElementsByTagName( 'a' );
+				if ( $link_nodes->length ) {
+					$wp_link_node = $link_nodes->item( 0 );
+					$wp_permalink = $wp_link_node->getAttribute( 'href' );
+					$possible_link_nodes->item( 0 )->parentNode->removeChild( $possible_link_nodes->item( 0 ) );
+					$br_nodes = $possible_link_p->getElementsByTagName( 'br' );
+					foreach ( $br_nodes as $br_node ) {
+						$possible_link_p->removeChild( $br_node );
 					}
-				}
-
-				// Save the description as an array of paragraphs.
-//					$description[] = $dom->saveHTML( $paragraph );
-
-				// The third to last paragraph contains the reply count.
-				if ( $paragraph_index === $paragraphs->length - 3 ) {
-					$reply_count = filter_var( $paragraph->textContent, FILTER_SANITIZE_NUMBER_INT ) - 1;
 				}
 			}
 
-			$blockquote = $dom->getElementsByTagName( 'blockquote' )->item( 0 );
-			$description = $dom->saveHTML( $blockquote );
-			write_log('saved description', $description);
+			// The third to last paragraph contains the post count.
+			$replies_p   = $paragraphs->item( $paragraphs->length - 3 );
+			$reply_count = filter_var( $replies_p->textContent, FILTER_SANITIZE_NUMBER_INT ) - 1;
 
 			$image_tags = $dom->getElementsByTagName( 'img' );
 			$images     = [];
 			if ( $image_tags->length ) {
 				foreach ( $image_tags as $image_tag ) {
 					$images[] = $dom->saveHTML( $image_tag );
+					if ( 'false' === $args['display_images'] ) {
+						$image_tag->parentNode->removeChild( $image_tag );
+					}
 				}
 			}
+
+			$blockquote  = $dom->getElementsByTagName( 'blockquote' )->item( 0 );
+			$description = $dom->saveHTML( $blockquote );
+			$description = substr( $description, 12, - 13 );
 
 			$rss_data[ $item_index ]['title']        = $title;
 			$rss_data[ $item_index ]['permalink']    = $permalink;
