@@ -93,6 +93,7 @@ class DiscourseRSS {
 			'cache_duration' => 10,
 			'excerpt_length' => 55,
 			'display_images' => 'true',
+			'display_avatars' => 'false',
 		), $args );
 		$time = time();
 
@@ -188,7 +189,7 @@ class DiscourseRSS {
 		$feed = fetch_feed( $rss_url );
 		remove_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'feed_cache_duration' ) );
 
-		if ( ! empty ( $feed->errors ) ||  is_wp_error( $feed ) ) {
+		if ( ! empty ( $feed->errors ) || is_wp_error( $feed ) ) {
 
 			return new \WP_Error( 'wp_discourse_rss_error', 'An RSS feed was not returned by Discourse.' );
 		}
@@ -206,12 +207,30 @@ class DiscourseRSS {
 			$title            = $item->get_title();
 			$permalink        = $item->get_permalink();
 			$category         = $item->get_category()->get_term();
-			$author           = $item->get_author()->get_name();
+			$author_data           = $item->get_author()->get_name();
+			// Todo: clean this up - just set the username here.
+			if ( strpos( trim( $author_data ), ' ' ) ){
+				$author_data = explode( ' ', $author_data );
+				$username = trim( $author_data[0], '\@' );
+				$name = $author_data[1];
+			} else {
+				$username = trim( $author_data, '\@' );
+				$name = '';
+			}
+//			write_log( 'author', $author);
+//			$username         = trim( $author, '\@' );
+			// Todo: add an attribute for this.
+			$avatar_template = $item->get_item_tags( 'http://purl.org/dc/elements/1.1/', 'avatar_template' )[0]['data'];
+			write_log('avatar template', $avatar_template );
+			$avatar_url       = $this->get_avatar_url( $username );
 			$date             = $item->get_date( 'F j, Y' );
 			$description_html = $item->get_description();
 			$description_html = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' . $description_html . '</body></html>';
 			$dom->loadHTML( $description_html );
 			$wp_permalink = '';
+//			$avatar = $item->get_item_tags( 'http://purl.org/dc/elements/1.1/', 'creator_avatar' )[0]['data'];
+//			write_log('avatar', $avatar);
+
 
 			$paragraphs = $dom->getElementsByTagName( 'p' );
 
@@ -240,6 +259,7 @@ class DiscourseRSS {
 			if ( $image_tags->length ) {
 				foreach ( $image_tags as $image_tag ) {
 					$images[] = $dom->saveHTML( $image_tag );
+					// Todo: if images aren't being displayed, strip the caption from the text.
 					if ( 'false' === $args['display_images'] ) {
 						$image_tag->parentNode->removeChild( $image_tag );
 					}
@@ -254,7 +274,9 @@ class DiscourseRSS {
 			$rss_data[ $item_index ]['permalink']    = $permalink;
 			$rss_data[ $item_index ]['wp_permalink'] = $wp_permalink;
 			$rss_data[ $item_index ]['category']     = $category;
-			$rss_data[ $item_index ]['author']       = $author;
+			$rss_data[ $item_index ]['username']       = $username;
+			$rss_data[ $item_index ]['name'] = $name;
+			$rss_data[ $item_index ]['avatar_url']       = $avatar_url;
 			$rss_data[ $item_index ]['date']         = $date;
 			$rss_data[ $item_index ]['description']  = $description;
 			$rss_data[ $item_index ]['images']       = $images;
@@ -264,5 +286,36 @@ class DiscourseRSS {
 		unset( $dom );
 
 		return $rss_data;
+	}
+
+	protected function get_avatar_url( $username ) {
+		$api_key      = $this->options['api-key'];
+		$api_username = $this->options['publish-username'];
+
+		$user_url = "{$this->discourse_url}/users/{$username}.json";
+		write_log('user url', $user_url);
+		$user_url = add_query_arg( array(
+			'api_key'      => $api_key,
+			'api_username' => $api_username,
+		), $user_url );
+		$response = wp_remote_get( esc_url_raw( $user_url ) );
+		if ( ! $this->validate( $response ) ) {
+
+			// Todo: add message.
+			return new \WP_Error();
+		}
+
+		$response = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( ! empty( $response['user'] ) ) {
+			$user = $response['user'];
+			// Todo: figure out the correct size.
+			$avatar_url = $this->discourse_url . str_replace( '{size}', 25, $user['avatar_template']);
+
+			return $avatar_url;
+		}
+
+		// Couldn't get the avatar.
+		return '';
 	}
 }

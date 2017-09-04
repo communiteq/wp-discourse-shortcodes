@@ -36,14 +36,22 @@ class DiscourseRSSFormatter {
 	public function format_rss_topics( $topics, $args ) {
 		$excerpt_length = $args['excerpt_length'];
 		$topic_list_id  = 'wpds_rss_list_' . time();
-		$output         = '<ul class="wpds-rss-list" id="' . esc_attr( $topic_list_id) . '">';
+		$output         = '<ul class="wpds-rss-list" id="' . esc_attr( $topic_list_id ) . '">';
 		foreach ( $topics as $topic ) {
 			$description = ! empty( $topic['description'] ) ? $topic['description'] : '';
 			if ( 'full' !== $excerpt_length ) {
 				$description = wp_trim_words( wp_strip_all_tags( $description ), $args['excerpt_length'] );
 			}
 
-			$author        = ! empty( $topic['author'] ) ? $topic['author'] : '';
+			$author = ! empty( $topic['username'] ) ? $topic['username'] : '';
+			if ( ! empty( $topic['username'] ) && ! empty( $topic['name'] ) ) {
+				$author = $topic['username'] . ' ' . $topic['name'];
+			} elseif ( ! empty( $topic['username'] ) ) {
+				$author = $topic['username'];
+			} else {
+				$author = '';
+			}
+			// Todo: set this in discourse-rss.php?
 			$cleaned_name  = trim( $author, '\@' );
 			$author_url    = "{$this->discourse_url}/u/{$cleaned_name}";
 			$category_name = ! empty( $topic['category'] ) ? $topic['category'] : '';
@@ -51,28 +59,44 @@ class DiscourseRSSFormatter {
 			$wp_permalink  = ! empty( $topic['wp_permalink'] ) ? $topic['wp_permalink'] : null;
 
 			$output .= '<li class="wpds-rss-topic ' . esc_attr( $category['slug'] ) . '">';
+
+			$output .= '<header>';
 			$output .= '<h3 class="wpds-rss-title"><a href="' . esc_url( $topic['permalink'] ) . '">' . esc_html( $topic['title'] ) . '</a></h3>';
-			$output .= '<div class="wpds-rss-poster-meta"><span class="wpds-term"> ' . __( 'posted by', 'wpds' ) . '</span> <a href="' .
-			           esc_url( $author_url ) . '">' . esc_html( $cleaned_name ) . '</a> <span class="wpds-term">' . __( 'on', 'wpds' ) .
-			           '</span> <span class="wpds-created-at">' . esc_html( $topic['date'] ) . '</span><br><span class="wpds-term">' .
-			           __( 'in', 'wpds' ) . '</span> <span class="wpds-shortcode-category" >' . $this->discourse_category_badge( $category ) . '</span>';
-			if ( $wp_permalink ) {
-				$output .= '<br><span class="wpds-term"> orginally published at </span><a href="' . esc_url( $wp_permalink ) . '">' . esc_url( $wp_permalink ) . '</a>';
+			$output .= '<span class="wpds-shortcode-category" >' . $this->discourse_category_badge( $category ) . '</span>';
+			$output .= '<div class="wpds-rss-poster-meta">';
+
+			$output .= '<a href="' . esc_url( $author_url ) . '">';
+			if ( 'true' === $args['display_avatars'] && ! empty( $topic['avatar_url'] ) ) {
+				$avatar_image = '<img class="wpds-rss-avatar" src="' . esc_url( $topic['avatar_url'] ) . '">';
+
+				$output .= apply_filters( 'wpds_shorcodes_avatar', $avatar_image, esc_url( $topic['avatar_url'] ) );
+			}
+
+			$output .= '<span class="wpds-rss-username">' . esc_html( $cleaned_name ) . '</span></a><span class="wpds-created-at">' . esc_html( $topic['date'] ) . '</span>';
+			if ( $wp_permalink && ! empty( $args['display_permalink'] ) ) {
+				// Todo: don't use <br><br>
+				$output .= '<br><br><span class="wpds-term wpds-wp-link"> orginally published at </span><a href="' . esc_url( $wp_permalink ) . '">' . esc_url( $wp_permalink ) . '</a>';
 			}
 			$output .= '</div>';
+			$output .= '</header>';
 
 			if ( 'full' !== $excerpt_length ) {
-				$output .= '<p>' . wp_kses_post( $description ) . '</p>';
+				$output .= '<p class="wpds-discussion-excerpt">' . wp_kses_post( $description ) . '</p>';
 			} else {
 				// Todo: sub this back in.
 //				$output .= wp_kses_post( $description );
-				$output .= $description;
-			}
-			if ( $topic['reply_count'] ) {
-				$output .= '<p class="wpds-topic-activity-meta"><span class="wpds-term">' . __( 'replies', 'wpds' ) . '</span> ' . esc_html( $topic['reply_count'] ) . '</p>';
-			}
 
-			$output .= '<p><a href="' . esc_url( $topic['permalink'] ) . '">' . __( 'join the discussion', 'wpds' ) . '</a></p></li>';
+				$output .= '<div class="wpds-full-discussion">' . $description . '</div>';
+			}
+			if ( ! empty( $topic['reply_count'] ) ) {
+				$reply_text = 1 === $topic['reply_count'] ? __( 'reply', 'wpds' ) : __( 'replies', 'wpds' );
+				$output     .= '<p class="wpds-topic-activity-meta">' . esc_html( $topic['reply_count'] ) . ' <span class="wpds-term">' . esc_html( $reply_text ) . '</span></p>';
+				$output     .= '<div class="wpds-discussion-link-wrapper"><p class="wpds-discussion-link"><a href="' . esc_url( $topic['permalink'] ) . '" class="has-replies">' . __( 'join the discussion', 'wpds' ) . '</a></p></div></li>';
+			} else {
+				$reply_text = __( 'no replies', 'wpds' );
+				$output     .= '<p class="wpds-topic-activity-meta"><span class="wpds-term">' . esc_html( $reply_text ) . '</span></p>';
+				$output     .= '<div class="wpds-discussion-link-wrapper"><p class="wpds-discussion-link"><a href="' . esc_url( $topic['permalink'] ) . '" class="no-replies">' . __( 'start the discussion', 'wpds' ) . '</a></p></div></li>';
+			}
 		}
 
 		$output .= '</ul>';
