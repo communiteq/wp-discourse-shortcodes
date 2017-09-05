@@ -148,7 +148,7 @@ class DiscourseTopics {
 
 				$latest_topics = $this->fetch_topics( 'latest' );
 
-				if ( empty( $latest_topics ) && ! is_wp_error( $latest_topics ) ) {
+				if ( empty( $latest_topics ) || is_wp_error( $latest_topics ) ) {
 
 					return new \WP_Error( 'wpds_get_topics_error', 'There was an error retrieving the formatted latest topics.' );
 				} else {

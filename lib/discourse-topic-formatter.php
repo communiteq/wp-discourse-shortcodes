@@ -49,13 +49,17 @@ class DiscourseTopicFormatter {
 		$output = '<ul class="wpds-topiclist">';
 
 		foreach ( $topics as $topic ) {
+			write_log( 'topic', $topic );
 			if ( $topic_count < $args['max_topics'] && $this->display_topic( $topic ) ) {
+				// Todo: make sure the properties are set!
 				$topic_url            = $this->options['url'] . "/t/{$topic['slug']}/{$topic['id']}";
 				$created_at           = date_create( get_date_from_gmt( $topic['created_at'] ) );
 				$created_at_formatted = date_format( $created_at, 'F j, Y' );
 				$last_activity        = $topic['last_posted_at'];
 				$category             = $this->find_discourse_category( $topic );
 				$posters              = $topic['posters'];
+				$replies = $topic['posts_count'] - 1;
+				$like_count           = $topic['like_count'];
 
 				foreach ( $posters as $poster ) {
 					if ( preg_match( '/Original Poster/', $poster['description'] ) ) {
@@ -63,7 +67,7 @@ class DiscourseTopicFormatter {
 						foreach ( $users as $user ) {
 							if ( $original_poster_id === $user['id'] ) {
 								$poster_username   = $user['username'];
-								$avatar_template   = str_replace( '{size}', 22, $user['avatar_template'] );
+								$avatar_template   = str_replace( '{size}', 120, $user['avatar_template'] );
 								$poster_avatar_url = $this->options['url'] . $avatar_template;
 							}
 						}
@@ -75,9 +79,25 @@ class DiscourseTopicFormatter {
 				if ( 'true' === $args['display_avatars'] ) {
 					$avatar_image = '<img class="wpds-latest-avatar" src="' . esc_url( $poster_avatar_url ) . '">';
 
-					$output .= apply_filters( 'wpds_shorcodes_avatar', $avatar_image, esc_url( $poster_avatar_url ) );
+					$output .= '<div class="wpds-topiclist-avatar">' . apply_filters( 'wpds_shorcodes_avatar', $avatar_image, esc_url( $poster_avatar_url ) ) . '</div>';
 				}
 
+				$output .= '<header>';
+				$output .= '<span class="wpds-created-at">' . esc_html( $created_at_formatted ) . '</span>';
+				$output .= '<h3 class="wpds-topic-title"><a href="' . esc_url( $topic_url ) . '">' . esc_html( $topic['title'] ) . '</a></h3>';
+				$output .= '</header>';
+
+				$output .= '<footer>';
+				$output .= '<div class="wpds-topiclist-meta"><span class="wpds-topiclist-term">by </span> ' . esc_html( $poster_username );
+				$output .= '<span class="wpds-likes-and-replies">';
+				$output .= '<i class="fa fa-heart" aria-hidden="true"></i><span class="wpds-topiclist-likes">' . esc_attr( $like_count ) . '</span>';
+				$output .= '<i class="fa fa-reply" aria-hidden="true"></i><span class="wpds-topiclist-replies">' . esc_attr( $replies ) . '</span>';
+				$output .= '</span>';
+				$output .= '</div>';
+
+				$output .= '</footer>';
+
+				/*
 				$output .= '<span class="wpds-username">' . esc_html( $poster_username ) . '</span>' . '<span class="wpds-term"> posted on </span><span class="wpds-created-at">' . $created_at_formatted . '</span><br>
 						<span class="wpds-term">in </span><span class="wpds-shortcode-category" >' . $this->discourse_category_badge( $category ) . '</span></div>
 						<p class="wpds-topic-title"><a href="' . esc_url( $topic_url ) . '">' . esc_html( $topic['title'] ) . '</a></p>
@@ -86,6 +106,7 @@ class DiscourseTopicFormatter {
 				           '</span> <span class="wpds-term">last activity</span> <span class="wpds-last-activity">' .
 				           // Unless webhooks are setup, the last activity will only be as acurate as the cache period.
 				           $this->calculate_last_activity( $last_activity ) . '</span></p></li>';
+				*/
 
 				$topic_count += 1;
 			}// End if().

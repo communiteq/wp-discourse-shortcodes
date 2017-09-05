@@ -70,6 +70,8 @@ class DiscourseShortcodes {
 		if ( ! empty( $this->options['wpds_use_default_styles'] ) ) {
 			wp_register_style( 'wpds_styles', plugins_url( '/css/styles.css', __FILE__ ) );
 			wp_enqueue_style( 'wpds_styles' );
+			// Todo: remove this!
+			wp_enqueue_style('font-awesome', '//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
 		}
 
 		if ( ! empty( $this->options['wpds_ajax_refresh'] ) ) {

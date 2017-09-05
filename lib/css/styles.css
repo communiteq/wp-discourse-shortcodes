@@ -96,6 +96,23 @@ p.wpds-topic-title a {
     position: relative;
 }
 
+.wpds-topic {
+    box-sizing: border-box;
+    display: inline;
+    float: left;
+    width: 240px;
+    padding: 1em 12px;
+    margin-right: 40px;
+    margin-bottom: 40px;
+    border: 1px solid #cccccc;
+    border-radius: 3px;
+    -webkit-box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);
+    -moz-box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);
+    box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);
+    height: 300px;
+    position: relative;
+}
+
 h3.wpds-rss-title {
     margin-bottom: 0;
     font-size: 21px;
@@ -116,6 +133,10 @@ span.wpds-created-at {
     margin-right: 0;
 }
 
+.wpds-topiclist .wpds-topic:nth-child(4) {
+    margin-right: 0;
+}
+
 img.wpds-rss-avatar {
     float: left;
     margin-right: 4px;
@@ -125,7 +146,8 @@ img.wpds-rss-avatar {
     /*min-height: 165px;*/
 }
 
-.entry-content .wpds-rss-topic a {
+.entry-content .wpds-rss-topic a,
+.entry-content .wpds-topic a {
     text-decoration: none;
     box-shadow: none;
 }
@@ -202,4 +224,57 @@ a.no-replies:hover {
     background-image: linear-gradient(to bottom, #49c730, #0e7a09);
     text-decoration: none;
     box-shadow: none;
+}
+
+.wpds-latest-avatar {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 50%;
+}
+
+.wpds-topiclist header {
+    text-align: center;
+    padding-top: 1.5em;
+    padding-bottom: 1.5em;
+    /*border-bottom: 1px solid #bbbbbb;*/
+}
+
+.wpds-topic header h3.wpds-topic-title {
+    padding-top: 0;
+}
+
+.wpds-topiclist .wpds-created-at {
+    text-align: center;
+    float: none;
+}
+
+.wpds-topic footer {
+    /*border-top: 1px solid;*/
+    height: 46px;
+    position: absolute;
+    bottom: 0;
+    /*background-color: pink;*/
+    width: 100%;
+    left: 0;
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.wpds-topiclist-meta {
+    border-top: 1px solid #bbbbbb;
+    line-height: 46px;
+}
+
+.wpds-likes-and-replies {
+    float: right;
+}
+
+.wpds-topiclist-likes {
+    padding-right: 6px;
+}
+
+i.fa {
+    color: #666666;
+    padding-right: 2px;
 }

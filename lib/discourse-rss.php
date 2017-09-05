@@ -118,7 +118,7 @@ class DiscourseRSS {
 
 					return new \WP_Error( 'wpds_get_rss_error', 'There was an error retrieving the formatted RSS.' );
 				} else {
-
+					write_log('you are here' );
 					$formatted_rss = $this->rss_formatter->format_rss_topics( $latest_rss, $args );
 					set_transient( 'wpds_latest_rss', $formatted_rss, DAY_IN_SECONDS );
 					update_option( 'wpds_update_latest_rss_content', 0 );
