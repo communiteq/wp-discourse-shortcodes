@@ -74,7 +74,7 @@ class DiscourseTopicFormatter {
 					}
 				}
 
-				$output .= '<li class="wpds-topic"><div class="wpds-topic-poster-meta">';
+				$output .= '<li class="wpds-topic '. esc_attr( $category['slug'] ) . '"><div class="wpds-topic-poster-meta">';
 
 				if ( 'true' === $args['display_avatars'] ) {
 					$avatar_image = '<img class="wpds-latest-avatar" src="' . esc_url( $poster_avatar_url ) . '">';
@@ -88,11 +88,14 @@ class DiscourseTopicFormatter {
 				$output .= '</header>';
 
 				$output .= '<footer>';
-				$output .= '<div class="wpds-topiclist-meta"><span class="wpds-topiclist-term">by </span> ' . esc_html( $poster_username );
+				$output .= '<div class="wpds-topiclist-meta">';
+				$output .= '<span class="wpds-topiclist-topic-meta">';
+				$output .= '<span class="wpds-topiclist-term">by </span> ' . esc_html( $poster_username ) . '<br>';
+				$output .= '<span class="wpds-topiclist-term">in </span><span class="wpds-shortcode-category">' . $this->discourse_category_badge( $category ) . '</span>';
+				$output .= '</span>';
 				$output .= '<span class="wpds-likes-and-replies">';
 				$output .= '<i class="fa fa-heart" aria-hidden="true"></i><span class="wpds-topiclist-likes">' . esc_attr( $like_count ) . '</span>';
 				$output .= '<i class="fa fa-reply" aria-hidden="true"></i><span class="wpds-topiclist-replies">' . esc_attr( $replies ) . '</span>';
-				$output .= '</span>';
 				$output .= '</div>';
 
 				$output .= '</footer>';

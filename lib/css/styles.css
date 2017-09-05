@@ -101,7 +101,8 @@ p.wpds-topic-title a {
     display: inline;
     float: left;
     width: 240px;
-    padding: 1em 12px;
+    padding-left: 12px;
+    padding-right: 12px;
     margin-right: 40px;
     margin-bottom: 40px;
     border: 1px solid #cccccc;
@@ -109,7 +110,7 @@ p.wpds-topic-title a {
     -webkit-box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);
     -moz-box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);
     box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);
-    height: 300px;
+    height: 370px;
     position: relative;
 }
 
@@ -251,7 +252,7 @@ a.no-replies:hover {
 
 .wpds-topic footer {
     /*border-top: 1px solid;*/
-    height: 46px;
+    height: 54px;
     position: absolute;
     bottom: 0;
     /*background-color: pink;*/
@@ -263,7 +264,8 @@ a.no-replies:hover {
 
 .wpds-topiclist-meta {
     border-top: 1px solid #bbbbbb;
-    line-height: 46px;
+    padding-top: 12px;
+    line-height: 15px;
 }
 
 .wpds-likes-and-replies {
@@ -277,4 +279,31 @@ a.no-replies:hover {
 i.fa {
     color: #666666;
     padding-right: 2px;
+}
+
+.wpds-topiclist-avatar {
+    padding-top: 2em;
+    padding-bottom: 2em;
+    margin-left: -14px;
+    margin-right: -14px;
+}
+
+.wpds-topiclist footer span.wpds-shortcode-category {
+    margin-left: 4px;
+}
+
+.supercollider .wpds-topiclist-avatar {
+    background-color: #00569b;
+}
+
+.maxmsp .wpds-topiclist-avatar {
+    background-color: #007326;
+}
+
+.audio-programming .wpds-topiclist-avatar {
+    background-color: #dc731c;
+}
+
+.sonicpi .wpds-topiclist-avatar {
+    background-color: #bf2600;
 }
