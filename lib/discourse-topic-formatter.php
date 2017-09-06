@@ -2,8 +2,10 @@
 
 namespace WPDiscourse\Shortcodes;
 
+use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
+
 class DiscourseTopicFormatter {
-	use Utilities;
+	use Formatter;
 
 	protected $options;
 
@@ -21,7 +23,7 @@ class DiscourseTopicFormatter {
 	}
 
 	public function setup_options() {
-		$this->options       = $this->get_options();
+		$this->options       = DiscourseUtilities::get_options();
 		$this->discourse_url = ! empty( $this->options['url'] ) ? $this->options['url'] : null;
 	}
 
@@ -47,6 +49,10 @@ class DiscourseTopicFormatter {
 		$topic_count       = 0;
 
 		$output = '<ul class="wpds-topiclist">';
+
+		if ( ! empty( $this->options['wpds_ajax_refresh']) && ( 'latest' === $args['source'] || 'daily' === $args['period'])) {
+			$output .= $this->render_topics_shortcode_options( $args );
+		}
 
 		foreach ( $topics as $topic ) {
 			if ( $topic_count < $args['max_topics'] && $this->display_topic( $topic ) ) {
@@ -99,99 +105,4 @@ class DiscourseTopicFormatter {
 
 		return ! $topic['pinned_globally'] && 'regular' === $topic['archetype'] && - 1 !== $topic['posters'][0]['user_id'];
 	}
-
-	protected function find_discourse_category_by_name( $name ) {
-		$categories = $this->get_discourse_categories();
-		foreach ( $categories as $category ) {
-			if ( $name === $category['name'] ) {
-
-				return $category;
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * Finds the category of a topic.
-	 *
-	 * @param array $topic A Discourse topic.
-	 *
-	 * @return null
-	 */
-	protected function find_discourse_category(
-		$topic
-	) {
-		$categories  = $this->get_discourse_categories();
-		$category_id = $topic['category_id'];
-
-		foreach ( $categories as $category ) {
-			if ( $category_id === $category['id'] ) {
-				return $category;
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * Creates the markup for a category badge.
-	 *
-	 * @param array $category A Discourse category.
-	 *
-	 * @return string
-	 */
-	protected function discourse_category_badge(
-		$category
-	) {
-		$category_name  = $category['name'];
-		$category_color = '#' . $category['color'];
-		$category_badge = '<span class="discourse-shortcode-category-badge" style="width: 8px; height: 8px; background-color: ' .
-		                  esc_attr( $category_color ) . '; display: inline-block;"></span><span class="discourse-category-name"> ' . esc_html( $category_name ) . '</span>';
-
-		return $category_badge;
-	}
-
-	/**
-	 * Formats the last_activity string.
-	 *
-	 * @param string $last_activity The time of the last activity on the topic.
-	 *
-	 * @return string
-	 */
-	protected function calculate_last_activity(
-		$last_activity
-	) {
-		$now           = time();
-		$last_activity = strtotime( $last_activity );
-		$seconds       = $now - $last_activity;
-
-		$minutes = intval( $seconds / 60 );
-		if ( $minutes === 0 ) {
-			return 'A few seconds ago';
-		}
-		if ( $minutes < 60 ) {
-			return 1 === $minutes ? '1 minute ago' : $minutes . ' minutes ago';
-		}
-
-		$hours = intval( $minutes / 60 );
-		if ( $hours < 24 ) {
-			return 1 === $hours ? '1 hour ago' : $hours . ' hours ago';
-		}
-
-		$days = intval( $hours / 24 );
-		if ( $days < 30 ) {
-			return 1 === $days ? '1 day ago' : $days . ' days ago';
-		}
-
-		$months = intval( $days / 30 );
-		if ( $months < 12 ) {
-			return 1 === $months ? '1 month ago' : $months . ' months ago';
-		}
-
-		$years = intval( $months / 12 );
-
-		return 1 === $years ? '1 year ago' : $years . ' years ago';
-	}
-
 }

@@ -2,8 +2,10 @@
 
 namespace WPDiscourse\Shortcodes;
 
+Use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
+
 class DiscourseTopics {
-	use Utilities;
+//	use Utilities;
 
 	/**
 	 * The key for the plugin's options array.
@@ -72,7 +74,7 @@ class DiscourseTopics {
 	 */
 	public function setup_options() {
 		add_option( 'wpds_update_latest', 1 );
-		$this->options       = $this->get_options();
+		$this->options       = DiscourseUtilities::get_options();
 		$this->discourse_url = ! empty( $this->options['url'] ) ? $this->options['url'] : null;
 		$this->api_key       = ! empty( $this->options['api-key'] ) ? $this->options['api-key'] : null;
 		$this->api_username  = ! empty( $this->options['publish-username'] ) ? $this->options['publish-username'] : null;
@@ -90,10 +92,43 @@ class DiscourseTopics {
 				),
 				array(
 					'methods'  => \WP_REST_Server::READABLE,
-					'callback' => array( $this, 'get_latest_topics' ),
+					'callback' => array( $this, 'get_ajax_topics' ),
 				),
 			) );
 		}
+	}
+
+	public function get_ajax_topics( $request ) {
+		if ( empty( get_option( 'wpds_update_latest'))) {
+			// The content is fresh.
+			// The only problem with doing this is that 'last_activity' isn't updated unless there's fresh content.
+//			return 0;
+		}
+
+		$args = [];
+		if ( ! empty( $request['max_topics'] ) ) {
+			$args['max_topics'] = esc_attr( wp_unslash( $request['max_topics'] ) );
+		}
+
+		if ( ! empty( $request['display_avatars'] ) ) {
+			$args['display_avatars'] = esc_attr( wp_unslash( $request['display_avatars'] ) );
+		}
+
+		if ( ! empty( $request['source'] ) ) {
+			$args['source'] = esc_attr( wp_unslash( $request['source'] ) );
+		}
+
+		if ( ! empty( $request['period'] ) ) {
+			$args['period'] = esc_attr( wp_unslash( $request['period'] ) );
+		}
+
+		$topics = $this->get_topics( $args );
+		if ( is_wp_error( $topics ) || empty( $topics ) ) {
+
+			return 0;
+		}
+
+		return $topics;
 	}
 
 	/**
@@ -104,7 +139,7 @@ class DiscourseTopics {
 	 * @return null
 	 */
 	public function update_latest_topics( $data ) {
-		$data = $this->verify_discourse_webhook_request( $data );
+		$data = DiscourseUtilities::verify_discourse_webhook_request( $data );
 
 		if ( is_wp_error( $data ) ) {
 
@@ -127,7 +162,7 @@ class DiscourseTopics {
 			'max_topics'      => 5,
 			'display_avatars' => 'true',
 			'source'          => 'latest',
-			'period'          => 'yearly',
+			'period'          => 'daily',
 			'cache_duration'  => 10,
 		), $args );
 		$time = time();
@@ -148,7 +183,7 @@ class DiscourseTopics {
 
 				$latest_topics = $this->fetch_topics( 'latest' );
 
-				if ( empty( $latest_topics ) && ! is_wp_error( $latest_topics ) ) {
+				if ( empty( $latest_topics ) || is_wp_error( $latest_topics ) ) {
 
 					return new \WP_Error( 'wpds_get_topics_error', 'There was an error retrieving the formatted latest topics.' );
 				} else {
@@ -179,7 +214,7 @@ class DiscourseTopics {
 
 				$top_topics = $this->fetch_topics( $source );
 
-				if ( empty( $top_topics ) && ! is_wp_error( $top_topics ) ) {
+				if ( empty( $top_topics ) || is_wp_error( $top_topics ) ) {
 
 					return new \WP_Error( 'wpds_get_topics_error', 'There was an error retrieving the formatted top topics.' );
 				} else {
@@ -192,8 +227,7 @@ class DiscourseTopics {
 			return $formatted_topics;
 		}
 
-		// Todo: add error message.
-		return new \WP_Error();
+		return new \WP_Error( 'wpds_get_topics_error', 'A valid topics source was not provided.' );
 	}
 
 	/**
@@ -220,7 +254,7 @@ class DiscourseTopics {
 
 		$remote = wp_remote_get( $topics_url );
 
-		if ( ! $this->validate( $remote ) ) {
+		if ( ! DiscourseUtilities::validate( $remote ) ) {
 
 			return new \WP_Error( 'wp_discourse_response_error', 'An error was returned from Discourse when fetching the latest topics.' );
 		}

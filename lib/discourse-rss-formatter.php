@@ -40,9 +40,11 @@ class DiscourseRSSFormatter {
 		$topic_list_id = 'wpds_rss_list_' . time();
 
 		$output = '<ul class="wpds-rss-list ' . esc_attr( $image_class ) . '" id="' . esc_attr( $topic_list_id ) . '">';
+
 		if ( ! empty( $this->options['wpds_ajax_refresh'])) {
-			$output .= $this->render_shortcode_options( $args );
+			$output .= $this->render_rss_shortcode_options( $args );
 		}
+
 		foreach ( $topics as $topic ) {
 			$description = ! empty( $topic['description'] ) ? $topic['description'] : '';
 

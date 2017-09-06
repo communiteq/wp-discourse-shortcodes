@@ -69,6 +69,7 @@ class DiscourseShortcodes {
 
 		if ( ! empty( $this->options['wpds_ajax_refresh'] ) ) {
 			wp_register_script( 'wpds_js', plugins_url( '/js/discourse-latest.js', __FILE__ ), array( 'jquery' ), true );
+			// Todo: sanitize the URLs.
 			$data = array(
 				'latestURL' => home_url( '/wp-json/wp-discourse/v1/latest-topics' ),
 				'rssURL' => home_url( '/wp-json/wp-discourse/v1/latest-rss' ),
