@@ -2,8 +2,9 @@
 
 namespace WPDiscourse\Shortcodes;
 
+use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
+
 class DiscourseRSS {
-	use Utilities;
 
 	/**
 	 * The merged options from WP Discourse and WP Discourse Shortcodes.
@@ -56,7 +57,7 @@ class DiscourseRSS {
 	 */
 	public function setup_options() {
 		add_option( 'wpds_update_latest_rss', 1 );
-		$this->options       = $this->get_options();
+		$this->options       = DiscourseUtilities::get_options();
 		$this->discourse_url = ! empty( $this->options['url'] ) ? $this->options['url'] : null;
 	}
 
@@ -79,7 +80,7 @@ class DiscourseRSS {
 	}
 
 	public function update_latest_rss( $data ) {
-		$data = $this->verify_discourse_webhook_request( $data );
+		$data = DiscourseUtilities::verify_discourse_webhook_request( $data );
 
 		if ( is_wp_error( $data ) ) {
 

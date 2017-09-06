@@ -86,8 +86,6 @@ class DiscourseRSSFormatter {
 
 		apply_filters( 'wpds_after_formatting_rss', $output, $topics, $args );
 
-		write_log( $output );
-
 		return $output;
 	}
 }
