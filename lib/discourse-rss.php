@@ -6,14 +6,6 @@ class DiscourseRSS {
 	use Utilities;
 
 	/**
-	 * The key for the plugin's options array.
-	 *
-	 * @access protected
-	 * @var string
-	 */
-	protected $option_key = 'wpds_options';
-
-	/**
 	 * The merged options from WP Discourse and WP Discourse Shortcodes.
 	 *
 	 * All options are held in a single array, use a custom plugin prefix to avoid naming collisions with wp-discourse.

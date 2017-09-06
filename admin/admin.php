@@ -79,36 +79,6 @@ class Admin {
 			'shortcode_settings_details',
 		), 'wpds_options' );
 
-		add_settings_field( 'wpds_max_topics', __( 'Maximum Number of Discourse Topics', 'wpds' ), array(
-			$this,
-			'max_topics_input',
-		), 'wpds_options', 'wpds_settings_section' );
-
-		add_settings_field( 'wpds_display_avatars', __( 'Display avatars with the latest_topics shortcode.', 'wpds' ), array(
-			$this,
-			'display_avatars_checkbox',
-		), 'wpds_options', 'wpds_settings_section' );
-
-		add_settings_field( 'wpds_rss_full_content', __( 'Display the full post content in the RSS feed.', 'wpds' ), array(
-			$this,
-			'rss_full_content_checkbox',
-		), 'wpds_options', 'wpds_settings_section' );
-
-		add_settings_field( 'wpds_rss_excerpt_length', __( 'RSS Excerpt Length', 'wpds' ), array(
-			$this,
-			'rss_excerpt_length_input',
-		), 'wpds_options', 'wpds_settings_section' );
-
-		add_settings_field( 'wpds_rss_display_images', __( 'Display Images in RSS Feed', 'wpds' ), array(
-			$this,
-			'rss_display_images_checkbox',
-		), 'wpds_options', 'wpds_settings_section' );
-
-		add_settings_field( 'wpds_cache_period', __( 'Discourse Content Cache Period', 'wpds' ), array(
-			$this,
-			'cache_period_input',
-		), 'wpds_options', 'wpds_settings_section' );
-
 		add_settings_field( 'wpds_topic_webhook_refresh', __( 'Enable Discourse Webhook', 'wpds' ), array(
 			$this,
 			'webhook_refresh_checkbox',
@@ -276,10 +246,6 @@ class Admin {
 		$this->form_helper->checkbox_input( 'wpds_ajax_refresh', 'wpds_options', __( 'Use an ajax request to load topics on the front end.', 'wpds' ) );
 	}
 
-	public function display_avatars_checkbox() {
-		$this->form_helper->checkbox_input( 'wpds_display_avatars', 'wpds_options', __( 'Display Discourse avatars along with the latest topics.', 'wpds' ) );
-	}
-
 	/**
 	 * Displays the ajax_timeout_input field.
 	 * Todo: reset the min value to a sane number (60?). I've reduced it for testing.
@@ -287,24 +253,6 @@ class Admin {
 	public function ajax_timeout_input() {
 		$this->form_helper->input( 'wpds_ajax_timeout', 'wpds_options', __( 'Ajax refresh period in seconds (minimum value: 60, default: 120).', 'wpds' ),
 		'number', 10 );
-	}
-
-	public function max_topics_input() {
-		$this->form_helper->input( 'wpds_max_topics', 'wpds_options', __( 'Maximum number of topids to display.', 'wpds' ), 'number', 0 );
-	}
-
-	public function rss_excerpt_length_input() {
-		$this->form_helper->input( 'wpds_rss_excerpt_length', 'wpds_options', __( 'Excerpt length, in words, to display for RSS topics.', 'wpds' ),
-		'number', 0 );
-	}
-
-	public function cache_period_input() {
-		$this->form_helper->input( 'wpds_cache_period', 'wpds_options', __( 'Length of time in minutes to cache Discourse content. (Value will
-	    be ignored if Discouse webhooks are enabled.)', 'wpds' ), 'number', 1 );
-	}
-
-	public function rss_full_content_checkbox() {
-		$this->form_helper->checkbox_input( 'wpds_rss_full_content', 'wpds_options', __( 'Use full post content in the RSS feed.', 'wpds' ) );
 	}
 
 	/**
@@ -340,10 +288,6 @@ class Admin {
 	 */
 	public function use_default_styles_checkbox() {
 		$this->form_helper->checkbox_input( 'wpds_use_default_styles', 'wpds_options', __( 'Use the default plugin styles.', 'wpds' ) );
-	}
-
-	public function rss_display_images_checkbox() {
-	    $this->form_helper->checkbox_input( 'wpds_rss_display_images', 'wpds_options', __( "Display topic's first image at the top of the RSS feed.", 'wpds' ) );
 	}
 
 	public function fetch_discourse_groups_checkbox() {

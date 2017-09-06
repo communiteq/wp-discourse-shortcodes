@@ -33,17 +33,12 @@ class DiscourseShortcodes {
 		'wpds_clear_topics_cache' => 0,
 		'wpds_display_private_topics' => 0,
 		'wpds_use_default_styles' => 1,
-		'wpds_topic_webhook_refresh'    => 1,
+		'wpds_topic_webhook_refresh'    => 0,
+		'wpds_rss_webhook_refresh' => 0,
 		'wpds_webhook_secret'     => '',
 		'wpds_ajax_refresh' => 0,
 		'wpds_ajax_timeout' => 120,
 		'wpds_fetch_discourse_groups' => 0,
-		'wpds_max_topics' => 5,
-		'wpds_display_avatars' => 1,
-		'wpds_rss_full_content' => 0,
-		'wpds_rss_display_images' => 0,
-		'wpds_rss_excerpt_length' => 55,
-		'wpds_cache_period' => 10,
 	);
 
 	/**
