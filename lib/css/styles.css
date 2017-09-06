@@ -14,6 +14,9 @@ p.wpds-topic-title a {
 
 .wpds-latest-avatar {
 	margin-right: 4px;
+    border-radius: 50%;
+    position: relative;
+    top: 7px;
 }
 
 .wpds-topic-poster-meta,

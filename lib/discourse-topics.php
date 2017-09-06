@@ -101,6 +101,7 @@ class DiscourseTopics {
 	public function get_ajax_topics( $request ) {
 		if ( empty( get_option( 'wpds_update_latest'))) {
 			// The content is fresh.
+			// Todo: update last activity - send back an array.
 			// The only problem with doing this is that 'last_activity' isn't updated unless there's fresh content.
 //			return 0;
 		}

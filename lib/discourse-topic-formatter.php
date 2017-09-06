@@ -55,6 +55,7 @@ class DiscourseTopicFormatter {
 		}
 
 		foreach ( $topics as $topic ) {
+			write_log('topic', $topic);
 			if ( $topic_count < $args['max_topics'] && $this->display_topic( $topic ) ) {
 				$topic_url            = $this->options['url'] . "/t/{$topic['slug']}/{$topic['id']}";
 				$created_at           = date_create( get_date_from_gmt( $topic['created_at'] ) );
