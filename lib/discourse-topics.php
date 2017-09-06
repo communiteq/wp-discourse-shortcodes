@@ -171,6 +171,7 @@ class DiscourseTopics {
 		if ( 'latest' === $args['source'] ) {
 			$formatted_topics = get_transient( 'wpds_latest_topics' );
 
+			// Todo: Use the cache busting option to delete the transient.
 			if ( empty( $this->options['wpds_topic_webhook_refresh'] ) ) {
 				// Webhooks aren't enabled, use the cache_duration arg.
 				$last_sync      = get_option( 'wpds_latest_last_sync' );
