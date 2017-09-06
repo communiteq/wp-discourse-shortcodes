@@ -4,6 +4,7 @@ namespace WPDiscourse\Shortcodes;
 
 use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
 
+// Todo: don't do this. Just use DiscourseUtilities in the class, eventually it can be turned into a trait.
 trait Utilities {
 	public function get_options() {
 
