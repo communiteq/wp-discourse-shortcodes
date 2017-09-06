@@ -1,13 +1,26 @@
+/* Topic list styles */
+.wpds-topic-poster-meta,
+.wpds-topic-activity-meta,
+.wpds-rss-poster-meta {
+    font-size: 0.8125rem;
+    color: #686868;
+}
+
+.wpds-term {
+    font-style: italic;
+}
+
 .wpds-topiclist,
 .wpds-rss-list {
     list-style: none;
 }
 
-p.wpds-topic-title {
-    margin-bottom: 0 !important;
+.wpds-topiclist .wpds-topic h4.wpds-topic-title {
+    margin-bottom: 0;
+    padding-top: 0;
 }
 
-p.wpds-topic-title a {
+.wpds-topiclist .wpds-topic h4.wpds-topic-title .wpds-topic-title-link {
     text-decoration: none;
     box-shadow: none;
 }
@@ -19,16 +32,6 @@ p.wpds-topic-title a {
     top: 7px;
 }
 
-.wpds-topic-poster-meta,
-.wpds-topic-activity-meta,
-.wpds-rss-poster-meta {
-    font-size: 0.8125rem;
-    color: #686868;
-}
-
-.wpds-term {
-    font-style: italic;
-}
 
 .wpds-rss-list .lightbox-wrapper {
     display: none;
