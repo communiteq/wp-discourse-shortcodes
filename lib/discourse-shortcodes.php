@@ -30,15 +30,15 @@ class DiscourseShortcodes {
 	 * @var array
 	 */
 	protected $wpds_options = array(
-		'wpds_clear_topics_cache' => 0,
+		'wpds_clear_topics_cache'     => 0,
 		'wpds_fetch_discourse_groups' => 0,
 		'wpds_display_private_topics' => 0,
-		'wpds_use_default_styles' => 1,
-		'wpds_topic_webhook_refresh'    => 0,
-		'wpds_rss_webhook_refresh' => 0,
-		'wpds_webhook_secret'     => '',
-		'wpds_ajax_refresh' => 0,
-		'wpds_ajax_timeout' => 120,
+		'wpds_use_default_styles'     => 1,
+		'wpds_topic_webhook_refresh'  => 0,
+		'wpds_rss_webhook_refresh'    => 0,
+		'wpds_webhook_secret'         => '',
+		'wpds_ajax_refresh'           => 0,
+		'wpds_ajax_timeout'           => 120,
 	);
 
 	/**
@@ -55,7 +55,7 @@ class DiscourseShortcodes {
 	 */
 	public function initialize_plugin() {
 		add_option( 'wpds_options', $this->wpds_options );
-		$this->options       = $this->get_options();
+		$this->options = $this->get_options();
 	}
 
 	/**
@@ -65,14 +65,18 @@ class DiscourseShortcodes {
 		if ( ! empty( $this->options['wpds_use_default_styles'] ) ) {
 			wp_register_style( 'wpds_styles', plugins_url( '/css/styles.css', __FILE__ ) );
 			wp_enqueue_style( 'wpds_styles' );
+
+			wp_register_style( 'fontello_styles', plugins_url( '../assets/fontello/css/fontello.css', __FILE__ ) );
+			wp_enqueue_style( 'fontello_styles' );
 		}
 
+		// Todo: only register the script if webhooks are enabled.
 		if ( ! empty( $this->options['wpds_ajax_refresh'] ) ) {
-			wp_register_script( 'wpds_js', plugins_url( '/js/discourse-latest.js', __FILE__ ), array( 'jquery' ), true );
+			wp_register_script( 'wpds_js', plugins_url( '/js/discourse-latest.js', __FILE__ ), array( 'jquery' ), WPDS_VERSION, true );
 			// Todo: sanitize the URLs.
 			$data = array(
-				'latestURL' => home_url( '/wp-json/wp-discourse/v1/latest-topics' ),
-				'rssURL' => home_url( '/wp-json/wp-discourse/v1/latest-rss' ),
+				'latestURL'   => home_url( '/wp-json/wp-discourse/v1/latest-topics' ),
+				'rssURL'      => home_url( '/wp-json/wp-discourse/v1/latest-rss' ),
 				'ajaxTimeout' => $this->options['wpds_ajax_timeout'],
 			);
 			wp_enqueue_script( 'wpds_js' );

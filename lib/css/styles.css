@@ -1,19 +1,19 @@
 .wpds-topiclist,
 .wpds-rss-list {
-	list-style: none;
+    list-style: none;
 }
 
 p.wpds-topic-title {
-	margin-bottom: 0 !important;
+    margin-bottom: 0 !important;
 }
 
 p.wpds-topic-title a {
-	text-decoration: none;
-	box-shadow: none;
+    text-decoration: none;
+    box-shadow: none;
 }
 
 .wpds-latest-avatar {
-	margin-right: 4px;
+    margin-right: 4px;
     border-radius: 50%;
     position: relative;
     top: 7px;
@@ -22,12 +22,12 @@ p.wpds-topic-title a {
 .wpds-topic-poster-meta,
 .wpds-topic-activity-meta,
 .wpds-rss-poster-meta {
-	font-size: 0.8125rem;
-	color: #686868;
+    font-size: 0.8125rem;
+    color: #686868;
 }
 
 .wpds-term {
-	font-style: italic;
+    font-style: italic;
 }
 
 .wpds-rss-list .lightbox-wrapper {
@@ -40,7 +40,7 @@ p.wpds-topic-title a {
 }
 
 .wpds-rss-topic {
-	padding-bottom: 40px;
+    padding-bottom: 40px;
 }
 
 .wpds-rss-topic blockquote {
@@ -59,7 +59,7 @@ p.wpds-topic-title a {
 }
 
 .wpds-rss-topic .wpds-rss-poster-meta {
-	margin-bottom: 1.5em;
+    margin-bottom: 1.5em;
 }
 
 /* Some padding before the category badge. */

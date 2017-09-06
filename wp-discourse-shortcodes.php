@@ -16,6 +16,8 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\\init' );
  */
 function init() {
 	if ( class_exists( '\WPDiscourse\Discourse\Discourse' ) ) {
+		define( 'WPDS_VERSION', '0.1' );
+
 		require_once( __DIR__ . '/lib/utilities.php' );
 		require_once( __DIR__ . '/lib/formatter.php' );
 		require_once( __DIR__ . '/lib/discourse-shortcodes.php' );

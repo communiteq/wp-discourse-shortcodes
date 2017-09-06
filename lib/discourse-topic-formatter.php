@@ -48,6 +48,7 @@ class DiscourseTopicFormatter {
 		$poster_username   = '';
 		$topic_count       = 0;
 
+		// Todo: add a class for ajax refresh. Make sure that for 'top' it is only added for 'daily'.
 		$output = '<ul class="wpds-topiclist">';
 
 		if ( ! empty( $this->options['wpds_ajax_refresh']) && ( 'latest' === $args['source'] || 'daily' === $args['period'])) {
@@ -92,7 +93,7 @@ class DiscourseTopicFormatter {
 				           esc_attr( ( $topic['posts_count'] ) - 1 ) .
 				           '</span> <span class="wpds-term">last activity</span> <span class="wpds-last-activity">' .
 				           // Unless webhooks are setup, the last activity will only be as acurate as the cache period.
-				           $this->calculate_last_activity( $last_activity ) . '</span></p></li>';
+				           $this->calculate_last_activity( $last_activity ) . '</span><i class="icon-heart"></i></p></li>';
 
 				$topic_count += 1;
 			}// End if().
