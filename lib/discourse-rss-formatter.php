@@ -35,8 +35,10 @@ class DiscourseRSSFormatter {
 	 */
 	public function format_rss_topics( $topics, $args ) {
 		$excerpt_length = $args['excerpt_length'];
+		$image_class = 'true' === $args['display_images'] ? 'wpds-rss-display-images' : '';
 		$topic_list_id  = 'wpds_rss_list_' . time();
-		$output         = '<ul class="wpds-rss-list" id="' . esc_attr( $topic_list_id) . '">';
+
+		$output         = '<ul class="wpds-rss-list ' . esc_attr( $image_class ) . '" id="' . esc_attr( $topic_list_id) . '">';
 		foreach ( $topics as $topic ) {
 			$description = ! empty( $topic['description'] ) ? $topic['description'] : '';
 			if ( 'full' !== $excerpt_length ) {

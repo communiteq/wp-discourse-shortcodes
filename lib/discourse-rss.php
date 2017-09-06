@@ -24,22 +24,6 @@ class DiscourseRSS {
 	protected $discourse_url;
 
 	/**
-	 * The Discourse API key.
-	 *
-	 * @access protected
-	 * @var string
-	 */
-	protected $api_key;
-
-	/**
-	 * The Discourse api_username.
-	 *
-	 * @access protected
-	 * @var string
-	 */
-	protected $api_username;
-
-	/**
 	 * An instance of the DiscourseRSSFormatter class.
 	 *
 	 * @access protected
@@ -56,7 +40,7 @@ class DiscourseRSS {
 		$this->rss_formatter = $rss_formatter;
 
 		add_action( 'init', array( $this, 'setup_options' ) );
-//		add_action( 'rest_api_init', array( $this, 'initialize_topic_route' ) );
+		add_action( 'rest_api_init', array( $this, 'initialize_rss_route' ) );
 		// Todo: workaround for accessing rss URLs with a port number. Remove this code!
 		if ( defined( 'DEV_MODE' ) && 'DEV_MODE' ) {
 			add_filter( 'http_request_args', function ( $args ) {
@@ -71,10 +55,41 @@ class DiscourseRSS {
 	 * Adds the plugin options, gets the merged wp-discourse/wp-discourse-latest-topics options, sets the discourse_url.
 	 */
 	public function setup_options() {
+		add_option( 'wpds_update_latest_rss', 1 );
 		$this->options       = $this->get_options();
 		$this->discourse_url = ! empty( $this->options['url'] ) ? $this->options['url'] : null;
-		$this->api_key       = ! empty( $this->options['api-key'] ) ? $this->options['api-key'] : null;
-		$this->api_username  = ! empty( $this->options['publish-username'] ) ? $this->options['publish-username'] : null;
+	}
+
+	/**
+	 * Initializes a WordPress Rest API route and endpoint.
+	 */
+	public function initialize_rss_route() {
+		if ( ! empty( $this->options['wpds_rss_webhook_refresh'] ) ) {
+			register_rest_route( 'wp-discourse/v1', 'latest-rss', array(
+				array(
+					'methods'  => \WP_REST_Server::CREATABLE,
+					'callback' => array( $this, 'update_latest_rss' ),
+				),
+				array(
+					'methods'  => \WP_REST_Server::READABLE,
+					'callback' => array( $this, 'get_latest_rss' ),
+				),
+			) );
+		}
+	}
+
+	public function update_latest_rss( $data ) {
+		$data = $this->verify_discourse_webhook_request( $data );
+
+		if ( is_wp_error( $data ) ) {
+
+			return new \WP_Error( 'discourse_response_error', 'There was an error returned from Discourse when processing the
+			latest_rss webhook.' );
+		}
+
+		update_option( 'wpds_update_latest_rss', 1 );
+
+		return null;
 	}
 
 	public function get_rss( $args ) {
@@ -91,14 +106,13 @@ class DiscourseRSS {
 		if ( 'latest' === $args['source'] ) {
 			$formatted_rss = get_transient( 'wpds_latest_rss' );
 
-			if ( empty( $this->options['wpds_topic_webhook_refresh'] ) ) {
+			if ( empty( $this->options['wpds_rss_webhook_refresh'] ) ) {
 				// Webhooks aren't enabled, use the cache_duration arg.
 				$last_sync      = get_option( 'wpds_latest_rss_last_sync' );
 				$cache_duration = $args['cache_duration'] * 60;
 				$update         = $cache_duration + $last_sync < $time;
 			} else {
-				// Todo: value is being set in discourse-topic.php, move to webhook class.
-				$update = ! empty( get_option( 'wpds_update_latest_rss_content' ) );
+				$update = ! empty( get_option( 'wpds_update_latest_rss' ) );
 			}
 
 			if ( empty( $formatted_rss ) || $update ) {
@@ -112,7 +126,7 @@ class DiscourseRSS {
 
 					$formatted_rss = $this->rss_formatter->format_rss_topics( $latest_rss, $args );
 					set_transient( 'wpds_latest_rss', $formatted_rss, DAY_IN_SECONDS );
-					update_option( 'wpds_update_latest_rss_content', 0 );
+					update_option( 'wpds_update_latest_rss', 0 );
 					update_option( 'wpds_latest_rss_last_sync', $time );
 				}
 			}
@@ -154,7 +168,6 @@ class DiscourseRSS {
 	}
 
 	public function feed_cache_duration() {
-		// Todo: set this to a sane value.
 		return 30;
 	}
 
@@ -180,7 +193,7 @@ class DiscourseRSS {
 		$feed = fetch_feed( $rss_url );
 		remove_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'feed_cache_duration' ) );
 
-		if ( ! empty ( $feed->errors ) ||  is_wp_error( $feed ) ) {
+		if ( ! empty ( $feed->errors ) || is_wp_error( $feed ) ) {
 
 			return new \WP_Error( 'wp_discourse_rss_error', 'An RSS feed was not returned by Discourse.' );
 		}
@@ -217,6 +230,7 @@ class DiscourseRSS {
 					$wp_permalink = $wp_link_node->getAttribute( 'href' );
 					$possible_link_nodes->item( 0 )->parentNode->removeChild( $possible_link_nodes->item( 0 ) );
 					$br_nodes = $possible_link_p->getElementsByTagName( 'br' );
+
 					foreach ( $br_nodes as $br_node ) {
 						$possible_link_p->removeChild( $br_node );
 					}
@@ -227,12 +241,14 @@ class DiscourseRSS {
 			$replies_p   = $paragraphs->item( $paragraphs->length - 3 );
 			$reply_count = filter_var( $replies_p->textContent, FILTER_SANITIZE_NUMBER_INT ) - 1;
 
-			$image_tags = $dom->getElementsByTagName( 'img' );
-			$images     = [];
-			if ( $image_tags->length ) {
-				foreach ( $image_tags as $image_tag ) {
-					$images[] = $dom->saveHTML( $image_tag );
-					if ( 'false' === $args['display_images'] ) {
+			if ( 'false' === $args['display_images'] ) {
+				$image_tags = $dom->getElementsByTagName( 'img' );
+				if ( $image_tags->length ) {
+					foreach ( $image_tags as $image_tag ) {
+//						$grandparent_node = $parent_node->parentNode;
+
+//						$grandparent_node->removeChild( $parent_node );
+
 						$image_tag->parentNode->removeChild( $image_tag );
 					}
 				}

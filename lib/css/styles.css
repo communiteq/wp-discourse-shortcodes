@@ -28,6 +28,11 @@ p.wpds-topic-title a {
 }
 
 .wpds-rss-list .lightbox-wrapper {
+    display: none;
+}
+
+.wpds-rss-list.wpds-rss-display-images .lightbox-wrapper {
+    display: block;
     padding-bottom: 1.5em;
 }
 
