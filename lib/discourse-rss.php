@@ -66,17 +66,45 @@ class DiscourseRSS {
 	 */
 	public function initialize_rss_route() {
 		if ( ! empty( $this->options['wpds_rss_webhook_refresh'] ) ) {
-			register_rest_route( 'wp-discourse/v1', 'latest-rss', array(
+			register_rest_route( 'wp-discourse/v1', '/latest-rss', array(
 				array(
 					'methods'  => \WP_REST_Server::CREATABLE,
 					'callback' => array( $this, 'update_latest_rss' ),
 				),
+			) );
+
+			register_rest_route( 'wp-discourse/v1', '/latest-rss/(?P<maxtopics>\d+)', array(
 				array(
 					'methods'  => \WP_REST_Server::READABLE,
-					'callback' => array( $this, 'get_latest_rss' ),
+					'callback' => array( $this, 'get_ajax_rss' ),
 				),
 			) );
 		}
+	}
+
+	// WP_REST_Request $request.
+	public function get_ajax_rss( $request ) {
+		$max_topics = $request['maxtopics'];
+		$args = array(
+			'max_topics' => $max_topics ? $max_topics : 5,
+			'source' => 'latest',
+		);
+
+		if ( ! empty( $request['display_images'])) {
+			$args['display_images'] = $request['display_images'];
+		}
+
+		if ( ! empty( $request['excerpt_length'])) {
+			$args['excerpt_length'] = $request['excerpt_length'];
+		}
+
+		if ( ! empty( $request['wp_link'])) {
+			$args['wp_link'] = $request['wp_link'];
+		}
+
+		write_log('query test', $args);
+
+		return $this->get_rss( $args );
 	}
 
 	public function update_latest_rss( $data ) {
@@ -114,7 +142,8 @@ class DiscourseRSS {
 				$cache_duration = $args['cache_duration'] * 60;
 				$update         = $cache_duration + $last_sync < $time;
 			} else {
-				$update = ! empty( get_option( 'wpds_update_latest_rss' ) );
+				write_log('setting update', get_option( 'wpds_update_latest_rss'));
+				$update = 1 === intval( get_option( 'wpds_update_latest_rss' ) );
 			}
 
 			if ( empty( $formatted_rss ) || $update ) {
@@ -170,7 +199,7 @@ class DiscourseRSS {
 	}
 
 	public function feed_cache_duration() {
-		return 30;
+		return 0;
 	}
 
 	/**

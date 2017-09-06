@@ -99,4 +99,15 @@ trait Formatter {
 
 		return 1 === $years ? '1 year ago' : $years . ' years ago';
 	}
+
+	public function render_shortcode_options($args) {
+		$max_topics = 'data-wpds-maxtopics="' . esc_attr( $args['max_topics'] ) . '"';
+		$display_images = 'data-wpds-display-images="' . esc_attr( $args['display_images'] ) . '"';
+		$excerpt_length = 'data-wpds-excerpt-length="' . esc_attr( $args['excerpt_length'] ) . '"';
+		$wp_link = 'data-wpds-wp-link="' . esc_attr( $args['wp_link'] ) . '"';
+		$output = '<div class="wpds-shortcode-options"' . $max_topics . ' ' . $display_images . ' ' . $excerpt_length . ' ' . $wp_link . '>';
+		$output .= '</div>';
+
+		return $output;
+	}
 }
