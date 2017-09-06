@@ -71,9 +71,6 @@ class DiscourseRSS {
 					'methods'  => \WP_REST_Server::CREATABLE,
 					'callback' => array( $this, 'update_latest_rss' ),
 				),
-			) );
-
-			register_rest_route( 'wp-discourse/v1', '/latest-rss/(?P<maxtopics>\d+)', array(
 				array(
 					'methods'  => \WP_REST_Server::READABLE,
 					'callback' => array( $this, 'get_ajax_rss' ),
@@ -84,27 +81,38 @@ class DiscourseRSS {
 
 	// WP_REST_Request $request.
 	public function get_ajax_rss( $request ) {
-		$max_topics = $request['maxtopics'];
+		if ( empty( get_option( 'wpds_update_latest_rss' ) ) ) {
+			// The content is fresh.
+			return 0;
+		}
+
 		$args = array(
-			'max_topics' => $max_topics ? $max_topics : 5,
 			'source' => 'latest',
 		);
 
-		if ( ! empty( $request['display_images'])) {
-			$args['display_images'] = $request['display_images'];
+		if ( ! empty( $request['max_topics'] ) ) {
+			$args['max_topics'] = esc_attr( wp_unslash( $request['max_topics'] ) );
 		}
 
-		if ( ! empty( $request['excerpt_length'])) {
-			$args['excerpt_length'] = $request['excerpt_length'];
+		if ( ! empty( $request['display_images'] ) ) {
+			$args['display_images'] = esc_attr( wp_unslash( $request['display_images'] ) );
 		}
 
-		if ( ! empty( $request['wp_link'])) {
-			$args['wp_link'] = $request['wp_link'];
+		if ( ! empty( $request['excerpt_length'] ) ) {
+			$args['excerpt_length'] = esc_attr( wp_unslash( $request['excerpt_length'] ) );
 		}
 
-		write_log('query test', $args);
+		if ( ! empty( $request['wp_link'] ) ) {
+			$args['wp_link'] = esc_attr( wp_unslash( $request['wp_link'] ) );
+		}
 
-		return $this->get_rss( $args );
+		$rss = $this->get_rss( $args );
+		if ( is_wp_error( $rss ) || empty( $rss ) ) {
+
+			return 0;
+		}
+
+		return $rss;
 	}
 
 	public function update_latest_rss( $data ) {
@@ -129,7 +137,7 @@ class DiscourseRSS {
 			'cache_duration' => 10,
 			'excerpt_length' => 55,
 			'display_images' => 'true',
-			'wp_link' => 'false',
+			'wp_link'        => 'false',
 		), $args );
 		$time = time();
 
@@ -142,7 +150,6 @@ class DiscourseRSS {
 				$cache_duration = $args['cache_duration'] * 60;
 				$update         = $cache_duration + $last_sync < $time;
 			} else {
-				write_log('setting update', get_option( 'wpds_update_latest_rss'));
 				$update = 1 === intval( get_option( 'wpds_update_latest_rss' ) );
 			}
 
@@ -194,12 +201,11 @@ class DiscourseRSS {
 			return $formatted_rss;
 		}
 
-		// Todo: add error message.
-		return new \WP_Error();
+		return new \WP_Error( 'wpds_get_rss_error', 'A valid RSS source was not set.' );
 	}
 
 	public function feed_cache_duration() {
-		return 0;
+		return 30;
 	}
 
 	/**

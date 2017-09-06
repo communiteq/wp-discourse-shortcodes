@@ -58,3 +58,8 @@ p.wpds-topic-title a {
 .wpds-rss-topic .wpds-rss-poster-meta {
 	margin-bottom: 1.5em;
 }
+
+/* Some padding before the category badge. */
+.wpds-shortcode-category {
+    padding-left: 2px;
+}
