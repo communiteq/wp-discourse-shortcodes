@@ -31,6 +31,7 @@ class DiscourseShortcodes {
 	 */
 	protected $wpds_options = array(
 		'wpds_clear_topics_cache' => 0,
+		'wpds_fetch_discourse_groups' => 0,
 		'wpds_display_private_topics' => 0,
 		'wpds_use_default_styles' => 1,
 		'wpds_topic_webhook_refresh'    => 0,
@@ -38,7 +39,6 @@ class DiscourseShortcodes {
 		'wpds_webhook_secret'     => '',
 		'wpds_ajax_refresh' => 0,
 		'wpds_ajax_timeout' => 120,
-		'wpds_fetch_discourse_groups' => 0,
 	);
 
 	/**

@@ -79,24 +79,14 @@ class Admin {
 			'shortcode_settings_details',
 		), 'wpds_options' );
 
-		add_settings_field( 'wpds_topic_webhook_refresh', __( 'Enable Discourse Webhook', 'wpds' ), array(
+		add_settings_field( 'wpds_clear_topics_cache', __( 'Clear Topics Cache', 'wpds' ), array(
 			$this,
-			'webhook_refresh_checkbox',
+			'clear_topics_cache_checkbox',
 		), 'wpds_options', 'wpds_settings_section' );
 
-		add_settings_field( 'wpds_ajax_refresh', __( 'Ajax Load', 'wpds' ), array(
+		add_settings_field( 'wpds_fetch_discourse_groups', __( 'Refresh Discourse Groups', 'wpds' ), array(
 			$this,
-			'ajax_load_checkbox',
-		), 'wpds_options', 'wpds_settings_section' );
-
-		add_settings_field( 'wpds_ajax_timeout', __( 'Ajax Refresh Period', 'wpds' ), array(
-			$this,
-			'ajax_timeout_input',
-		), 'wpds_options', 'wpds_settings_section' );
-
-		add_settings_field( 'wpds_webhook_secret', __( 'Discourse Webhook Secret Key', 'wpds' ), array(
-			$this,
-			'webhook_secret_input',
+			'fetch_discourse_groups_checkbox',
 		), 'wpds_options', 'wpds_settings_section' );
 
 		add_settings_field( 'wpds_display_private_topics', __( 'Display Private Topics', 'wpds' ), array(
@@ -109,14 +99,26 @@ class Admin {
 			'use_default_styles_checkbox',
 		), 'wpds_options', 'wpds_settings_section' );
 
-		add_settings_field( 'wpds_clear_topics_cache', __( 'Clear Topics Cache', 'wpds' ), array(
+
+		add_settings_field( 'wpds_topic_webhook_refresh', __( 'Enable Discourse Webhook', 'wpds' ), array(
 			$this,
-			'clear_topics_cache_checkbox',
+			'webhook_refresh_checkbox',
 		), 'wpds_options', 'wpds_settings_section' );
 
-		add_settings_field( 'wpds_fetch_discourse_groups', __( 'Refresh Discourse Groups', 'wpds' ), array(
+
+		add_settings_field( 'wpds_webhook_secret', __( 'Discourse Webhook Secret Key', 'wpds' ), array(
 			$this,
-			'fetch_discourse_groups_checkbox',
+			'webhook_secret_input',
+		), 'wpds_options', 'wpds_settings_section' );
+
+		add_settings_field( 'wpds_ajax_refresh', __( 'Ajax Load', 'wpds' ), array(
+			$this,
+			'ajax_load_checkbox',
+		), 'wpds_options', 'wpds_settings_section' );
+
+		add_settings_field( 'wpds_ajax_timeout', __( 'Ajax Refresh Period', 'wpds' ), array(
+			$this,
+			'ajax_timeout_input',
 		), 'wpds_options', 'wpds_settings_section' );
 
 		// The settings fields will be saved in the 'wpds_options' array as `wpds_options[ $key ].`
