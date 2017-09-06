@@ -105,6 +105,10 @@ class Admin {
 			'webhook_refresh_checkbox',
 		), 'wpds_options', 'wpds_settings_section' );
 
+		add_settings_field( 'wpds_rss_webhook_refresh', __( 'Enable Discourse Webhook', 'wpds' ), array(
+			$this,
+			'webhook_rss_refresh_checkbox',
+		), 'wpds_options', 'wpds_settings_section' );
 
 		add_settings_field( 'wpds_webhook_secret', __( 'Discourse Webhook Secret Key', 'wpds' ), array(
 			$this,
@@ -239,6 +243,24 @@ class Admin {
 		}
 
 		$this->form_helper->checkbox_input( 'wpds_topic_webhook_refresh', 'wpds_options', __( 'Use a Discourse Webhook to refresh comments.', 'wpds' ), $description );
+	}
+
+	public function webhook_rss_refresh_checkbox() {
+		$wordpress_url = home_url( '/wp-json/wp-discourse/v1/latest-rss' );
+		if ( ! empty( $this->webhook_url ) ) {
+			$description = 'To use the latest_topics shortcode, you need to setup a <strong>webhook</strong> on your Discourse forum at <a href="' .
+			               esc_url( $this->webhook_url ) . '">' . esc_url( $this->webhook_url ) . '</a>. ' .
+			               'On that page, set the "Payload URL" to <strong>' . esc_url( $wordpress_url ) . '</strong>.
+                           On the events section of that page, select the "Topic Event" checkbox to receive
+                           updates when there is a new topic. To receive updates when there are new replies, also select the "Post Event" checkbox.';
+
+		} else {
+			$description = 'To use the latest_topics shortcode you need to setup a <strong>webhook</strong> on your Discourse forum at <strong>http://discourse.example.com/admin/api/web_hooks</strong>
+		                   On that page, set the "Payload URL" to <strong>' . esc_url( $wordpress_url ) . '</strong>. On the events section of that page, select the "Topic Event" checkbox to receive
+                           updates when there is a new topic. To receive updates when there are new replies, also select the "Post Event" checkbox.';
+		}
+
+		$this->form_helper->checkbox_input( 'wpds_rss_webhook_refresh', 'wpds_options', __( 'Use a Discourse Webhook to refresh the RSS feed.', 'wpds' ), $description );
 	}
 
 	/**
