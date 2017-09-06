@@ -245,10 +245,6 @@ class DiscourseRSS {
 				$image_tags = $dom->getElementsByTagName( 'img' );
 				if ( $image_tags->length ) {
 					foreach ( $image_tags as $image_tag ) {
-//						$grandparent_node = $parent_node->parentNode;
-
-//						$grandparent_node->removeChild( $parent_node );
-
 						$image_tag->parentNode->removeChild( $image_tag );
 					}
 				}
@@ -256,7 +252,12 @@ class DiscourseRSS {
 
 			$blockquote  = $dom->getElementsByTagName( 'blockquote' )->item( 0 );
 			$description = $dom->saveHTML( $blockquote );
+			// Remove the outer blockquote tags.
 			$description = substr( $description, 12, - 13 );
+
+			if ( 'full' !== $args['excerpt_length'] ) {
+				$description = wp_trim_words( wp_strip_all_tags( $description ), $args['excerpt_length'] );
+			}
 
 			$rss_data[ $item_index ]['title']        = $title;
 			$rss_data[ $item_index ]['permalink']    = $permalink;
@@ -265,7 +266,6 @@ class DiscourseRSS {
 			$rss_data[ $item_index ]['author']       = $author;
 			$rss_data[ $item_index ]['date']         = $date;
 			$rss_data[ $item_index ]['description']  = $description;
-			$rss_data[ $item_index ]['images']       = $images;
 			$rss_data[ $item_index ]['reply_count']  = $reply_count;
 		}// End foreach().
 
