@@ -100,6 +100,7 @@ class DiscourseRSS {
 			'cache_duration' => 10,
 			'excerpt_length' => 55,
 			'display_images' => 'true',
+			'wp_link' => 'false',
 		), $args );
 		$time = time();
 
