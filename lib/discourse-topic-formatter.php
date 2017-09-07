@@ -109,7 +109,7 @@ class DiscourseTopicFormatter {
 
 						$output .= apply_filters( 'wpds_topiclist_avatar', $avatar_image, esc_url( $poster_avatar_url ) );
 					}
-					$output .= '<span class="wpds-topiclist-username"><span class="wpds-term">' . __( '', 'wpds' ) . '</span>' . esc_html( $poster_username ) . '</span>';
+					$output .= '<span class="wpds-topiclist-username"><span class="wpds-term">' . __( 'posted by ', 'wpds' ) . '</span>' . esc_html( $poster_username ) . '</span>';
 					$output .= '</span>';
 					$output .= '<span class="wpds-likes-and-replies">';
 					$output .= '<span class="wpds-topiclist-likes' . esc_attr( $likes_class ) . '"><i class="icon-heart" aria-hidden="true"></i><span class="wpds-topiclist-like-count">' . esc_attr( $like_count ) . '</span></span>';
