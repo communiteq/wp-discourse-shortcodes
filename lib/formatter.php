@@ -116,8 +116,9 @@ trait Formatter {
 		$display_avatars = 'data-wpds-display-avatars="' . esc_attr( $args['display_avatars'] ) . '"';
 		$source = 'data-wpds-source="' . esc_attr( $args['source'] ) . '"';
 		$period = 'data-wpds-period="' . esc_attr( $args['period'] ) . '"';
-		$tiled = 'data-wpds-tiled="' . esc_attr( $args['tiled'] ) . '"';
-		$output = '<div class="wpds-topic-shortcode-options"' . $max_topics . ' ' . $display_avatars . ' ' . $source . ' ' . $period . ' ' . $tiled . '></div>';
+		$tile = 'data-wpds-tile="' . esc_attr( $args['tile'] ) . '"';
+		$excerpt_length = 'data-wpds-excerpt-length="' . esc_attr( $args['excerpt_length'] ) . '"';
+		$output = '<div class="wpds-topic-shortcode-options"' . $max_topics . ' ' . $display_avatars . ' ' . $source . ' ' . $period . ' ' . $tile . $excerpt_length . '></div>';
 
 		return $output;
 	}

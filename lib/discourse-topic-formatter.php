@@ -60,7 +60,7 @@ class DiscourseTopicFormatter {
 			$ajax_class        = $use_ajax ? ' wpds-topiclist-refresh' : '';
 			$tile_class       = 'true' === $args['tile'] ? ' wpds-tile' : '';
 
-			$output = '<ul class="wpds-topiclist' . esc_attr( $ajax_class ) . esc_attr( $tile_class ) . '">';
+			$output = '<div class="wpds-tile-wrapper' . esc_attr( $ajax_class ) . '"><ul class="wpds-topiclist' . esc_attr( $tile_class ) . '">';
 
 			if ( $use_ajax ) {
 				$output .= $this->render_topics_shortcode_options( $args );
@@ -76,6 +76,7 @@ class DiscourseTopicFormatter {
 					$likes_class          = $like_count ? ' wpds-has-likes' : '';
 					$reply_count          = $topic['posts_count'] - 1;
 					$posters              = $topic['posters'];
+					$cooked = ! empty( $topic['cooked']) ? $topic['cooked'] : null;
 
 					foreach ( $posters as $poster ) {
 						if ( preg_match( '/Original Poster/', $poster['description'] ) ) {
@@ -90,35 +91,36 @@ class DiscourseTopicFormatter {
 						}
 					}
 
+					// Todo: rename the wpds-topic-poster-meta class.
 					$output .= '<li class="wpds-topic"><div class="wpds-topic-poster-meta">';
 
+
+					$output .= '<header>';
+					$output .= '<span class="wpds-created-at">' . esc_html( $created_at_formatted ) . '</span><br>';
+					$output .= '<h4 class="wpds-topic-title"><a href="' . esc_url( $topic_url ) . '">' . esc_html( $topic['title'] ) . '</a></h4>';
+					$output .= '<span class="wpds-term">' . __( '', 'wpds' ) . '</span> <span class="wpds-shortcode-category">' . $this->discourse_category_badge( $category ) . '</span>';
+					$output .= '</header>';
+					$output .= '<div class="wpds-topiclist-content">' . $cooked . '</div>';
+					$output .= '<footer>';
+					$output .= '<div class="wpds-topiclist-meta">';
+					$output .= '<span class="wpds-topiclist-topic-meta">';
 					if ( 'true' === $args['display_avatars'] ) {
 						$avatar_image = '<img class="wpds-latest-avatar" src="' . esc_url( $poster_avatar_url ) . '">';
 
 						$output .= apply_filters( 'wpds_topiclist_avatar', $avatar_image, esc_url( $poster_avatar_url ) );
 					}
-
-					$output .= '<header>';
-					$output .= '<span class="wpds-created-at">' . esc_html( $created_at_formatted ) . '</span>';
-					$output .= '<h4 class="wpds-topic-title"><a href="' . esc_url( $topic_url ) . '">' . esc_html( $topic['title'] ) . '</a></h4>';
-					$output .= '</header>';
-
-					$output .= '<footer>';
-					$output .= '<div class="wpds-topiclist-meta">';
-					$output .= '<span class="wpds-topiclist-topic-meta">';
-					$output .= '<span class="wpds-term">' . __( 'by', 'wpds' ) . '</span> ' . esc_html( $poster_username ) . '<br>';
-					$output .= '<span class="wpds-term">' . __( 'in', 'wpds' ) . '</span> <span class="wpds-shortcode-category">' . $this->discourse_category_badge( $category ) . '</span>';
+					$output .= '<span class="wpds-topiclist-username"><span class="wpds-term">' . __( '', 'wpds' ) . '</span>' . esc_html( $poster_username ) . '</span>';
 					$output .= '</span>';
 					$output .= '<span class="wpds-likes-and-replies">';
 					$output .= '<span class="wpds-topiclist-likes' . esc_attr( $likes_class ) . '"><i class="icon-heart" aria-hidden="true"></i><span class="wpds-topiclist-like-count">' . esc_attr( $like_count ) . '</span></span>';
 					$output .= '<a class="wpds-topiclist-reply-link" href="' . esc_url( $topic_url ) . '"><i class="icon-reply" aria-hidden="true"></i><span class="wpds-topiclist-replies">' . esc_attr( $reply_count ) . '</span></a>';
 					$output .= '</div>';
-					$output .= '</footer></li>';
+					$output .= '</footer></div></li>';
 
 					$topic_count += 1;
 				}// End if().
 			}// End foreach().
-			$output .= '</ul>';
+			$output .= '</ul></div>';
 		}
 
 		$output = apply_filters( 'wpds_after_topiclist_formatting', $output, $discourse_topics, $args );

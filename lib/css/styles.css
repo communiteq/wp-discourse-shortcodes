@@ -124,35 +124,90 @@ i.icon-heart {
 }
 
 /* Tiled topic list. */
+/* Allows left and right margins on the tiles to be ignored on wrappers edge. */
+.wpds-tile-wrapper {
+    margin-left: -20px;
+    margin-right: -20px;
+}
+
+ul.wpds-tile {
+    margin: 0;
+    padding: 0;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+
+    -webkit-flex-flow: row wrap;
+    justify-content: center;
+    align-items: center;
+}
+
 ul.wpds-tile li.wpds-topic {
     position: relative;
     padding-left: 12px;
     padding-right: 12px;
     padding-bottom: 1.5em;
-    height: 340px;
-    margin-bottom: 40px;
-    border: 1px solid #000000;
+    padding-top: 1.5em;
+    border-bottom: 1px solid #c3c3c3;
 }
 
-/* ===== == = === 30em (480px) === = == ===== */
-
-@media only screen and (min-width : 30em) {
+ul.wpds-tile .wpds-topiclist header {
+    line-height: 1.35;
+    margin-bottom: 7px;
 }
 
-/* ===== == = === 37.5em (600px) === = == ===== */
+ul.wpds-tile .wpds-topiclist-meta {
+    line-height: 44px;
+}
 
-@media only screen and (min-width: 37.5em) {
-    ul.wpds-tile {
-        width: 90%;
-        margin-left: auto;
-        margin-right: auto;
-        background-color: lightpink;
+ul.wpds-tile .wpds-topiclist-meta:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+@media screen and (min-width: 370px) {
+    ul.wpds-tile li.wpds-topic {
+        height: 300px;
+        width: 300px;
+        margin-left: 20px;
+        margin-right: 20px;
+        margin-bottom: 40px;
+        border: 1px solid #cccccc;
+        border-radius: 3px;
+        -webkit-box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);
+        -moz-box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);
+        box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);
+    }
+
+    .wpds-tile .wpds-topic footer {
+        position: absolute;
+        width: calc(100% - 24px);
+        bottom: 0;
+        padding-bottom: 1.5em;
     }
 }
 
-/* ===== == = === 48em (768px) === = == ===== */
+ul.wpds-tile .wpds-topiclist-content {
+    max-height: 180px;
+    overflow: hidden;
+}
 
-@media only screen and (min-width : 48em) {
+.wpds-tile .wpds-likes-and-replies {
+    float: right;
+}
+
+.wpds-tile .wpds-latest-avatar {
+    position: static;
+    float: left;
+    padding-right: 6px;
+}
+
+.wpds-tile img.wpds-latest-avatar {
+    float: left;
+    padding-right: 6px;
 }
 
 /* Style tests */
@@ -168,7 +223,13 @@ ul.wpds-tile li.wpds-topic {
 
 @media screen and (min-width: 48em) {
     body.page-two-column:not(.archive) #primary .entry-content {
-        float: right;
+        /*float: right;*/
         width: 100% !important;
+    }
+}
+
+@media screen and (min-width: 48em) {
+    .wrap {
+        max-width: 1200px !important;
     }
 }
