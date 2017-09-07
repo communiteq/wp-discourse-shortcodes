@@ -73,6 +73,7 @@ class DiscourseTopicFormatter {
 					$created_at           = date_create( get_date_from_gmt( $topic['created_at'] ) );
 					$created_at_formatted = date_format( $created_at, $date_format );
 					$category             = $this->find_discourse_category( $topic );
+					$category_class = ! empty( $category ) ? ' ' . $category['slug'] : '';
 					$like_count           = apply_filters( 'wpds_topiclist_like_count', $topic['like_count'] );
 					$likes_class          = $like_count ? ' wpds-has-likes' : '';
 					$reply_count          = $topic['posts_count'] - 1;
@@ -93,7 +94,7 @@ class DiscourseTopicFormatter {
 					}
 
 					// Todo: rename the wpds-topic-poster-meta class.
-					$output .= '<li class="wpds-topic"><div class="wpds-topic-poster-meta">';
+					$output .= '<li class="wpds-topic' . esc_attr( $category_class ) . '"><div class="wpds-topic-poster-meta">';
 
 
 					$output .= '<header>';
