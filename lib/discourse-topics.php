@@ -165,6 +165,7 @@ class DiscourseTopics {
 			'source'          => 'latest',
 			'period'          => 'daily',
 			'cache_duration'  => 10,
+			'tile' => 'false',
 		), $args );
 		$time = time();
 

@@ -58,8 +58,9 @@ class DiscourseTopicFormatter {
 			                     ! empty( $this->options['wpds_topic_webhook_refresh'] ) &&
 			                     ( 'latest' === $args['source'] || 'daily' === $args['period'] );
 			$ajax_class        = $use_ajax ? ' wpds-topiclist-refresh' : '';
+			$tile_class       = 'true' === $args['tile'] ? ' wpds-tile' : '';
 
-			$output = '<ul class="wpds-topiclist' . esc_attr( $ajax_class ) . '">';
+			$output = '<ul class="wpds-topiclist' . esc_attr( $ajax_class ) . esc_attr( $tile_class ) . '">';
 
 			if ( $use_ajax ) {
 				$output .= $this->render_topics_shortcode_options( $args );
@@ -72,8 +73,8 @@ class DiscourseTopicFormatter {
 					$created_at_formatted = date_format( $created_at, 'F j, Y' );
 					$category             = $this->find_discourse_category( $topic );
 					$like_count           = apply_filters( 'wpds_topiclist_like_count', $topic['like_count'] );
-					$likes_class = $like_count ? ' wpds-has-likes' : '';
-					$reply_count = $topic['posts_count'] - 1;
+					$likes_class          = $like_count ? ' wpds-has-likes' : '';
+					$reply_count          = $topic['posts_count'] - 1;
 					$posters              = $topic['posters'];
 
 					foreach ( $posters as $poster ) {

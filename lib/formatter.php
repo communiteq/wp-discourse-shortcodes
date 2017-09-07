@@ -105,7 +105,8 @@ trait Formatter {
 		$display_images = 'data-wpds-display-images="' . esc_attr( $args['display_images'] ) . '"';
 		$excerpt_length = 'data-wpds-excerpt-length="' . esc_attr( $args['excerpt_length'] ) . '"';
 		$wp_link = 'data-wpds-wp-link="' . esc_attr( $args['wp_link'] ) . '"';
-		$output = '<div class="wpds-rss-shortcode-options"' . $max_topics . ' ' . $display_images . ' ' . $excerpt_length . ' ' . $wp_link . '></div>';
+		$tile = 'data-wpds-tiled="' . esc_attr( $args['tile'] ) . '"';
+		$output = '<div class="wpds-rss-shortcode-options"' . $max_topics . ' ' . $display_images . ' ' . $excerpt_length . ' ' . $wp_link . ' ' . $tile .'></div>';
 
 		return $output;
 	}
@@ -115,7 +116,8 @@ trait Formatter {
 		$display_avatars = 'data-wpds-display-avatars="' . esc_attr( $args['display_avatars'] ) . '"';
 		$source = 'data-wpds-source="' . esc_attr( $args['source'] ) . '"';
 		$period = 'data-wpds-period="' . esc_attr( $args['period'] ) . '"';
-		$output = '<div class="wpds-topic-shortcode-options"' . $max_topics . ' ' . $display_avatars . ' ' . $source . ' ' . $period . '></div>';
+		$tiled = 'data-wpds-tiled="' . esc_attr( $args['tiled'] ) . '"';
+		$output = '<div class="wpds-topic-shortcode-options"' . $max_topics . ' ' . $display_avatars . ' ' . $source . ' ' . $period . ' ' . $tiled . '></div>';
 
 		return $output;
 	}
