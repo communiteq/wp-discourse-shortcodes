@@ -72,6 +72,7 @@ class DiscourseTopicFormatter {
 					$created_at_formatted = date_format( $created_at, 'F j, Y' );
 					$category             = $this->find_discourse_category( $topic );
 					$like_count           = apply_filters( 'wpds_topiclist_like_count', $topic['like_count'] );
+					$likes_class = $like_count ? ' wpds-has-likes' : '';
 					$reply_count = $topic['posts_count'] - 1;
 					$posters              = $topic['posters'];
 
@@ -81,7 +82,7 @@ class DiscourseTopicFormatter {
 							foreach ( $users as $user ) {
 								if ( $original_poster_id === $user['id'] ) {
 									$poster_username   = $user['username'];
-									$avatar_template   = str_replace( '{size}', 32, $user['avatar_template'] );
+									$avatar_template   = str_replace( '{size}', 44, $user['avatar_template'] );
 									$poster_avatar_url = $this->options['url'] . $avatar_template;
 								}
 							}
@@ -96,19 +97,6 @@ class DiscourseTopicFormatter {
 						$output .= apply_filters( 'wpds_topiclist_avatar', $avatar_image, esc_url( $poster_avatar_url ) );
 					}
 
-					$output .= '<span class="wpds-username">' . esc_html( $poster_username ) . '</span>
-                                <span class="wpds-term">' . __( 'posted on', 'wpds' ) . '</span> <span class="wpds-created-at">' . esc_html( $created_at_formatted ) . '</span><br>
-						        <span class="wpds-term">' . __( 'in', 'wpds' ) . '</span> <span class="wpds-shortcode-category" >' . $this->discourse_category_badge( $category ) . '</span></div>
-						        <h4 class="wpds-topic-title"><a class="wpds-topic-title-link" href="' . esc_url( $topic_url ) . '">' . esc_html( $topic['title'] ) . '</a></h4>
-						        <p class="wpds-topic-activity-meta"><i class="icon-reply"></i><span class="wpds-term">' . __( 'replies', 'wpds' ) . '</span>
-						        <span class="wpds-replies"><span class="wpds-num-replies">' . esc_attr( ( $topic['posts_count'] ) - 1 ) . '</span></span>';
-					if ( $like_count ) {
-						$output .= '<span class="wpds-topiclist-likes"> <span class="wpds-term"><i class="icon-heart"></i></span>
-                                    <span class="wpds-like-count">' . esc_attr( $like_count ) . '</span></span>';
-					}
-					$output .= '</p></li>';
-
-
 					$output .= '<header>';
 					$output .= '<span class="wpds-created-at">' . esc_html( $created_at_formatted ) . '</span>';
 					$output .= '<h4 class="wpds-topic-title"><a href="' . esc_url( $topic_url ) . '">' . esc_html( $topic['title'] ) . '</a></h4>';
@@ -117,16 +105,14 @@ class DiscourseTopicFormatter {
 					$output .= '<footer>';
 					$output .= '<div class="wpds-topiclist-meta">';
 					$output .= '<span class="wpds-topiclist-topic-meta">';
-					$output .= '<span class="wpds-topiclist-term">by </span> ' . esc_html( $poster_username ) . '<br>';
-					$output .= '<span class="wpds-topiclist-term">in </span><span class="wpds-shortcode-category">' . $this->discourse_category_badge( $category ) . '</span>';
+					$output .= '<span class="wpds-term">' . __( 'by', 'wpds' ) . '</span> ' . esc_html( $poster_username ) . '<br>';
+					$output .= '<span class="wpds-term">' . __( 'in', 'wpds' ) . '</span> <span class="wpds-shortcode-category">' . $this->discourse_category_badge( $category ) . '</span>';
 					$output .= '</span>';
 					$output .= '<span class="wpds-likes-and-replies">';
-					$output .= '<i class="icon-heart" aria-hidden="true"></i><span class="wpds-topiclist-likes">' . esc_attr( $like_count ) . '</span>';
-					$output .= '<i class="icon-reply" aria-hidden="true"></i><span class="wpds-topiclist-replies">' . esc_attr( $reply_count ) . '</span>';
+					$output .= '<span class="wpds-topiclist-likes' . esc_attr( $likes_class ) . '"><i class="icon-heart" aria-hidden="true"></i><span class="wpds-topiclist-like-count">' . esc_attr( $like_count ) . '</span></span>';
+					$output .= '<a class="wpds-topiclist-reply-link" href="' . esc_url( $topic_url ) . '"><i class="icon-reply" aria-hidden="true"></i><span class="wpds-topiclist-replies">' . esc_attr( $reply_count ) . '</span></a>';
 					$output .= '</div>';
-
-					$output .= '</footer>';
-
+					$output .= '</footer></li>';
 
 					$topic_count += 1;
 				}// End if().
