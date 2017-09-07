@@ -58,7 +58,8 @@ class DiscourseTopicFormatter {
 			                     ! empty( $this->options['wpds_topic_webhook_refresh'] ) &&
 			                     ( 'latest' === $args['source'] || 'daily' === $args['period'] );
 			$ajax_class        = $use_ajax ? ' wpds-topiclist-refresh' : '';
-			$tile_class       = 'true' === $args['tile'] ? ' wpds-tile' : '';
+			$tile_class        = 'true' === $args['tile'] ? ' wpds-tile' : '';
+			$date_format       = ! empty( $this->options['custom-datetime-format'] ) ? $this->options['custom-datetime-format'] : 'Y/m/d';
 
 			$output = '<div class="wpds-tile-wrapper' . esc_attr( $ajax_class ) . '"><ul class="wpds-topiclist' . esc_attr( $tile_class ) . '">';
 
@@ -70,13 +71,13 @@ class DiscourseTopicFormatter {
 				if ( $topic_count < $args['max_topics'] && $this->display_topic( $topic ) ) {
 					$topic_url            = $this->options['url'] . "/t/{$topic['slug']}/{$topic['id']}";
 					$created_at           = date_create( get_date_from_gmt( $topic['created_at'] ) );
-					$created_at_formatted = date_format( $created_at, 'F j, Y' );
+					$created_at_formatted = date_format( $created_at, $date_format );
 					$category             = $this->find_discourse_category( $topic );
 					$like_count           = apply_filters( 'wpds_topiclist_like_count', $topic['like_count'] );
 					$likes_class          = $like_count ? ' wpds-has-likes' : '';
 					$reply_count          = $topic['posts_count'] - 1;
 					$posters              = $topic['posters'];
-					$cooked = ! empty( $topic['cooked']) ? $topic['cooked'] : null;
+					$cooked               = ! empty( $topic['cooked'] ) ? $topic['cooked'] : null;
 
 					foreach ( $posters as $poster ) {
 						if ( preg_match( '/Original Poster/', $poster['description'] ) ) {
@@ -96,9 +97,14 @@ class DiscourseTopicFormatter {
 
 
 					$output .= '<header>';
+					if ( 'top' === $args['username_position'] ) {
+						$output .= '<span class="wpds-topiclist-username">' . esc_html( $poster_username ) . '</span> <span class="wpds-topiclist-username"><span class="wpds-term">' . __( 'posted on ', 'wpds' ) . '</span>';
+					}
 					$output .= '<span class="wpds-created-at">' . esc_html( $created_at_formatted ) . '</span><br>';
 					$output .= '<h4 class="wpds-topic-title"><a href="' . esc_url( $topic_url ) . '">' . esc_html( $topic['title'] ) . '</a></h4>';
-					$output .= '<span class="wpds-term">' . __( '', 'wpds' ) . '</span> <span class="wpds-shortcode-category">' . $this->discourse_category_badge( $category ) . '</span>';
+					if ( 'top' === $args['category_position']) {
+						$output .= '<span class="wpds-term">' . __( '', 'wpds' ) . '</span> <span class="wpds-shortcode-category">' . $this->discourse_category_badge( $category ) . '</span>';
+					}
 					$output .= '</header>';
 					$output .= '<div class="wpds-topiclist-content">' . $cooked . '</div>';
 					$output .= '<footer>';
@@ -109,8 +115,13 @@ class DiscourseTopicFormatter {
 
 						$output .= apply_filters( 'wpds_topiclist_avatar', $avatar_image, esc_url( $poster_avatar_url ) );
 					}
-					$output .= '<span class="wpds-topiclist-username"><span class="wpds-term">' . __( 'posted by ', 'wpds' ) . '</span>' . esc_html( $poster_username ) . '</span>';
-					$output .= '</span>';
+					if ( 'bottom' === $args['username_position']) {
+						$output .= '<span class="wpds-topiclist-username">' . esc_html( $poster_username ) . '</span>';
+					}
+					if ( 'bottom' === $args['category_position'] ) {
+						$output .= '<span class="wpds-term">' . __( '', 'wpds' ) . '</span> <span class="wpds-shortcode-category">' . $this->discourse_category_badge( $category ) . '</span>';
+					}
+					$output .= '</span>'; //
 					$output .= '<span class="wpds-likes-and-replies">';
 					$output .= '<span class="wpds-topiclist-likes' . esc_attr( $likes_class ) . '"><i class="icon-heart" aria-hidden="true"></i><span class="wpds-topiclist-like-count">' . esc_attr( $like_count ) . '</span></span>';
 					$output .= '<a class="wpds-topiclist-reply-link" href="' . esc_url( $topic_url ) . '"><i class="icon-reply" aria-hidden="true"></i><span class="wpds-topiclist-replies">' . esc_attr( $reply_count ) . '</span></a>';

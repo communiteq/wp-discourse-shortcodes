@@ -198,6 +198,9 @@ class DiscourseTopics {
 			'cache_duration'  => 10,
 			'tile'            => 'false',
 			'excerpt_length'  => null,
+			'username_position' => 'top',
+			'category_position' => 'top',
+			'date_position' => 'top',
 		), $args );
 		$time = time();
 

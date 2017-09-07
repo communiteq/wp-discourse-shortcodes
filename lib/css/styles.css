@@ -57,13 +57,16 @@ ul.wpds-topiclist li.wpds-topic {
     box-shadow: inherit;
 }
 
+.wpds-topiclist-content {
+    padding-bottom: 8px;
+}
+
 .wpds-topiclist-meta {
     line-height: 1.35;
 }
 
 span.wpds-likes-and-replies {
     display: inline-block;
-    padding-left: 4px;
 }
 
 .wpds-topiclist .wpds-topic a.wpds-topiclist-reply-link {
