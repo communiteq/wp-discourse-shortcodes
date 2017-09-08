@@ -96,6 +96,7 @@ class DiscourseTopics {
 				),
 			) );
 
+			// Todo: remove this.
 			register_rest_route( 'wp-discourse/v1', 'discourse-post/(?P<id>\d+)', array(
 				'methods'  => 'GET',
 				'callback' => array( $this, 'get_discourse_post' ),
@@ -153,6 +154,8 @@ class DiscourseTopics {
 		if ( ! empty( $request['tile'] ) ) {
 			$args['tile'] = esc_attr( wp_unslash( $request['tile'] ) );
 		}
+
+		// Todo: get the excerpt_length arg.
 
 		$topics = $this->get_topics( $args );
 		if ( is_wp_error( $topics ) || empty( $topics ) ) {

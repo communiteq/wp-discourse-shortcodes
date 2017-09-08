@@ -100,25 +100,26 @@ trait Formatter {
 		return 1 === $years ? '1 year ago' : $years . ' years ago';
 	}
 
-	public function render_rss_shortcode_options($args) {
-		$max_topics = 'data-wpds-maxtopics="' . esc_attr( $args['max_topics'] ) . '"';
+	public function render_rss_shortcode_options( $args ) {
+		$max_topics     = 'data-wpds-maxtopics="' . esc_attr( $args['max_topics'] ) . '"';
 		$display_images = 'data-wpds-display-images="' . esc_attr( $args['display_images'] ) . '"';
 		$excerpt_length = 'data-wpds-excerpt-length="' . esc_attr( $args['excerpt_length'] ) . '"';
-		$wp_link = 'data-wpds-wp-link="' . esc_attr( $args['wp_link'] ) . '"';
-		$tile = 'data-wpds-tiled="' . esc_attr( $args['tile'] ) . '"';
-		$output = '<div class="wpds-rss-shortcode-options" ' . $max_topics . ' ' . $display_images . ' ' . $excerpt_length . ' ' . $wp_link . ' ' . $tile .'></div>';
+		$wp_link        = 'data-wpds-wp-link="' . esc_attr( $args['wp_link'] ) . '"';
+		$tile           = 'data-wpds-tiled="' . esc_attr( $args['tile'] ) . '"';
+		$output         = '<div class="wpds-rss-shortcode-options" ' . $max_topics . ' ' . $display_images . ' ' . $excerpt_length . ' ' . $wp_link . ' ' . $tile . '></div>';
 
 		return $output;
 	}
 
-	public function render_topics_shortcode_options($args) {
-		$max_topics = 'data-wpds-maxtopics="' . esc_attr( $args['max_topics'] ) . '"';
+	public function render_topics_shortcode_options( $args ) {
+		$max_topics      = 'data-wpds-maxtopics="' . esc_attr( $args['max_topics'] ) . '"';
 		$display_avatars = 'data-wpds-display-avatars="' . esc_attr( $args['display_avatars'] ) . '"';
-		$source = 'data-wpds-source="' . esc_attr( $args['source'] ) . '"';
-		$period = 'data-wpds-period="' . esc_attr( $args['period'] ) . '"';
-		$tile = 'data-wpds-tile="' . esc_attr( $args['tile'] ) . '"';
-		$excerpt_length = 'data-wpds-excerpt-length="' . esc_attr( $args['excerpt_length'] ) . '"';
-		$output = '<div class="wpds-topic-shortcode-options" ' . $max_topics . ' ' . $display_avatars . ' ' . $source . ' ' . $period . ' ' . $tile . $excerpt_length . '></div>';
+		$source          = 'data-wpds-source="' . esc_attr( $args['source'] ) . '"';
+		$period          = 'data-wpds-period="' . esc_attr( $args['period'] ) . '"';
+		$tile            = 'data-wpds-tile="' . esc_attr( $args['tile'] ) . '"';
+		$excerpt_length  = 'data-wpds-excerpt-length="' . esc_attr( $args['excerpt_length'] ) . '"';
+		// Todo: add a space before the excerpt length.
+		$output = '<div class="wpds-topic-shortcode-options" ' . $max_topics . ' ' . $display_avatars . ' ' . $source . ' ' . $period . ' ' . $tile . ' ' . $excerpt_length . '></div>';
 
 		return $output;
 	}

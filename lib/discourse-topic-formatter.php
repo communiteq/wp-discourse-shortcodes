@@ -149,6 +149,7 @@ class DiscourseTopicFormatter {
 		}
 
 		add_filter( 'safe_style_css', array( $this, 'add_display_to_safe_styles' ) );
+		// Todo: this is removing the data attributes.
 		$output = wp_kses_post( apply_filters( 'wpds_after_topiclist_formatting', $output, $discourse_topics, $args ) );
 		remove_filter( 'safe_style_css', array( $this, 'add_display_to_safe_styles' ) );
 
