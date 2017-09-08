@@ -106,7 +106,7 @@ trait Formatter {
 		$excerpt_length = 'data-wpds-excerpt-length="' . esc_attr( $args['excerpt_length'] ) . '"';
 		$wp_link = 'data-wpds-wp-link="' . esc_attr( $args['wp_link'] ) . '"';
 		$tile = 'data-wpds-tiled="' . esc_attr( $args['tile'] ) . '"';
-		$output = '<div class="wpds-rss-shortcode-options"' . $max_topics . ' ' . $display_images . ' ' . $excerpt_length . ' ' . $wp_link . ' ' . $tile .'></div>';
+		$output = '<div class="wpds-rss-shortcode-options" ' . $max_topics . ' ' . $display_images . ' ' . $excerpt_length . ' ' . $wp_link . ' ' . $tile .'></div>';
 
 		return $output;
 	}
@@ -118,7 +118,7 @@ trait Formatter {
 		$period = 'data-wpds-period="' . esc_attr( $args['period'] ) . '"';
 		$tile = 'data-wpds-tile="' . esc_attr( $args['tile'] ) . '"';
 		$excerpt_length = 'data-wpds-excerpt-length="' . esc_attr( $args['excerpt_length'] ) . '"';
-		$output = '<div class="wpds-topic-shortcode-options"' . $max_topics . ' ' . $display_avatars . ' ' . $source . ' ' . $period . ' ' . $tile . $excerpt_length . '></div>';
+		$output = '<div class="wpds-topic-shortcode-options" ' . $max_topics . ' ' . $display_avatars . ' ' . $source . ' ' . $period . ' ' . $tile . $excerpt_length . '></div>';
 
 		return $output;
 	}
