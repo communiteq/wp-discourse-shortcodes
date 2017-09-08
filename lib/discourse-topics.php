@@ -280,7 +280,7 @@ class DiscourseTopics {
 
 			$count = 0;
 			foreach ( $topics as $index => $topic ) {
-				if ( $count <= $max_topics && $this->display_topic( $topic ) ) {
+				if ( $count < $max_topics && $this->display_topic( $topic ) ) {
 					$cooked = $this->get_discourse_post( $topic['id'] );
 
 					if ( is_wp_error( $cooked ) ) {
@@ -288,7 +288,17 @@ class DiscourseTopics {
 					} elseif ( 'full' === $excerpt_length ) {
 						$excerpt = $cooked;
 					} else {
-						$excerpt = wp_trim_words( wp_strip_all_tags( $cooked ), $excerpt_length );
+						libxml_use_internal_errors( true );
+						$doc = new \DOMDocument( '1.0', 'utf-8' );
+						libxml_clear_errors();
+						// Create a valid document with charset.
+						$html = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' . $cooked . '</body></html>';
+						$doc->loadHTML( $html );
+
+						$html = $this->clean_discourse_content( $doc );
+						$excerpt = wp_trim_words( wp_strip_all_tags( $html ), $excerpt_length );
+
+						unset( $doc );
 					}
 
 					$topics_data['topic_list']['topics'][ $index ]['cooked'] = $excerpt;
@@ -342,5 +352,30 @@ class DiscourseTopics {
 	protected function display_topic( $topic ) {
 
 		return ! $topic['pinned_globally'] && 'regular' === $topic['archetype'] && - 1 !== $topic['posters'][0]['user_id'];
+	}
+
+
+	/**
+	 * Clean the HTML returned from Discourse.
+	 *
+	 * @param \DOMDocument $doc The DOMDocument to parse.
+	 *
+	 * @return string
+	 */
+	protected function clean_discourse_content( \DOMDocument $doc ) {
+		$xpath    = new \DOMXPath( $doc );
+		$elements = $xpath->query( "//span[@class]" );
+
+		if ( $elements && $elements->length ) {
+			foreach ( $elements as $element ) {
+				$element->parentNode->removeChild( $element );
+			}
+		}
+
+		$html = $doc->saveHTML();
+
+		unset( $xpath );
+
+		return $html;
 	}
 }
