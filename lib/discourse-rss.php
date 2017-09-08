@@ -131,13 +131,18 @@ class DiscourseRSS {
 
 	public function get_rss( $args ) {
 		$args = shortcode_atts( array(
-			'max_topics'     => 5,
-			'source'         => 'latest',
-			'period'         => 'yearly',
-			'cache_duration' => 10,
-			'excerpt_length' => 55,
-			'display_images' => 'true',
-			'wp_link'        => 'false',
+			'max_topics'        => 5,
+			'source'            => 'latest',
+			'period'            => 'yearly',
+			'cache_duration'    => 10,
+			'excerpt_length'    => 27,
+			'display_images'    => 'true',
+			'wp_link'           => 'false',
+			'tile'              => 'false',
+			'username_position' => 'top',
+			'date_position'     => 'top',
+			'category_position' => 'top',
+			'show_replies' => 'true',
 		), $args );
 		$time = time();
 
@@ -235,9 +240,10 @@ class DiscourseRSS {
 			return new \WP_Error( 'wp_discourse_rss_error', 'An RSS feed was not returned by Discourse.' );
 		}
 
-		$max_items  = $feed->get_item_quantity( $args['max_topics'] );
-		$feed_items = $feed->get_items( 0, $max_items );
-		$rss_data   = [];
+		$max_items   = $feed->get_item_quantity( $args['max_topics'] );
+		$date_format = ! empty( $this->options['custom-datetime-format'] ) ? $this->options['custom-datetime-format'] : 'Y/m/d';
+		$feed_items  = $feed->get_items( 0, $max_items );
+		$rss_data    = [];
 		// Don't create warnings for misformed HTML.
 		libxml_use_internal_errors( true );
 		$dom = new \domDocument( '1.0', 'utf-8' );
@@ -248,11 +254,11 @@ class DiscourseRSS {
 			$title            = $item->get_title();
 			$permalink        = $item->get_permalink();
 			$category         = $item->get_category()->get_term();
-			$date             = $item->get_date( 'F j, Y' );
+			$date             = $item->get_date( $date_format );
 			$description_html = $item->get_description();
 			$description_html = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' . $description_html . '</body></html>';
-			$wp_permalink = '';
-			$author_data  = $item->get_author()->get_name();
+			$wp_permalink     = '';
+			$author_data      = $item->get_author()->get_name();
 			if ( strpos( trim( $author_data ), ' ' ) ) {
 				$author_data = explode( ' ', $author_data );
 				$username    = trim( $author_data[0], '\@' );
@@ -301,7 +307,12 @@ class DiscourseRSS {
 			$description = substr( $description, 12, - 13 );
 
 			if ( 'full' !== $args['excerpt_length'] ) {
-				$description = wp_trim_words( wp_strip_all_tags( $description ), $args['excerpt_length'] );
+				if ( ! is_wp_error( $description ) ) {
+					// Stripping tags from an error throws an error!
+					$description = wp_trim_words( wp_strip_all_tags( $description ), $args['excerpt_length'] );
+				} else {
+					$description = '';
+				}
 			}
 
 			$rss_data[ $item_index ]['title']        = $title;

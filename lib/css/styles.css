@@ -148,7 +148,8 @@ ul.wpds-tile {
     align-items: center;
 }
 
-ul.wpds-tile li.wpds-topic {
+ul.wpds-tile li.wpds-topic,
+ul.wpds-tile li.wpds-rss-topic {
     position: relative;
     padding-left: 12px;
     padding-right: 12px;
@@ -173,7 +174,8 @@ ul.wpds-tile .wpds-topiclist-footer-meta:after {
 }
 
 @media screen and (min-width: 370px) {
-    ul.wpds-tile li.wpds-topic {
+    ul.wpds-tile li.wpds-topic,
+    ul.wpds-tile li.wpds-rss-topic{
         height: 300px;
         width: 300px;
         margin-left: 20px;

@@ -38,6 +38,12 @@ class DiscourseRSSFormatter {
 	public function format_rss_topics( $topics, $args ) {
 		$image_class   = 'true' === $args['display_images'] ? 'wpds-rss-display-images' : '';
 		$topic_list_id = 'wpds_rss_list_' . time();
+		$use_ajax      = ! empty( $this->options['wpds_ajax_refresh'] ) &&
+		                 ! empty( $this->options['wpds_topic_webhook_refresh'] ) &&
+		                 ( 'latest' === $args['source'] || 'daily' === $args['period'] );
+		$ajax_class    = $use_ajax ? ' wpds-rss-list-refresh' : '';
+		$tile_class    = 'true' === $args['tile'] ? ' wpds-tile' : '';
+
 		$output = '';
 
 		do_action( 'wpds_before_rss_list', $topics, $args );
@@ -47,58 +53,83 @@ class DiscourseRSSFormatter {
 
 		if ( $use_plugin_formatting ) {
 
-			$output = '<ul class="wpds-rss-list ' . esc_attr( $image_class ) . '" id="' . esc_attr( $topic_list_id ) . '">';
+			$output = '<div class="wpds-tile-wrapper' . esc_attr( $ajax_class ) .
+			          '" id="' . esc_attr( $topic_list_id ) . '"><ul class="wpds-rss-list ' . esc_attr( $image_class ) . esc_attr( $tile_class ) . '">';
 
 			if ( ! empty( $this->options['wpds_ajax_refresh'] ) ) {
 				$output .= $this->render_rss_shortcode_options( $args );
 			}
 
 			foreach ( $topics as $topic ) {
-				$description = ! empty( $topic['description'] ) ? $topic['description'] : '';
-
-				$author        = ! empty( $topic['author'] ) ? $topic['author'] : '';
-				$cleaned_name  = trim( $author, '\@' );
-				$author_url    = "{$this->discourse_url}/u/{$cleaned_name}";
+				$description   = ! empty( $topic['description'] ) ? $topic['description'] : '';
+				$username      = ( ! empty( $topic['username'] ) ) ? $topic['username'] : '';
+//				$author_url    = "{$this->discourse_url}/u/{$username}";
 				$category_name = ! empty( $topic['category'] ) ? $topic['category'] : '';
 				$category      = $this->find_discourse_category_by_name( $category_name );
 				$wp_permalink  = ! empty( $topic['wp_permalink'] ) ? $topic['wp_permalink'] : null;
 				$title         = ! empty( $topic['title'] ) ? $topic['title'] : '';
 				$date          = ! empty( $topic['date'] ) ? $topic['date'] : '';
-				$reply_count   = ! empty( $topic['reply_count'] ) ? $topic['reply_count'] : '';
+				$reply_count   = isset( $topic['reply_count'] ) ? $topic['reply_count'] : '0';
 				$permalink     = ! empty( $topic['permalink'] ) ? $topic['permalink'] : null;
 
 
 				$output .= '<li class="wpds-rss-topic ' . esc_attr( $category['slug'] ) . '">';
-				$output .= '<h3 class="wpds-rss-title"><a href="' . esc_url( $permalink ) . '">' . esc_html( $title ) . '</a></h3>';
-				$output .= '<div class="wpds-rss-poster-meta"><span class="wpds-term"> ' . __( 'posted by', 'wpds' ) . '</span> <a href="' .
-				           esc_url( $author_url ) . '">' . esc_html( $cleaned_name ) . '</a> <span class="wpds-term">' . __( 'on', 'wpds' ) .
-				           '</span> <span class="wpds-created-at">' . esc_html( $date ) . '</span><br><span class="wpds-term">' .
-				           __( 'in', 'wpds' ) . '</span> <span class="wpds-shortcode-category" >' . $this->discourse_category_badge( $category ) . '</span>';
+				// Add content above the header.
+				$output = apply_filters( 'wpds_rsslist_above_header', $output, $topic, $category, $args );
+
+				$output .= '<header>';
+
+				if ( 'top' === $args['username_position'] ) {
+					$output .= '<span class="wpds-rss-list-username">' . esc_html( $username ) . '</span> <span class="wpds-term">' . __( 'posted on ', 'wpds' ) . '</span>';
+				}
+
+				if ( 'top' === $args['date_position'] ) {
+					$output .= '<span class="wpds-created-at">' . esc_html( $date ) . '</span>';
+				}
+
+				$output .= '<h4 class="wpds-rss-title"><a href="' . esc_url( $permalink ) . '">' . esc_html( $title ) . '</a></h4>';
+
+				if ( 'top' === $args['category_position'] ) {
+					$output .= '<span class="wpds-term">' . __( '', 'wpds' ) . '</span> <span class="wpds-shortcode-category">' . $this->discourse_category_badge( $category ) . '</span>';
+				}
 
 				if ( $wp_permalink && 'true' === $args['wp_link'] ) {
 					$output .= '<br><span class="wpds-term"> orginally published at </span><a href="' . esc_url( $wp_permalink ) . '">' . esc_url( $wp_permalink ) . '</a>';
 				}
-				$output .= '</div>';
+
+				$output .= '</header>';
+
 
 				if ( 'full' !== $args['excerpt_length'] ) {
-					$output .= '<p>' . wp_kses_post( $description ) . '</p>';
+					$output .= '<p class="wpds-rss-list-description">' . wp_kses_post( $description ) . '</p>';
 				} else {
 					// Todo: sub this back in.
 //				$output .= wp_kses_post( $description );
-					$output .= $description;
+					$output .= '<div class="wpds-rss-list-description">' . $description . '</div>';
 				}
 
-				if ( $reply_count ) {
-					$output .= '<p class="wpds-topic-activity-meta"><span class="wpds-term">' . __( 'replies', 'wpds' ) . '</span> ' . esc_html( $reply_count ) . '</p>';
+				$output = apply_filters( 'wpds_topiclist_above_footer', $output, $topic, $category, $args );
+
+				$output .= '<footer><div class="wpds-rss-list-footer-meta">';
+
+				if ( 'bottom' === $args['username_position'] ) {
+					$output .= '<span class="wpds-rss-list-username">' . esc_html( $username ) . '</span>';
 				}
 
-				$output .= '<p class="wpds-rss-discussion"><a href="' . esc_url( $permalink ) . '">' . __( 'join the discussion', 'wpds' ) . '</a></p></li>';
+				if ( 'bottom' === $args['category_position'] ) {
+					$output .= '<span class="wpds-term">' . __( '', 'wpds' ) . '</span> <span class="wpds-shortcode-category">' . $this->discourse_category_badge( $category ) . '</span>';
+				}
+
+				$output .= '<span class="wpds-likes-and-replies">';
+				$output .= '<a class="wpds-rss-list-reply-link" href="' . esc_url( $permalink ) . '"><i class="icon-reply" aria-hidden="true"></i><span class="wpds-topiclist-replies">' . esc_attr( $reply_count ) . '</span></a>';
+
+				$output .= '</span></div></footer>';
+				$output  = apply_filters( 'wpds_after_formatting_rss', $output, $topics, $args );
+				$output .= '</li>';
 			}
 
-			$output .= '</ul>';
+			$output .= '</ul></div>';
 		}
-
-		$output = apply_filters( 'wpds_after_formatting_rss', $output, $topics, $args );
 
 		return $output;
 	}
