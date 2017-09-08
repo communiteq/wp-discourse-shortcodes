@@ -38,10 +38,6 @@ class DiscourseRSSFormatter {
 	public function format_rss_topics( $topics, $args ) {
 		$image_class   = 'true' === $args['display_images'] ? 'wpds-rss-display-images' : '';
 		$topic_list_id = 'wpds_rss_list_' . time();
-		$use_ajax      = ! empty( $this->options['wpds_ajax_refresh'] ) &&
-		                 ! empty( $this->options['wpds_topic_webhook_refresh'] ) &&
-		                 ( 'latest' === $args['source'] || 'daily' === $args['period'] );
-		$ajax_class    = $use_ajax ? ' wpds-rss-list-refresh' : '';
 		$tile_class    = 'true' === $args['tile'] ? ' wpds-tile' : '';
 
 		$output = '';
@@ -53,8 +49,8 @@ class DiscourseRSSFormatter {
 
 		if ( $use_plugin_formatting ) {
 
-			$output = '<div class="wpds-tile-wrapper' . esc_attr( $ajax_class ) .
-			          '" id="' . esc_attr( $topic_list_id ) . '"><ul class="wpds-rss-list ' . esc_attr( $image_class ) . esc_attr( $tile_class ) . '">';
+			$output = '<div class="wpds-tile-wrapper" id="' . esc_attr( $topic_list_id ) .
+			          '"><ul class="wpds-rss-list ' . esc_attr( $image_class ) . esc_attr( $tile_class ) . '">';
 
 			if ( ! empty( $this->options['wpds_ajax_refresh'] ) ) {
 				$output .= $this->render_rss_shortcode_options( $args );
@@ -130,16 +126,17 @@ class DiscourseRSSFormatter {
 					$output .= '<a class="wpds-rss-list-reply-link" href="' . esc_url( $permalink ) . '"><span class="wpds-topiclist-replies">' .
 					           esc_attr( $reply_count ) . ' </span>' . esc_html( $replies_text ) . '</a>';
 				}
-
-				$output .= '</span></div></footer>';
-				$output = apply_filters( 'wpds_after_formatting_rss', $output, $topics, $args );
+				$output .= '</span></div>';
+				$output = apply_filters( 'wpds_rss_list_footer_bottom', $output, $topics, $args );
+				$output .= '</footer>';
+				$output = apply_filters( 'wpds_rss_list_after_footer', $output, $topics, $args );
 				$output .= '</li>';
 			}
 
 			$output .= '</ul></div>';
 		}
 
-		$output = apply_filters( 'wpds_after_topiclist_formatting', $output, $topics, $args );
+		$output = apply_filters( 'wpds_after_rss_list_formatting', $output, $topics, $args );
 
 		return $output;
 	}

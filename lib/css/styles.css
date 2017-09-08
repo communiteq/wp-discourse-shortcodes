@@ -221,7 +221,7 @@ ul.wpds-tile .wpds-topiclist-content {
     float: right;
 }
 
-.wpds-tile .wpds-rss-list .wpds-likes-and-replies {
+.wpds-tile.wpds-rss-list .wpds-likes-and-replies {
     float: none;
 }
 
