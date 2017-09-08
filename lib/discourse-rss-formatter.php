@@ -63,15 +63,20 @@ class DiscourseRSSFormatter {
 			foreach ( $topics as $topic ) {
 				$description   = ! empty( $topic['description'] ) ? $topic['description'] : '';
 				$username      = ( ! empty( $topic['username'] ) ) ? $topic['username'] : '';
-//				$author_url    = "{$this->discourse_url}/u/{$username}";
 				$category_name = ! empty( $topic['category'] ) ? $topic['category'] : '';
 				$category      = $this->find_discourse_category_by_name( $category_name );
 				$wp_permalink  = ! empty( $topic['wp_permalink'] ) ? $topic['wp_permalink'] : null;
 				$title         = ! empty( $topic['title'] ) ? $topic['title'] : '';
 				$date          = ! empty( $topic['date'] ) ? $topic['date'] : '';
-				$reply_count   = isset( $topic['reply_count'] ) ? $topic['reply_count'] : '0';
 				$permalink     = ! empty( $topic['permalink'] ) ? $topic['permalink'] : null;
-
+				$reply_count   = ! empty( $topic['reply_count'] ) ? $topic['reply_count'] : null;
+				if ( ! $reply_count ) {
+					$replies_text = __( 'no replies', 'wpds' );
+				} elseif ( 1 === $reply_count ) {
+					$replies_text = __( 'reply', 'wpds' );
+				} else {
+					$replies_text = __( 'replies', 'wpds' );
+				}
 
 				$output .= '<li class="wpds-rss-topic ' . esc_attr( $category['slug'] ) . '">';
 				// Add content above the header.
@@ -105,7 +110,7 @@ class DiscourseRSSFormatter {
 				} else {
 					// Todo: sub this back in.
 //				$output .= wp_kses_post( $description );
-					$output .= '<div class="wpds-rss-list-description">' . $description . '</div>';
+					$output .= '<div class="wpds-rss-list-content">' . $description . '</div>';
 				}
 
 				$output = apply_filters( 'wpds_topiclist_above_footer', $output, $topic, $category, $args );
@@ -113,7 +118,7 @@ class DiscourseRSSFormatter {
 				$output .= '<footer><div class="wpds-rss-list-footer-meta">';
 
 				if ( 'bottom' === $args['username_position'] ) {
-					$output .= '<span class="wpds-rss-list-username">' . esc_html( $username ) . '</span>';
+					$output .= '<span class="wpds-rss-list-username">' . esc_html( $username ) . '</span><br>';
 				}
 
 				if ( 'bottom' === $args['category_position'] ) {
@@ -121,15 +126,20 @@ class DiscourseRSSFormatter {
 				}
 
 				$output .= '<span class="wpds-likes-and-replies">';
-				$output .= '<a class="wpds-rss-list-reply-link" href="' . esc_url( $permalink ) . '"><i class="icon-reply" aria-hidden="true"></i><span class="wpds-topiclist-replies">' . esc_attr( $reply_count ) . '</span></a>';
+				if ( $args['show_replies'] ) {
+					$output .= '<a class="wpds-rss-list-reply-link" href="' . esc_url( $permalink ) . '"><span class="wpds-topiclist-replies">' .
+					           esc_attr( $reply_count ) . ' </span>' . esc_html( $replies_text ) . '</a>';
+				}
 
 				$output .= '</span></div></footer>';
-				$output  = apply_filters( 'wpds_after_formatting_rss', $output, $topics, $args );
+				$output = apply_filters( 'wpds_after_formatting_rss', $output, $topics, $args );
 				$output .= '</li>';
 			}
 
 			$output .= '</ul></div>';
 		}
+
+		$output = apply_filters( 'wpds_after_topiclist_formatting', $output, $topics, $args );
 
 		return $output;
 	}
