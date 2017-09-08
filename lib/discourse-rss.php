@@ -248,13 +248,21 @@ class DiscourseRSS {
 			$title            = $item->get_title();
 			$permalink        = $item->get_permalink();
 			$category         = $item->get_category()->get_term();
-			$author           = $item->get_author()->get_name();
 			$date             = $item->get_date( 'F j, Y' );
 			$description_html = $item->get_description();
 			$description_html = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' . $description_html . '</body></html>';
-			$dom->loadHTML( $description_html );
 			$wp_permalink = '';
+			$author_data  = $item->get_author()->get_name();
+			if ( strpos( trim( $author_data ), ' ' ) ) {
+				$author_data = explode( ' ', $author_data );
+				$username    = trim( $author_data[0], '\@' );
+				$name        = $author_data[1];
+			} else {
+				$username = trim( $author_data, '\@' );
+				$name     = '';
+			}
 
+			$dom->loadHTML( $description_html );
 			$paragraphs = $dom->getElementsByTagName( 'p' );
 
 			// If the post begins with 'Originally published at...' text, save the link and remove its enclosing small tags.
@@ -300,7 +308,8 @@ class DiscourseRSS {
 			$rss_data[ $item_index ]['permalink']    = $permalink;
 			$rss_data[ $item_index ]['wp_permalink'] = $wp_permalink;
 			$rss_data[ $item_index ]['category']     = $category;
-			$rss_data[ $item_index ]['author']       = $author;
+			$rss_data[ $item_index ]['username']     = $username;
+			$rss_data[ $item_index ]['name']         = $name;
 			$rss_data[ $item_index ]['date']         = $date;
 			$rss_data[ $item_index ]['description']  = $description;
 			$rss_data[ $item_index ]['reply_count']  = $reply_count;
