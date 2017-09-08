@@ -112,26 +112,18 @@ class DiscourseTopics {
 		}
 	}
 
-	public function get_discourse_post( $topic_id ) {
-		$topic_url = esc_url_raw( "{$this->discourse_url}/t/{$topic_id}.json" );
-		$response  = wp_remote_get( $topic_url );
 
-		if ( ! DiscourseUtilities::validate( $response ) ) {
-
-			// Todo: add message.
-			return new \WP_Error();
-		}
-
-		$topic = json_decode( wp_remote_retrieve_body( $response ), true );
-		$post  = $topic['post_stream']['posts'][0]['cooked'];
-
-		return $post;
-	}
-
+	/**
+	 * Returns the formatted topics - triggered by call from the client.
+	 *
+	 * @param \WP_REST_Request $request The request sent through the WordPress API.
+	 *
+	 * @return int|mixed|string|\WP_Error
+	 */
 	public function get_ajax_topics( $request ) {
 		if ( empty( get_option( 'wpds_update_latest' ) ) ) {
 			// The content is fresh.
-//			return 0;
+			return 0;
 		}
 
 		$args = [];
@@ -169,9 +161,9 @@ class DiscourseTopics {
 	/**
 	 * Update latest topics transient.
 	 *
-	 * @param \WP_REST_Request $data
+	 * @param \WP_REST_Request $data The webhook data returned from Discourse.
 	 *
-	 * @return null
+	 * @return null|\WP_Error
 	 */
 	public function update_latest_topics( $data ) {
 		$data = DiscourseUtilities::verify_discourse_webhook_request( $data );
@@ -188,9 +180,11 @@ class DiscourseTopics {
 	}
 
 	/**
-	 * Get the latest topics from either from the stored transient, or from Discourse.
+	 * Returns the formatted Discourse topics.
 	 *
-	 * @return string|null
+	 * @param array $args The shortcode args.
+	 *
+	 * @return mixed|string|\WP_Error
 	 */
 	public function get_topics( $args ) {
 		$args = shortcode_atts( array(
@@ -253,7 +247,7 @@ class DiscourseTopics {
 			if ( empty( $formatted_topics ) || $update ) {
 				$source = 'top/' . $period;
 
-				$top_topics = $this->fetch_topics( $source );
+				$top_topics = $this->fetch_topics( $source, $args );
 
 				if ( empty( $top_topics ) || is_wp_error( $top_topics ) ) {
 
@@ -272,40 +266,40 @@ class DiscourseTopics {
 	}
 
 	/**
-	 * Fetch the latest topics from Discourse.
+	 * Fetches a topic list from Discourse.
 	 *
-	 * @return array|mixed|null|object
+	 * @param string $source The Discourse path to pull from.
+	 * @param array $args The shortcode args.
+	 *
+	 * @return array|mixed|object|\WP_Error
 	 */
-	protected function fetch_topics( $source, $args = null ) {
+	protected function fetch_topics( $source, $args ) {
 		if ( empty( $this->discourse_url ) || empty( $this->api_key ) || empty( $this->api_username ) ) {
 
-			return new \WP_Error( 'wp_discourse_configuration_error', 'The WP Discourse plugin is not properly configured.' );
+			return new \WP_Error( 'wpds_configuration_error', 'The WP Discourse plugin is not properly configured.' );
 		}
 
 		$topics_url = $this->discourse_url . "/{$source}.json";
 
-		if ( ! empty( $this->options['wpds_display_private_topics'] ) ) {
-			$topics_url = add_query_arg( array(
-				'api_key'      => $this->api_key,
-				'api_username' => $this->api_username,
-			), $topics_url );
-		}
+		$topics_url = esc_url_raw( add_query_arg( array(
+			'api_key'      => $this->api_key,
+			'api_username' => $this->api_username,
+		), $topics_url ) );
 
-		$topics_url = esc_url_raw( $topics_url );
+		$response = wp_remote_get( $topics_url );
 
-		$remote = wp_remote_get( $topics_url );
-
-		if ( ! DiscourseUtilities::validate( $remote ) ) {
+		if ( ! DiscourseUtilities::validate( $response ) ) {
 
 			return new \WP_Error( 'wp_discourse_response_error', 'An error was returned from Discourse when fetching the latest topics.' );
 		}
 
-		$data = json_decode( wp_remote_retrieve_body( $remote ), true );
+		$topics_data = json_decode( wp_remote_retrieve_body( $response ), true );
 
-		if ( ! empty( $args['excerpt_length'] ) ) {
-			$excerpt_length = ! empty( $args['excerpt_length'] ) ? $args['excerpt_length'] : 55;
-			$max_topics     = ! empty( $args['max_topics'] ) ? $args['max_topics'] : null;
-			$topics         = $data['topic_list']['topics'];
+		// Add the cooked content to each topic.
+		$excerpt_length = $args['excerpt_length'];
+		if ( $excerpt_length && 'false' !== $excerpt_length ) {
+			$max_topics = $args['max_topics'];
+			$topics     = $topics_data['topic_list']['topics'];
 
 			$count = 0;
 			foreach ( $topics as $index => $topic ) {
@@ -320,15 +314,54 @@ class DiscourseTopics {
 						$excerpt = wp_trim_words( wp_strip_all_tags( $cooked ), $excerpt_length );
 					}
 
-					$data['topic_list']['topics'][ $index ]['cooked'] = $excerpt;
-					$count                                            += 1;
+					$topics_data['topic_list']['topics'][ $index ]['cooked'] = $excerpt;
+					$count                                                   += 1;
 				}
 			}
 		}
 
-		return $data;
+		return $topics_data;
 	}
 
+	/**
+	 * Gets the cooked content of the first post in a topic.
+	 *
+	 * @param int $topic_id The topic to get the post for.
+	 *
+	 * @return array|\WP_Error
+	 */
+	public function get_discourse_post( $topic_id ) {
+		if ( empty( $this->discourse_url ) || empty( $this->api_key ) || empty( $this->api_username ) ) {
+
+			return new \WP_Error( 'wpds_configuration_error', 'The WP Discourse plugin is not properly configured.' );
+		}
+
+		$topic_url = "{$this->discourse_url}/t/{$topic_id}.json";
+		$topic_url = esc_url_raw( add_query_arg( array(
+			'api_key'      => $this->api_key,
+			'api_username' => $this->api_username,
+		), $topic_url ) );
+
+		$response  = wp_remote_get( $topic_url );
+
+		if ( ! DiscourseUtilities::validate( $response ) ) {
+
+			return new \WP_Error( 'wpds_response_error', 'There was an error retrieving the post for topic_id: ' . esc_attr($topic_id) . '.' );
+		}
+
+		$topic = json_decode( wp_remote_retrieve_body( $response ), true );
+		$post  = $topic['post_stream']['posts'][0]['cooked'];
+
+		return $post;
+	}
+
+	/**
+	 * Selects whether or not to display a topic.
+	 *
+	 * @param array $topic The topic to test.
+	 *
+	 * @return bool
+	 */
 	protected function display_topic( $topic ) {
 
 		return ! $topic['pinned_globally'] && 'regular' === $topic['archetype'] && - 1 !== $topic['posters'][0]['user_id'];
