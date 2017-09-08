@@ -235,27 +235,3 @@ ul.wpds-tile .wpds-topiclist-content {
     float: left;
     padding-right: 6px;
 }
-
-/* Style tests */
-@media screen and (min-width: 48em) {
-    body:not(.has-sidebar):not(.page-one-column) .page-header,
-    body.has-sidebar.error404 #primary .page-header,
-    body.page-two-column:not(.archive) #primary .entry-header,
-    body.page-two-column.archive:not(.has-sidebar) #primary .page-header {
-        /*width: 15% !important;*/
-        display: none;
-    }
-}
-
-@media screen and (min-width: 48em) {
-    body.page-two-column:not(.archive) #primary .entry-content {
-        /*float: right;*/
-        width: 100% !important;
-    }
-}
-
-@media screen and (min-width: 48em) {
-    .wrap {
-        max-width: 1200px !important;
-    }
-}
