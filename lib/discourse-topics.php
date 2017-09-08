@@ -5,15 +5,6 @@ namespace WPDiscourse\Shortcodes;
 Use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
 
 class DiscourseTopics {
-//	use Utilities;
-
-	/**
-	 * The key for the plugin's options array.
-	 *
-	 * @access protected
-	 * @var string
-	 */
-	protected $option_key = 'wpds_options';
 
 	/**
 	 * The merged options from WP Discourse and WP Discourse Shortcodes.
@@ -70,7 +61,7 @@ class DiscourseTopics {
 	}
 
 	/**
-	 * Adds the plugin options, gets the merged wp-discourse/wp-discourse-latest-topics options, sets the discourse_url.
+	 * Sets up the plugin options.
 	 */
 	public function setup_options() {
 		add_option( 'wpds_update_latest', 1 );
@@ -88,30 +79,36 @@ class DiscourseTopics {
 			register_rest_route( 'wp-discourse/v1', 'latest-topics', array(
 				array(
 					'methods'  => \WP_REST_Server::CREATABLE,
-					'callback' => array( $this, 'update_latest_topics' ),
+					'callback' => array( $this, 'set_update_flag' ),
 				),
 				array(
 					'methods'  => \WP_REST_Server::READABLE,
 					'callback' => array( $this, 'get_ajax_topics' ),
 				),
 			) );
-
-			// Todo: remove this.
-			register_rest_route( 'wp-discourse/v1', 'discourse-post/(?P<id>\d+)', array(
-				'methods'  => 'GET',
-				'callback' => array( $this, 'get_discourse_post' ),
-				'args'     => array(
-					'id' => array(
-						'validate_callback' => function ( $param, $request, $key ) {
-
-							return is_numeric( $param );
-						}
-					),
-				),
-			) );
 		}
 	}
 
+	/**
+	 * Sets the wpds_update_latest flag on receiving a Topic webhook request from Discourse.
+	 *
+	 * @param \WP_REST_Request $data The webhook data returned from Discourse.
+	 *
+	 * @return null|\WP_Error
+	 */
+	public function set_update_flag( $data ) {
+		$data = DiscourseUtilities::verify_discourse_webhook_request( $data );
+
+		if ( is_wp_error( $data ) ) {
+
+			return new \WP_Error( 'discourse_response_error', 'There was an error returned from Discourse when processing the
+			latest_topics webhook.' );
+		}
+
+		update_option( 'wpds_update_latest', 1 );
+
+		return null;
+	}
 
 	/**
 	 * Returns the formatted topics - triggered by call from the client.
@@ -159,27 +156,6 @@ class DiscourseTopics {
 	}
 
 	/**
-	 * Update latest topics transient.
-	 *
-	 * @param \WP_REST_Request $data The webhook data returned from Discourse.
-	 *
-	 * @return null|\WP_Error
-	 */
-	public function update_latest_topics( $data ) {
-		$data = DiscourseUtilities::verify_discourse_webhook_request( $data );
-
-		if ( is_wp_error( $data ) ) {
-
-			return new \WP_Error( 'discourse_response_error', 'There was an error returned from Discourse when processing the
-			latest_topics webhook.' );
-		}
-
-		update_option( 'wpds_update_latest', 1 );
-
-		return null;
-	}
-
-	/**
 	 * Returns the formatted Discourse topics.
 	 *
 	 * @param array $args The shortcode args.
@@ -204,7 +180,6 @@ class DiscourseTopics {
 		if ( 'latest' === $args['source'] ) {
 			$formatted_topics = get_transient( 'wpds_latest_topics' );
 
-			// Todo: Use the cache busting option to delete the transient.
 			if ( empty( $this->options['wpds_topic_webhook_refresh'] ) ) {
 				// Webhooks aren't enabled, use the cache_duration arg.
 				$last_sync      = get_option( 'wpds_latest_last_sync' );
@@ -292,7 +267,7 @@ class DiscourseTopics {
 
 		if ( ! DiscourseUtilities::validate( $response ) ) {
 
-			return new \WP_Error( 'wp_discourse_response_error', 'An error was returned from Discourse when fetching the latest topics.' );
+			return new \WP_Error( 'wpds_response_error', 'An error was returned from Discourse when fetching the latest topics.' );
 		}
 
 		$topics_data = json_decode( wp_remote_retrieve_body( $response ), true );
@@ -332,7 +307,7 @@ class DiscourseTopics {
 	 *
 	 * @return array|\WP_Error
 	 */
-	public function get_discourse_post( $topic_id ) {
+	protected function get_discourse_post( $topic_id ) {
 		if ( empty( $this->discourse_url ) || empty( $this->api_key ) || empty( $this->api_username ) ) {
 
 			return new \WP_Error( 'wpds_configuration_error', 'The WP Discourse plugin is not properly configured.' );
@@ -344,11 +319,11 @@ class DiscourseTopics {
 			'api_username' => $this->api_username,
 		), $topic_url ) );
 
-		$response  = wp_remote_get( $topic_url );
+		$response = wp_remote_get( $topic_url );
 
 		if ( ! DiscourseUtilities::validate( $response ) ) {
 
-			return new \WP_Error( 'wpds_response_error', 'There was an error retrieving the post for topic_id: ' . esc_attr($topic_id) . '.' );
+			return new \WP_Error( 'wpds_response_error', 'There was an error retrieving the post for topic_id: ' . esc_attr( $topic_id ) . '.' );
 		}
 
 		$topic = json_decode( wp_remote_retrieve_body( $response ), true );
@@ -365,7 +340,6 @@ class DiscourseTopics {
 	 * @return bool
 	 */
 	protected function display_topic( $topic ) {
-		write_log('topic', $topic );
 
 		return ! $topic['pinned_globally'] && 'regular' === $topic['archetype'] && - 1 !== $topic['posters'][0]['user_id'];
 	}
