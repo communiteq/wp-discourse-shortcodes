@@ -281,10 +281,12 @@ class DiscourseTopics {
 
 		$topics_url = $this->discourse_url . "/{$source}.json";
 
-		$topics_url = esc_url_raw( add_query_arg( array(
-			'api_key'      => $this->api_key,
-			'api_username' => $this->api_username,
-		), $topics_url ) );
+		if ( ! empty( $this->options['wpds_display_private_topics'] ) ) {
+			$topics_url = add_query_arg( array(
+				'api_key'      => $this->api_key,
+				'api_username' => $this->api_username,
+			), $topics_url );
+		}
 
 		$response = wp_remote_get( $topics_url );
 
@@ -363,6 +365,7 @@ class DiscourseTopics {
 	 * @return bool
 	 */
 	protected function display_topic( $topic ) {
+		write_log('topic', $topic );
 
 		return ! $topic['pinned_globally'] && 'regular' === $topic['archetype'] && - 1 !== $topic['posters'][0]['user_id'];
 	}
