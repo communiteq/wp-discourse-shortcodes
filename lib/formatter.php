@@ -122,4 +122,19 @@ trait Formatter {
 
 		return $output;
 	}
+
+	/**
+	 * Add 'display' to the safe styles list.
+	 *
+	 * Hook into the 'safe_style_css' filter.
+	 *
+	 * @param $styles
+	 *
+	 * @return array
+	 */
+	public function add_display_to_safe_styles( $styles ) {
+		$styles[] = 'display';
+
+		return $styles;
+	}
 }

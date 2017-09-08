@@ -13,10 +13,11 @@ ul.wpds-topiclist li.wpds-topic {
     left: 0;
 }
 
-.wpds-topic-poster-meta,
-.wpds-topic-activity-meta,
+/*.wpds-topic-poster-meta,*/
+/*.wpds-topic-activity-meta,*/
+.wpds-topic,
 .wpds-rss-poster-meta {
-    font-size: 0.8125rem;
+    font-size: 0.8125em;
     color: #777777;
 }
 
@@ -61,7 +62,7 @@ ul.wpds-topiclist li.wpds-topic {
     padding-bottom: 8px;
 }
 
-.wpds-topiclist-meta {
+.wpds-topiclist-footer-meta {
     line-height: 1.35;
 }
 
@@ -161,11 +162,11 @@ ul.wpds-tile .wpds-topiclist header {
     margin-bottom: 7px;
 }
 
-ul.wpds-tile .wpds-topiclist-meta {
+ul.wpds-tile .wpds-topiclist-footer-meta {
     line-height: 44px;
 }
 
-ul.wpds-tile .wpds-topiclist-meta:after {
+ul.wpds-tile .wpds-topiclist-footer-meta:after {
     content: "";
     display: table;
     clear: both;

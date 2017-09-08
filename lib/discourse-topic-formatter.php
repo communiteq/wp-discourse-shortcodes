@@ -19,7 +19,6 @@ class DiscourseTopicFormatter {
 
 	public function __construct() {
 		add_action( 'init', array( $this, 'setup_options' ) );
-
 	}
 
 	public function setup_options() {
@@ -42,13 +41,12 @@ class DiscourseTopicFormatter {
 			return '';
 		}
 
-
 		do_action( 'wpds_before_topiclist', $discourse_topics, $args );
+		// To bypass the plugin's formatting, return false from this hook, then hook into 'wpds_after_topiclist_formatting' to add your own formatting.
 		$use_plugin_formatting = apply_filters( 'wpds_use_plugin_topiclist_formatting', true );
 		$output                = '';
 
 		if ( $use_plugin_formatting ) {
-
 			$topics            = $discourse_topics['topic_list']['topics'];
 			$users             = $discourse_topics['users'];
 			$poster_avatar_url = '';
@@ -63,6 +61,7 @@ class DiscourseTopicFormatter {
 
 			$output = '<div class="wpds-tile-wrapper' . esc_attr( $ajax_class ) . '"><ul class="wpds-topiclist' . esc_attr( $tile_class ) . '">';
 
+			// Renders a div with data attributes that are retrieved by the client.
 			if ( $use_ajax ) {
 				$output .= $this->render_topics_shortcode_options( $args );
 			}
@@ -73,8 +72,8 @@ class DiscourseTopicFormatter {
 					$created_at           = date_create( get_date_from_gmt( $topic['created_at'] ) );
 					$created_at_formatted = date_format( $created_at, $date_format );
 					$category             = $this->find_discourse_category( $topic );
-					$category_class = ! empty( $category ) ? ' ' . $category['slug'] : '';
-					$like_count           = apply_filters( 'wpds_topiclist_like_count', $topic['like_count'] );
+					$category_class       = ! empty( $category ) ? ' ' . $category['slug'] : '';
+					$like_count           = $topic['like_count'];
 					$likes_class          = $like_count ? ' wpds-has-likes' : '';
 					$reply_count          = $topic['posts_count'] - 1;
 					$posters              = $topic['posters'];
@@ -93,41 +92,55 @@ class DiscourseTopicFormatter {
 						}
 					}
 
-					// Todo: rename the wpds-topic-poster-meta class.
-					$output .= '<li class="wpds-topic' . esc_attr( $category_class ) . '"><div class="wpds-topic-poster-meta">';
+					$output .= '<li class="wpds-topic' . esc_attr( $category_class ) . '">';
 
+					// Add content above the header.
+					$output = apply_filters( 'wpds_topiclist_above_header', $output, $topic, $category, $poster_avatar_url, $args );
 
 					$output .= '<header>';
+
 					if ( 'top' === $args['username_position'] ) {
 						$output .= '<span class="wpds-topiclist-username">' . esc_html( $poster_username ) . '</span> <span class="wpds-topiclist-username"><span class="wpds-term">' . __( 'posted on ', 'wpds' ) . '</span>';
 					}
-					$output .= '<span class="wpds-created-at">' . esc_html( $created_at_formatted ) . '</span><br>';
+
+					if ( 'top' === $args['date_position']) {
+					$output .= '<span class="wpds-created-at">' . esc_html( $created_at_formatted ) . '</span>';
+					}
+
 					$output .= '<h4 class="wpds-topic-title"><a href="' . esc_url( $topic_url ) . '">' . esc_html( $topic['title'] ) . '</a></h4>';
-					if ( 'top' === $args['category_position']) {
+
+					if ( 'top' === $args['category_position'] ) {
 						$output .= '<span class="wpds-term">' . __( '', 'wpds' ) . '</span> <span class="wpds-shortcode-category">' . $this->discourse_category_badge( $category ) . '</span>';
 					}
+
 					$output .= '</header>';
-					$output .= '<div class="wpds-topiclist-content">' . $cooked . '</div>';
+
+					if ( $cooked ) {
+						$output .= '<div class="wpds-topiclist-content">' . $cooked . '</div>';
+					}
+
+					$output = apply_filters( 'wpds_topiclist_above_footer', $output, $topic, $category, $poster_avatar_url, $args );
+
 					$output .= '<footer>';
-					$output .= '<div class="wpds-topiclist-meta">';
-					$output .= '<span class="wpds-topiclist-topic-meta">';
+					$output .= '<div class="wpds-topiclist-footer-meta">';
 					if ( 'true' === $args['display_avatars'] ) {
 						$avatar_image = '<img class="wpds-latest-avatar" src="' . esc_url( $poster_avatar_url ) . '">';
 
 						$output .= apply_filters( 'wpds_topiclist_avatar', $avatar_image, esc_url( $poster_avatar_url ) );
 					}
-					if ( 'bottom' === $args['username_position']) {
+					if ( 'bottom' === $args['username_position'] ) {
 						$output .= '<span class="wpds-topiclist-username">' . esc_html( $poster_username ) . '</span>';
 					}
 					if ( 'bottom' === $args['category_position'] ) {
 						$output .= '<span class="wpds-term">' . __( '', 'wpds' ) . '</span> <span class="wpds-shortcode-category">' . $this->discourse_category_badge( $category ) . '</span>';
 					}
-					$output .= '</span>'; //
 					$output .= '<span class="wpds-likes-and-replies">';
 					$output .= '<span class="wpds-topiclist-likes' . esc_attr( $likes_class ) . '"><i class="icon-heart" aria-hidden="true"></i><span class="wpds-topiclist-like-count">' . esc_attr( $like_count ) . '</span></span>';
 					$output .= '<a class="wpds-topiclist-reply-link" href="' . esc_url( $topic_url ) . '"><i class="icon-reply" aria-hidden="true"></i><span class="wpds-topiclist-replies">' . esc_attr( $reply_count ) . '</span></a>';
 					$output .= '</div>';
-					$output .= '</footer></div></li>';
+					$output .= '</footer>';
+					$output = apply_filters( 'wpds_topiclist_below_footer', $output, $topic, $category, $args );
+					$output .= '</li>';
 
 					$topic_count += 1;
 				}// End if().
@@ -135,7 +148,9 @@ class DiscourseTopicFormatter {
 			$output .= '</ul></div>';
 		}
 
-		$output = apply_filters( 'wpds_after_topiclist_formatting', $output, $discourse_topics, $args );
+		add_filter( 'safe_style_css', array( $this, 'add_display_to_safe_styles' ) );
+		$output = wp_kses_post( apply_filters( 'wpds_after_topiclist_formatting', $output, $discourse_topics, $args ) );
+		remove_filter( 'safe_style_css', array( $this, 'add_display_to_safe_styles' ) );
 
 		return $output;
 	}

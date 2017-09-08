@@ -191,16 +191,16 @@ class DiscourseTopics {
 	 */
 	public function get_topics( $args ) {
 		$args = shortcode_atts( array(
-			'max_topics'      => 5,
-			'display_avatars' => 'true',
-			'source'          => 'latest',
-			'period'          => 'daily',
-			'cache_duration'  => 10,
-			'tile'            => 'false',
-			'excerpt_length'  => null,
+			'max_topics'        => 5,
+			'display_avatars'   => 'true',
+			'source'            => 'latest',
+			'period'            => 'daily',
+			'cache_duration'    => 10,
+			'tile'              => 'false',
+			'excerpt_length'    => null,
 			'username_position' => 'top',
 			'category_position' => 'top',
-			'date_position' => 'top',
+			'date_position'     => 'top',
 		), $args );
 		$time = time();
 
