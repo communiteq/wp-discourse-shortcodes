@@ -30,7 +30,6 @@ class DiscourseShortcodes {
 	 * @var array
 	 */
 	protected $wpds_options = array(
-		'wpds_clear_topics_cache'     => 0,
 		'wpds_fetch_discourse_groups' => 0,
 		'wpds_display_private_topics' => 0,
 		'wpds_use_default_styles'     => 1,

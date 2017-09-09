@@ -11,7 +11,6 @@ class SettingsValidator {
 
 	public function __construct() {
 		add_action( 'init', array( $this, 'setup_options' ) );
-		add_filter( 'wpdc_validate_wpds_clear_topics_cache', array( $this, 'validate_checkbox' ) );
 		add_filter( 'wpdc_validate_wpds_display_private_topics', array( $this, 'validate_checkbox' ) );
 		add_filter( 'wpdc_validate_wpds_use_default_styles', array( $this, 'validate_checkbox' ) );
 		add_filter( 'wpdc_validate_wpds_topic_webhook_refresh', array( $this, 'validate_webhook_refresh' ) );
