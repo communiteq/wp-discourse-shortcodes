@@ -205,9 +205,11 @@ ul.wpds-tile .wpds-topiclist-footer-meta:after {
     .wpds-tile .wpds-rss-topic footer,
     .wpds-tile .wpds-topic footer {
         position: absolute;
+        background-color: #ffffff;
         width: calc(100% - 24px);
         bottom: 0;
         padding-bottom: 1.5em;
+        padding-top: 1em;
     }
 }
 
@@ -238,22 +240,22 @@ ul.wpds-tile .wpds-topiclist-content {
 
 /* A basic approach for dealing with text overflow. */
 /* Todo: don't add this to default styles. */
-.wpds-tile .wpds-topiclist-clamp {
-    height: 205px;
-    position: relative;
-    overflow: hidden;
-}
+/*.wpds-tile .wpds-topiclist-clamp {*/
+    /*height: 205px;*/
+    /*position: relative;*/
+    /*overflow: hidden;*/
+/*}*/
 
-.wpds-tile .wpds-topiclist-clamp:after {
-    content: "";
-    text-align: right;
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 50%;
-    height: 1.5em;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1) 80%);
-}
+/*.wpds-tile .wpds-topiclist-clamp:after {*/
+    /*content: "";*/
+    /*text-align: right;*/
+    /*position: absolute;*/
+    /*bottom: 0;*/
+    /*right: 0;*/
+    /*width: 50%;*/
+    /*height: 1.5em;*/
+    /*background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1) 80%);*/
+/*}*/
 
 /* Ajax loader. */
 .wpds-topic-list-wrapper.wpds-ajax-loading {
@@ -262,3 +264,25 @@ ul.wpds-tile .wpds-topiclist-content {
     /*z-index: 1000;*/
     /*background-color: rgba(0, 0, 0, 0.5);*/
 }
+
+/* Style tests */
+/*@media screen and (min-width: 48em) {*/
+    /*body:not(.has-sidebar):not(.page-one-column) .page-header,*/
+    /*body.has-sidebar.error404 #primary .page-header,*/
+    /*body.page-two-column:not(.archive) #primary .entry-header,*/
+    /*body.page-two-column.archive:not(.has-sidebar) #primary .page-header {*/
+        /*display: none;*/
+    /*}*/
+/*}*/
+/**/
+/*@media screen and (min-width: 48em) {*/
+    /*body.page-two-column:not(.archive) #primary .entry-content {*/
+        /*width: 100% !important;*/
+    /*}*/
+/*}*/
+/**/
+/*@media screen and (min-width: 48em) {*/
+    /*.wrap {*/
+        /*max-width: 1200px !important;*/
+    /*}*/
+/*}*/

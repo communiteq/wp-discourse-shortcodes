@@ -43,7 +43,7 @@ class DiscourseRSS {
 		add_action( 'init', array( $this, 'setup_options' ) );
 		// Todo: workaround for accessing rss URLs with a port number. Remove this code!
 		if ( defined( 'DEV_MODE' ) && 'DEV_MODE' ) {
-			write_log( 'in dev mode, remove this code discourse-rss.php' );
+//			write_log( 'in dev mode, remove this code discourse-rss.php' );
 			add_filter( 'http_request_args', function ( $args ) {
 				$args['reject_unsafe_urls'] = false;
 

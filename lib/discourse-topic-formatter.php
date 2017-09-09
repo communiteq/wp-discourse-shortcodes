@@ -154,7 +154,7 @@ class DiscourseTopicFormatter {
 		// Todo: this is removing the data attributes.
 //		$output = wp_kses_post( apply_filters( 'wpds_after_topiclist_formatting', $output, $discourse_topics, $args ) );
 		if ( defined( 'DEV_MODE' ) && 'DEV_MODE' ) {
-			write_log( 'Skipping wp_kses_post in dev mode. Remove this and allow data attributes to pass.' );
+//			write_log( 'Skipping wp_kses_post in dev mode. Remove this and allow data attributes to pass.' );
 			$output = apply_filters( 'wpds_after_topiclist_formatting', $output, $discourse_topics, $args );
 		}
 		remove_filter( 'safe_style_css', array( $this, 'add_display_to_safe_styles' ) );
