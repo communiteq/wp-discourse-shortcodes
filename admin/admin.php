@@ -123,11 +123,6 @@ class Admin {
 			'ajax_load_checkbox',
 		), 'wpds_options', 'wpds_settings_section' );
 
-		add_settings_field( 'wpds_ajax_timeout', __( 'Ajax Refresh Period', 'wpds' ), array(
-			$this,
-			'ajax_timeout_input',
-		), 'wpds_options', 'wpds_settings_section' );
-
 		// The settings fields will be saved in the 'wpds_options' array as `wpds_options[ $key ].`
 		register_setting( 'wpds_options', 'wpds_options', array( $this->form_helper, 'validate_options' ) );
 	}
@@ -253,15 +248,6 @@ class Admin {
 	 */
 	public function ajax_load_checkbox() {
 		$this->form_helper->checkbox_input( 'wpds_ajax_refresh', 'wpds_options', __( 'Use an ajax request to load topics on the front end.', 'wpds' ) );
-	}
-
-	/**
-	 * Displays the ajax_timeout_input field.
-	 * Todo: reset the min value to a sane number (60?). I've reduced it for testing.
-	 */
-	public function ajax_timeout_input() {
-		$this->form_helper->input( 'wpds_ajax_timeout', 'wpds_options', __( 'Ajax refresh period in seconds (minimum value: 60, default: 120).', 'wpds' ),
-			'number', 10 );
 	}
 
 	public function display_private_topics_checkbox() {

@@ -15,8 +15,6 @@ class SettingsValidator {
 		add_filter( 'wpdc_validate_wpds_use_default_styles', array( $this, 'validate_checkbox' ) );
 		add_filter( 'wpdc_validate_wpds_topic_webhook_refresh', array( $this, 'validate_webhook_refresh' ) );
 		add_filter( 'wpdc_validate_wpds_ajax_refresh', array( $this, 'validate_ajax_refresh' ) );
-		// Todo: add a validation function so this can't be set below a sane value.
-		add_filter( 'wpdc_validate_wpds_ajax_timeout', array( $this, 'validate_int' ) );
 		add_filter( 'wpdc_validate_wpds_fetch_discourse_groups', array( $this, 'validate_checkbox' ) );
 	}
 
