@@ -123,6 +123,7 @@ class DiscourseTopics {
 		$source         = ! empty( $request['source'] ) ? esc_attr( wp_unslash( $request['source'] ) ) : 'latest';
 		$cache_duration = isset( $request['cache_duration'] ) ? esc_attr( wp_unslash( $request['cache_duration'] ) ) : 10;
 		$period         = ! empty( $request['period'] ) ? esc_attr( wp_unslash( $request['period'] ) ) : 'daily';
+		$id = esc_attr( wp_unslash( $request['id']));
 		$sync_key       = 'latest' === $source ? 'wpds_latest_last_sync' : 'wpds_top_' . $period . '_last_sync';
 
 		if ( ! $use_webhook ) {
@@ -130,25 +131,30 @@ class DiscourseTopics {
 			$expired_cache = $cache_duration + $last_sync > time();
 		}
 
+		// Todo: find an option specific to the id.
 		if ( $expired_cache || ( 'latest' === $source && $use_webhook && empty( get_option( 'wpds_update_latest' ) ) ) ) {
+			write_log('why is this here?');
 
 			// The content is fresh.
-			return 0;
+//			return 0;
 		}
+		write_log('we want to get to here');
 
 		$args = [];
+		$args['cache_duration'] = $cache_duration;
+		$args['source'] = $source;
+		$args['period'] = $period;
+		$args['id'] = $id;
+
 		if ( ! empty( $request['max_topics'] ) ) {
 			$args['max_topics'] = esc_attr( wp_unslash( $request['max_topics'] ) );
 		}
 
-		$args['cache_duration'] = $cache_duration;
 
 		if ( ! empty( $request['display_avatars'] ) ) {
 			$args['display_avatars'] = esc_attr( wp_unslash( $request['display_avatars'] ) );
 		}
 
-		$args['source'] = $source;
-		$args['period'] = $period;
 
 		if ( ! empty( $request['tile'] ) ) {
 			$args['tile'] = esc_attr( wp_unslash( $request['tile'] ) );
@@ -210,11 +216,13 @@ class DiscourseTopics {
 			'date_position'     => 'top',
 			'enable_ajax'       => 'false',
 			'ajax_timeout'      => 120,
+			'id' => 'false',
 		), $args );
 		$time = time();
 
 		if ( 'latest' === $args['source'] ) {
-			$formatted_topics = get_transient( 'wpds_latest_topics' );
+			$transient_key = 'false' === $args['id'] ? 'wpds_latest_topics' : 'wpds_latest_topics_' . $args['id'];
+			$formatted_topics = get_transient( $transient_key );
 
 			if ( empty( $this->options['wpds_topic_webhook_refresh'] && ! $force ) ) {
 				// Webhooks aren't enabled, use the cache_duration arg.
@@ -223,6 +231,7 @@ class DiscourseTopics {
 				$update         = $cache_duration + $last_sync < $time;
 			} else {
 				$update = $force || ! empty( get_option( 'wpds_update_latest' ) );
+				write_log( 'this should be called twice. update?', get_option( 'wpds_update_latest'));
 			}
 
 			if ( empty( $formatted_topics ) || $update ) {
@@ -234,7 +243,7 @@ class DiscourseTopics {
 					return new \WP_Error( 'wpds_get_topics_error', 'There was an error retrieving the formatted latest topics.' );
 				} else {
 					$formatted_topics = $this->topic_formatter->format_topics( $latest_topics, $args );
-					set_transient( 'wpds_latest_topics', $formatted_topics, DAY_IN_SECONDS );
+					set_transient( $transient_key, $formatted_topics, DAY_IN_SECONDS );
 					update_option( 'wpds_update_latest', 0 );
 					update_option( 'wpds_latest_last_sync', $time );
 				}
@@ -249,7 +258,7 @@ class DiscourseTopics {
 				$period = 'yearly';
 			}
 			$top_key          = 'wpds_top_' . $period;
-			$top_sync_key     = $top_key . '_last_sync';
+			$top_sync_key     = 'false' === $args['id'] ? $top_key . '_last_sync' : $top_key . '_last_sync_' . $args['id'];
 			$last_sync        = get_option( $top_sync_key );
 			$cache_duration   = $args['cache_duration'] * 60;
 			$update           = $cache_duration + $last_sync < $time;
