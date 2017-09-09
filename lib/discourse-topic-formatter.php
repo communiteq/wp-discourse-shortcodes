@@ -52,9 +52,7 @@ class DiscourseTopicFormatter {
 			$poster_avatar_url = '';
 			$poster_username   = '';
 			$topic_count       = 0;
-			$use_ajax          = ! empty( $this->options['wpds_ajax_refresh'] ) &&
-			                     ! empty( $this->options['wpds_topic_webhook_refresh'] ) &&
-			                     ( 'latest' === $args['source'] || 'daily' === $args['period'] );
+			$use_ajax          = ! empty( $this->options['wpds_ajax_refresh'] ) && ( 'latest' === $args['source'] || 'daily' === $args['period'] );
 			$ajax_class        = $use_ajax ? ' wpds-topiclist-refresh' : '';
 			$tile_class        = 'true' === $args['tile'] ? ' wpds-tile' : '';
 			$date_format       = ! empty( $this->options['custom-datetime-format'] ) ? $this->options['custom-datetime-format'] : 'Y/m/d';
@@ -152,7 +150,7 @@ class DiscourseTopicFormatter {
 		// Todo: this is removing the data attributes.
 //		$output = wp_kses_post( apply_filters( 'wpds_after_topiclist_formatting', $output, $discourse_topics, $args ) );
 		if ( defined( 'DEV_MODE' ) && 'DEV_MODE' ) {
-			write_log( 'Skipping wp_kses_post in dev mode. Remove this and allow data attributes to pass.');
+			write_log( 'Skipping wp_kses_post in dev mode. Remove this and allow data attributes to pass.' );
 			$output = apply_filters( 'wpds_after_topiclist_formatting', $output, $discourse_topics, $args );
 		}
 		remove_filter( 'safe_style_css', array( $this, 'add_display_to_safe_styles' ) );

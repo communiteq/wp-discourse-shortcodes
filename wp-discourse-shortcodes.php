@@ -10,13 +10,14 @@ namespace WPDiscourse\Shortcodes;
 use \WPDiscourse\Admin\OptionsPage as OptionsPage;
 use \WPDiscourse\Admin\FormHelper as FormHelper;
 
+define( 'WPDS_VERSION', '0.1' );
+
 add_action( 'plugins_loaded', __NAMESPACE__ . '\\init' );
 /**
  * Initializes the plugin, checks that WPDiscourse exists before requiring plugin files.
  */
 function init() {
 	if ( class_exists( '\WPDiscourse\Discourse\Discourse' ) ) {
-		define( 'WPDS_VERSION', '0.1' );
 
 		require_once( __DIR__ . '/lib/utilities.php' );
 		require_once( __DIR__ . '/lib/formatter.php' );
@@ -35,13 +36,13 @@ function init() {
 		require_once( __DIR__ . '/lib/shortcodes/discourse-prefilled-message-shortcode.php' );
 
 		new DiscourseShortcodes();
-		$topic_formatter = new DiscourseTopicFormatter();
-		$discourse_topics = new DiscourseTopics( $topic_formatter );
-		$rss_formatter = new DiscourseRSSFormatter();
-		$discourse_rss = new DiscourseRSS( $rss_formatter );
-		$discourse_link = new DiscourseLink();
+		$topic_formatter   = new DiscourseTopicFormatter();
+		$discourse_topics  = new DiscourseTopics( $topic_formatter );
+		$rss_formatter     = new DiscourseRSSFormatter();
+		$discourse_rss     = new DiscourseRSS( $rss_formatter );
+		$discourse_link    = new DiscourseLink();
 		$prefilled_message = new DiscoursePrefilledMessage( $discourse_link );
-		$discourse_groups = new DiscourseGroups( $discourse_link, $prefilled_message );
+		$discourse_groups  = new DiscourseGroups( $discourse_link, $prefilled_message );
 		new DiscourseLinkShortcode( $discourse_link );
 		new DiscoursePrefilledMessageShortcode( $prefilled_message );
 		new DiscourseTopicsShortcode( $discourse_topics );
