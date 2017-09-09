@@ -52,7 +52,8 @@ class DiscourseTopicFormatter {
 			$poster_avatar_url = '';
 			$poster_username   = '';
 			$topic_count       = 0;
-			$use_ajax          = ! empty( $this->options['wpds_ajax_refresh'] ) && ( 'latest' === $args['source'] || 'daily' === $args['period'] );
+			$use_ajax          = ! empty( $this->options['wpds_ajax_refresh'] ) && 'true' === $args['enable_ajax'] &&
+			                     ( 'latest' === $args['source'] || 'daily' === $args['period'] );
 			$ajax_class        = $use_ajax ? ' wpds-topiclist-refresh' : '';
 			$tile_class        = 'true' === $args['tile'] ? ' wpds-tile' : '';
 			$date_format       = ! empty( $this->options['custom-datetime-format'] ) ? $this->options['custom-datetime-format'] : 'Y/m/d';

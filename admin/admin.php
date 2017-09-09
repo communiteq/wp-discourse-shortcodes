@@ -65,10 +65,10 @@ class Admin {
      *
      * This allows updates to shortcode attributes to take effect immediately.
 	 */
-	public function clear_topics_cache() {
-		global $post;
+	public function clear_topics_cache( $post_id ) {
+	    $current_post = get_post( $post_id );
 
-		if ( has_shortcode( $post->post_content, 'discourse_topics' ) ) {
+		if ( ! empty( $current_post->post_content ) && has_shortcode( $current_post->post_content, 'discourse_topics' ) ) {
 			delete_transient( 'wpds_latest_topics' );
 			delete_transient( 'wpds_top_yearly' );
 			delete_transient( 'wpds_top_quarterly' );

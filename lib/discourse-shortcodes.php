@@ -71,7 +71,7 @@ class DiscourseShortcodes {
 			wp_register_script( 'wpds_js', plugins_url( '/js/discourse-latest.js', __FILE__ ), array( 'jquery' ), WPDS_VERSION, true );
 			$data = array(
 				'latestURL'   => home_url( '/wp-json/wp-discourse/v1/latest-topics' ),
-				'ajaxTimeout' => $this->options['wpds_ajax_timeout'],
+//				'ajaxTimeout' => $this->options['wpds_ajax_timeout'],
 			);
 			wp_enqueue_script( 'wpds_js' );
 			wp_localize_script( 'wpds_js', 'wpds', $data );

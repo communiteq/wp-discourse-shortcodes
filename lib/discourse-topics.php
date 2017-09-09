@@ -75,7 +75,7 @@ class DiscourseTopics {
 	 * Initializes a WordPress Rest API route and endpoint.
 	 */
 	public function initialize_topic_route() {
-		if ( ! empty( $this->options['wpds_topic_webhook_refresh'] ) ) {
+		if ( ! empty( $this->options['wpds_topic_webhook_refresh'] ) || ! empty( $this->options['wpds_ajax_refresh'] ) ) {
 			register_rest_route( 'wp-discourse/v1', 'latest-topics', array(
 				array(
 					'methods'  => \WP_REST_Server::CREATABLE,
@@ -118,7 +118,20 @@ class DiscourseTopics {
 	 * @return int|mixed|string|\WP_Error
 	 */
 	public function get_ajax_topics( $request ) {
-		if ( empty( get_option( 'wpds_update_latest' ) ) ) {
+		$use_webhook    = ! empty( $this->options['wpds_topic_webhook_refresh'] );
+		$expired_cache  = false;
+		$source         = ! empty( $request['source'] ) ? esc_attr( wp_unslash( $request['source'] ) ) : 'latest';
+		$cache_duration = isset( $request['cache_duration'] ) ? esc_attr( wp_unslash( $request['cache_duration'] ) ) : 10;
+		$period         = ! empty( $request['period'] ) ? esc_attr( wp_unslash( $request['period'] ) ) : 'daily';
+		$sync_key       = 'latest' === $source ? 'wpds_latest_last_sync' : 'wpds_top_' . $period . '_last_sync';
+
+		if ( ! $use_webhook ) {
+			$last_sync     = get_option( $sync_key );
+			$expired_cache = $cache_duration + $last_sync > time();
+		}
+
+		if ( $expired_cache || ( 'latest' === $source && $use_webhook && empty( get_option( 'wpds_update_latest' ) ) ) ) {
+
 			// The content is fresh.
 			return 0;
 		}
@@ -128,25 +141,45 @@ class DiscourseTopics {
 			$args['max_topics'] = esc_attr( wp_unslash( $request['max_topics'] ) );
 		}
 
+		$args['cache_duration'] = $cache_duration;
+
 		if ( ! empty( $request['display_avatars'] ) ) {
 			$args['display_avatars'] = esc_attr( wp_unslash( $request['display_avatars'] ) );
 		}
 
-		if ( ! empty( $request['source'] ) ) {
-			$args['source'] = esc_attr( wp_unslash( $request['source'] ) );
-		}
-
-		if ( ! empty( $request['period'] ) ) {
-			$args['period'] = esc_attr( wp_unslash( $request['period'] ) );
-		}
+		$args['source'] = $source;
+		$args['period'] = $period;
 
 		if ( ! empty( $request['tile'] ) ) {
 			$args['tile'] = esc_attr( wp_unslash( $request['tile'] ) );
 		}
 
-		// Todo: get the excerpt_length arg.
+		if ( ! empty( $request['excerpt_length'] ) ) {
+			$args['excerpt_length'] = esc_attr( wp_unslash( $request['excerpt_length'] ) );
+		}
 
-		$topics = $this->get_topics( $args );
+		if ( ! empty( $request['username_position'] ) ) {
+			$args['username_position'] = esc_attr( wp_unslash( $request['username_position'] ) );
+		}
+
+		if ( ! empty( $request['category_position'] ) ) {
+			$args['category_position'] = esc_attr( wp_unslash( $request['category_position'] ) );
+		}
+
+		if ( ! empty( $request['date_position'] ) ) {
+			$args['date_position'] = esc_attr( wp_unslash( $request['date_position'] ) );
+		}
+
+		if ( ! empty( $request['ajax_timeout'] ) ) {
+			$args['ajax_timeout'] = esc_attr( wp_unslash( $request['ajax_timeout'] ) );
+		}
+
+		if ( ! empty( $request['enable_ajax'] ) ) {
+			$args['enable_ajax'] = esc_attr( wp_unslash( $request['enable_ajax'] ) );
+		}
+
+		$topics = $this->get_topics( $args, $expired_cache );
+
 		if ( is_wp_error( $topics ) || empty( $topics ) ) {
 
 			return 0;
@@ -159,34 +192,37 @@ class DiscourseTopics {
 	 * Returns the formatted Discourse topics.
 	 *
 	 * @param array $args The shortcode args.
+	 * @param bool $force Force update.
 	 *
 	 * @return mixed|string|\WP_Error
 	 */
-	public function get_topics( $args ) {
+	public function get_topics( $args, $force = false ) {
 		$args = shortcode_atts( array(
 			'max_topics'        => 5,
+			'cache_duration'    => 10,
 			'display_avatars'   => 'true',
 			'source'            => 'latest',
 			'period'            => 'daily',
-			'cache_duration'    => 10,
 			'tile'              => 'false',
 			'excerpt_length'    => null,
 			'username_position' => 'top',
 			'category_position' => 'top',
 			'date_position'     => 'top',
+			'enable_ajax'       => 'false',
+			'ajax_timeout'      => 120,
 		), $args );
 		$time = time();
 
 		if ( 'latest' === $args['source'] ) {
 			$formatted_topics = get_transient( 'wpds_latest_topics' );
 
-			if ( empty( $this->options['wpds_topic_webhook_refresh'] ) ) {
+			if ( empty( $this->options['wpds_topic_webhook_refresh'] && ! $force ) ) {
 				// Webhooks aren't enabled, use the cache_duration arg.
 				$last_sync      = get_option( 'wpds_latest_last_sync' );
 				$cache_duration = $args['cache_duration'] * 60;
 				$update         = $cache_duration + $last_sync < $time;
 			} else {
-				$update = ! empty( get_option( 'wpds_update_latest' ) );
+				$update = $force || ! empty( get_option( 'wpds_update_latest' ) );
 			}
 
 			if ( empty( $formatted_topics ) || $update ) {
@@ -295,7 +331,7 @@ class DiscourseTopics {
 						$html = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' . $cooked . '</body></html>';
 						$doc->loadHTML( $html );
 
-						$html = $this->clean_discourse_content( $doc );
+						$html    = $this->clean_discourse_content( $doc );
 						$excerpt = wp_trim_words( wp_strip_all_tags( $html ), $excerpt_length );
 
 						unset( $doc );
