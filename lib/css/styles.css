@@ -235,3 +235,11 @@ ul.wpds-tile .wpds-topiclist-content {
     float: left;
     padding-right: 6px;
 }
+
+/* Ajax loader. */
+.wpds-topic-list-wrapper.wpds-ajax-loading {
+    /* Do something... */
+    /*position: relative;*/
+    /*z-index: 1000;*/
+    /*background-color: rgba(0, 0, 0, 0.5);*/
+}
