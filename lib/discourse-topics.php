@@ -408,6 +408,14 @@ class DiscourseTopics {
 			}
 		}
 
+		$elements = $xpath->query( "//small" );
+
+		if ( $elements && $elements->length ) {
+			foreach ( $elements as $element ) {
+				$element->parentNode->removeChild( $element );
+			}
+		}
+
 		$html = $doc->saveHTML();
 
 		unset( $xpath );
