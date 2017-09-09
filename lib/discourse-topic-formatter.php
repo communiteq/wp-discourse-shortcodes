@@ -96,6 +96,8 @@ class DiscourseTopicFormatter {
 					// Add content above the header.
 					$output = apply_filters( 'wpds_topiclist_above_header', $output, $topic, $category, $poster_avatar_url, $args );
 
+					$output .= '<div class="wpds-topiclist-clamp">';
+
 					$output .= '<header>';
 
 					if ( 'top' === $args['username_position'] ) {
@@ -119,6 +121,7 @@ class DiscourseTopicFormatter {
 					}
 
 					$output = apply_filters( 'wpds_topiclist_above_footer', $output, $topic, $category, $poster_avatar_url, $args );
+					$output .= '</div>'; // End of .wpds-topiclist-clamp.
 
 					$output .= '<footer>';
 					$output .= '<div class="wpds-topiclist-footer-meta">';
