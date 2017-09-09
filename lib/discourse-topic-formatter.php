@@ -103,8 +103,8 @@ class DiscourseTopicFormatter {
 						$output .= '<span class="wpds-topiclist-username">' . esc_html( $poster_username ) . '</span> <span class="wpds-topiclist-username"><span class="wpds-term">' . __( 'posted on ', 'wpds' ) . '</span>';
 					}
 
-					if ( 'top' === $args['date_position']) {
-					$output .= '<span class="wpds-created-at">' . esc_html( $created_at_formatted ) . '</span>';
+					if ( 'top' === $args['date_position'] ) {
+						$output .= '<span class="wpds-created-at">' . esc_html( $created_at_formatted ) . '</span>';
 					}
 
 					$output .= '<h4 class="wpds-topic-title"><a href="' . esc_url( $topic_url ) . '">' . esc_html( $topic['title'] ) . '</a></h4>';
@@ -150,7 +150,11 @@ class DiscourseTopicFormatter {
 
 		add_filter( 'safe_style_css', array( $this, 'add_display_to_safe_styles' ) );
 		// Todo: this is removing the data attributes.
-		$output = wp_kses_post( apply_filters( 'wpds_after_topiclist_formatting', $output, $discourse_topics, $args ) );
+//		$output = wp_kses_post( apply_filters( 'wpds_after_topiclist_formatting', $output, $discourse_topics, $args ) );
+		if ( defined( 'DEV_MODE' ) && 'DEV_MODE' ) {
+			write_log( 'Skipping wp_kses_post in dev mode. Remove this and allow data attributes to pass.');
+			$output = apply_filters( 'wpds_after_topiclist_formatting', $output, $discourse_topics, $args );
+		}
 		remove_filter( 'safe_style_css', array( $this, 'add_display_to_safe_styles' ) );
 
 		return $output;

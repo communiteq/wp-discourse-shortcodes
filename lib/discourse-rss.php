@@ -41,9 +41,9 @@ class DiscourseRSS {
 		$this->rss_formatter = $rss_formatter;
 
 		add_action( 'init', array( $this, 'setup_options' ) );
-		add_action( 'rest_api_init', array( $this, 'initialize_rss_route' ) );
 		// Todo: workaround for accessing rss URLs with a port number. Remove this code!
 		if ( defined( 'DEV_MODE' ) && 'DEV_MODE' ) {
+			write_log( 'in dev mode, remove this code discourse-rss.php' );
 			add_filter( 'http_request_args', function ( $args ) {
 				$args['reject_unsafe_urls'] = false;
 
@@ -61,74 +61,6 @@ class DiscourseRSS {
 		$this->discourse_url = ! empty( $this->options['url'] ) ? $this->options['url'] : null;
 	}
 
-	/**
-	 * Initializes a WordPress Rest API route and endpoint.
-	 */
-	public function initialize_rss_route() {
-		if ( ! empty( $this->options['wpds_rss_webhook_refresh'] ) ) {
-			register_rest_route( 'wp-discourse/v1', '/latest-rss', array(
-				array(
-					'methods'  => \WP_REST_Server::CREATABLE,
-					'callback' => array( $this, 'update_latest_rss' ),
-				),
-				array(
-					'methods'  => \WP_REST_Server::READABLE,
-					'callback' => array( $this, 'get_ajax_rss' ),
-				),
-			) );
-		}
-	}
-
-	// WP_REST_Request $request.
-	public function get_ajax_rss( $request ) {
-		if ( empty( get_option( 'wpds_update_latest_rss' ) ) ) {
-			// The content is fresh.
-			return 0;
-		}
-
-		$args = array(
-			'source' => 'latest',
-		);
-
-		if ( ! empty( $request['max_topics'] ) ) {
-			$args['max_topics'] = esc_attr( wp_unslash( $request['max_topics'] ) );
-		}
-
-		if ( ! empty( $request['display_images'] ) ) {
-			$args['display_images'] = esc_attr( wp_unslash( $request['display_images'] ) );
-		}
-
-		if ( ! empty( $request['excerpt_length'] ) ) {
-			$args['excerpt_length'] = esc_attr( wp_unslash( $request['excerpt_length'] ) );
-		}
-
-		if ( ! empty( $request['wp_link'] ) ) {
-			$args['wp_link'] = esc_attr( wp_unslash( $request['wp_link'] ) );
-		}
-
-		$rss = $this->get_rss( $args );
-		if ( is_wp_error( $rss ) || empty( $rss ) ) {
-
-			return 0;
-		}
-
-		return $rss;
-	}
-
-	public function update_latest_rss( $data ) {
-		$data = DiscourseUtilities::verify_discourse_webhook_request( $data );
-
-		if ( is_wp_error( $data ) ) {
-
-			return new \WP_Error( 'discourse_response_error', 'There was an error returned from Discourse when processing the
-			latest_rss webhook.' );
-		}
-
-		update_option( 'wpds_update_latest_rss', 1 );
-
-		return null;
-	}
-
 	public function get_rss( $args ) {
 		$args = shortcode_atts( array(
 			'max_topics'        => 5,
@@ -142,21 +74,16 @@ class DiscourseRSS {
 			'username_position' => 'top',
 			'date_position'     => 'top',
 			'category_position' => 'top',
-			'show_replies' => 'true',
+			'show_replies'      => 'true',
 		), $args );
 		$time = time();
 
 		if ( 'latest' === $args['source'] ) {
 			$formatted_rss = get_transient( 'wpds_latest_rss' );
 
-			if ( empty( $this->options['wpds_rss_webhook_refresh'] ) ) {
-				// Webhooks aren't enabled, use the cache_duration arg.
-				$last_sync      = get_option( 'wpds_latest_rss_last_sync' );
-				$cache_duration = $args['cache_duration'] * 60;
-				$update         = $cache_duration + $last_sync < $time;
-			} else {
-				$update = 1 === intval( get_option( 'wpds_update_latest_rss' ) );
-			}
+			$last_sync      = get_option( 'wpds_latest_rss_last_sync' );
+			$cache_duration = $args['cache_duration'] * 60;
+			$update         = $cache_duration + $last_sync < $time;
 
 			if ( empty( $formatted_rss ) || $update ) {
 
@@ -169,7 +96,6 @@ class DiscourseRSS {
 
 					$formatted_rss = $this->rss_formatter->format_rss_topics( $latest_rss, $args );
 					set_transient( 'wpds_latest_rss', $formatted_rss, DAY_IN_SECONDS );
-					update_option( 'wpds_update_latest_rss', 0 );
 					update_option( 'wpds_latest_rss_last_sync', $time );
 				}
 			}
@@ -182,6 +108,7 @@ class DiscourseRSS {
 			if ( ! preg_match( '/^(all|yearly|quarterly|monthly|weekly|daily)$/', $period ) ) {
 				$period = 'yearly';
 			}
+
 			$rss_key        = 'wpds_top_' . $period . '_rss';
 			$rss_sync_key   = $rss_key . '_last_sync';
 			$last_sync      = get_option( $rss_sync_key );
@@ -209,7 +136,8 @@ class DiscourseRSS {
 		return new \WP_Error( 'wpds_get_rss_error', 'A valid RSS source was not set.' );
 	}
 
-	public function feed_cache_duration() {
+	public
+	function feed_cache_duration() {
 		return 30;
 	}
 
@@ -220,7 +148,10 @@ class DiscourseRSS {
 	 *
 	 * @return array|\WP_Error
 	 */
-	protected function fetch_rss( $source, $args ) {
+	protected
+	function fetch_rss(
+		$source, $args
+	) {
 		if ( empty( $this->discourse_url ) ) {
 
 			return new \WP_Error( 'wp_discourse_configuration_error', 'The WP Discourse plugin is not properly configured.' );
@@ -231,7 +162,6 @@ class DiscourseRSS {
 
 		// Break and then restore the cache.
 		add_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'feed_cache_duration' ) );
-		// Todo: look at this error: Non-static method WP_Feed_Cache::create() should not be called statically.
 		$feed = fetch_feed( $rss_url );
 		remove_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'feed_cache_duration' ) );
 

@@ -35,7 +35,6 @@ class DiscourseShortcodes {
 		'wpds_display_private_topics' => 0,
 		'wpds_use_default_styles'     => 1,
 		'wpds_topic_webhook_refresh'  => 0,
-		'wpds_rss_webhook_refresh'    => 0,
 		// Todo: the validation function is using the WP Discourse secret.
 		// Todo: use the WP Discourse webhook secret and remove this option.
 		'wpds_webhook_secret'         => '',
