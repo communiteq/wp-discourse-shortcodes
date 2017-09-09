@@ -46,7 +46,7 @@ class Admin {
 	 * Admin constructor.
 	 *
 	 * @param \WPDiscourse\Admin\OptionsPage $options_page An instance of the OptionsPage class.
-	 * @param \WPDiscourse\Admin\FormHelper  $form_helper An instance of the FormHelper class.
+	 * @param \WPDiscourse\Admin\FormHelper $form_helper An instance of the FormHelper class.
 	 */
 	public function __construct( $options_page, $form_helper ) {
 		$this->options_page = $options_page;
@@ -57,6 +57,24 @@ class Admin {
 		add_action( 'admin_menu', array( $this, 'add_latest_topics_page' ) );
 		add_action( 'wpdc_options_page_append_settings_tabs', array( $this, 'settings_tab' ), 5, 1 );
 		add_action( 'wpdc_options_page_after_tab_switch', array( $this, 'wpds_settings_fields' ) );
+		add_action( 'save_post', array( $this, 'clear_topics_cache' ) );
+	}
+
+	/**
+	 * Clear topics cache if a post contains the 'discourse_topics' shortcode.
+     *
+     * This allows updates to shortcode attributes to take effect immediately.
+	 */
+	public function clear_topics_cache() {
+		global $post;
+
+		if ( has_shortcode( $post->post_content, 'discourse_topics' ) ) {
+			delete_transient( 'wpds_latest_topics' );
+			delete_transient( 'wpds_top_yearly' );
+			delete_transient( 'wpds_top_quarterly' );
+			delete_transient( 'wpds_top_monthly' );
+			delete_transient( 'wpds_top_daily' );
+		}
 	}
 
 	/**
@@ -105,11 +123,6 @@ class Admin {
 			'webhook_refresh_checkbox',
 		), 'wpds_options', 'wpds_settings_section' );
 
-		add_settings_field( 'wpds_webhook_secret', __( 'Discourse Webhook Secret Key', 'wpds' ), array(
-			$this,
-			'webhook_secret_input',
-		), 'wpds_options', 'wpds_settings_section' );
-
 		add_settings_field( 'wpds_ajax_refresh', __( 'Ajax Load', 'wpds' ), array(
 			$this,
 			'ajax_load_checkbox',
@@ -129,7 +142,7 @@ class Admin {
 	 */
 	public function add_latest_topics_page() {
 		$latest_topics_settings = add_submenu_page(
-			// The parent page from the wp-discourse plugin.
+		// The parent page from the wp-discourse plugin.
 			'wp_discourse_options',
 			__( 'Shortcodes', 'wpds' ),
 			__( 'Shortcodes', 'wpds' ),
@@ -160,9 +173,9 @@ class Admin {
 	public function settings_tab( $tab ) {
 		$active = 'wpds_options' === $tab;
 		?>
-		<a href="?page=wp_discourse_options&tab=wpds_options"
-		   class="nav-tab <?php echo $active ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Shortcodes', 'wpds' ); ?>
-		</a>
+        <a href="?page=wp_discourse_options&tab=wpds_options"
+           class="nav-tab <?php echo $active ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Shortcodes', 'wpds' ); ?>
+        </a>
 		<?php
 	}
 
@@ -171,33 +184,33 @@ class Admin {
 	 */
 	public function shortcode_settings_details() {
 		?>
-		<p>
-			<em>The following shortcodes are available:</em>
-		</p>
-		<ul>
-			<li><code>[discourse_latest]</code> <em>paramaters:</em> <code>max_topics</code> <em>(default '5')</em>
-				<code>display_avatars</code> <em>(default 'true')</em></li>
-			<br>
-			<li><code>[discourse_link]</code> <em>paramaters:</em> <code>link_text</code> <em>(default 'Visit Our
-					Forum')</em> <code>path</code> <em>(default '/')</em><br>
-				<code>classes</code> <em>(default '')</em> <code>login</code> <em>(default 'true', requires SSO Provider
-					to be enabled)</em></li>
-			<br>
-			<li><code>[discourse_prefilled_message]</code> <em>paramaters:</em> <code>link_text</code> <em>(default
-					'Contact Us')</em> <code>classes</code> <em>(default '')</em><br>
-				<code>title</code> <em>(default '')</em> <code>message</code> <em>(default '')</em>
-				<code>username</code> <em>(default '')</em> <code>groupname</code> <em>(default ''.) If
-					both a username and a groupname are supplied, will default to groupname. The
-					discourse_prefilled_message shortcode requires
-					WordPress to be enabled as the SSO Provider for Discourse.</em></li>
-			<br>
-			<li><code>[discourse_groups]</code> <em>parameters:</em> <code>link_type</code> <em>(default 'visit',
-					available 'visit', 'message')</em> <code>group_list</code>
-				<em>(If left empty, will default to all non-automatic groups, otherwise, supply a comma separated list
-					of group_names.)</em>
-				<code>link_open_text</code> <em>(default 'Join')</em> <code>link_close_text</code> <em>(default '')</em>
-			</li>
-		</ul>
+        <p>
+            <em>The following shortcodes are available:</em>
+        </p>
+        <ul>
+            <li><code>[discourse_latest]</code> <em>paramaters:</em> <code>max_topics</code> <em>(default '5')</em>
+                <code>display_avatars</code> <em>(default 'true')</em></li>
+            <br>
+            <li><code>[discourse_link]</code> <em>paramaters:</em> <code>link_text</code> <em>(default 'Visit Our
+                    Forum')</em> <code>path</code> <em>(default '/')</em><br>
+                <code>classes</code> <em>(default '')</em> <code>login</code> <em>(default 'true', requires SSO Provider
+                    to be enabled)</em></li>
+            <br>
+            <li><code>[discourse_prefilled_message]</code> <em>paramaters:</em> <code>link_text</code> <em>(default
+                    'Contact Us')</em> <code>classes</code> <em>(default '')</em><br>
+                <code>title</code> <em>(default '')</em> <code>message</code> <em>(default '')</em>
+                <code>username</code> <em>(default '')</em> <code>groupname</code> <em>(default ''.) If
+                    both a username and a groupname are supplied, will default to groupname. The
+                    discourse_prefilled_message shortcode requires
+                    WordPress to be enabled as the SSO Provider for Discourse.</em></li>
+            <br>
+            <li><code>[discourse_groups]</code> <em>parameters:</em> <code>link_type</code> <em>(default 'visit',
+                    available 'visit', 'message')</em> <code>group_list</code>
+                <em>(If left empty, will default to all non-automatic groups, otherwise, supply a comma separated list
+                    of group_names.)</em>
+                <code>link_open_text</code> <em>(default 'Join')</em> <code>link_close_text</code> <em>(default '')</em>
+            </li>
+        </ul>
 		<?php
 	}
 
@@ -253,22 +266,7 @@ class Admin {
 	 */
 	public function ajax_timeout_input() {
 		$this->form_helper->input( 'wpds_ajax_timeout', 'wpds_options', __( 'Ajax refresh period in seconds (minimum value: 60, default: 120).', 'wpds' ),
-		'number', 10 );
-	}
-
-	/**
-	 * Displays the webhook_secret_input field.
-	 */
-	public function webhook_secret_input() {
-		if ( ! empty( $this->webhook_url ) ) {
-			$description = 'The secret key used to verify Discourse webhook requests. It needs to match the key set at <a href="' .
-			               esc_url( $this->webhook_url ) . '">' . esc_url( $this->webhook_url ) . '</a>. (You must supply a secret key to use the latest_topics shortcode.)';
-		} else {
-			$description = 'The secret key used to verify Discourse webhook requests. It needs to match the key set at <strong>http://discourse.example.com/admin/api/web_hooks</strong>.
-            (You must supply a secret key to use the latest_topics shortcode.)';
-		}
-
-		$this->form_helper->input( 'wpds_webhook_secret', 'wpds_options', $description );
+			'number', 10 );
 	}
 
 	public function display_private_topics_checkbox() {
