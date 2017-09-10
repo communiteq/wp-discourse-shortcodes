@@ -112,9 +112,9 @@ trait Formatter {
 		$category_position = ' data-wpds-category-position="' . esc_attr( $args['category_position'] ) . '"';
 		$date_position     = ' data-wpds-date-position="' . esc_attr( $args['date_position'] ) . '"';
 		$ajax_timeout      = ' data-wpds-ajax-timeout="' . esc_attr( $args['ajax_timeout'] ) . '"';
-		$id = ' data-wpds-id="' . esc_attr( $args['id']) . '"';
+		$id                = ' data-wpds-id="' . esc_attr( $args['id'] ) . '"';
 
-		$output = '<div class="wpds-topic-shortcode-options" ' . $max_topics  . $cache_duration . $display_avatars . $source .
+		$output = '<div class="wpds-topic-shortcode-options" ' . $max_topics . $cache_duration . $display_avatars . $source .
 		          $period . $tile . $excerpt_length . $username_position . $category_position . $date_position . $ajax_timeout .
 		          $id . '></div>';
 
@@ -134,5 +134,62 @@ trait Formatter {
 		$styles[] = 'display';
 
 		return $styles;
+	}
+
+	public function get_topic_content( $html, $excerpt_length ) {
+		if ( ! $excerpt_length ) {
+
+			return null;
+		} elseif ( 'full' === $excerpt_length ) {
+
+			return $html;
+		} else {
+			$excerpt_length = intval( $excerpt_length );
+			libxml_use_internal_errors( true );
+			$doc = new \DOMDocument( '1.0', 'utf-8' );
+			libxml_clear_errors();
+			// Create a valid document with charset.
+			$html = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' . $html . '</body></html>';
+			$doc->loadHTML( $html );
+
+			$html    = $this->clean_discourse_content( $doc );
+			$excerpt = wp_trim_words( wp_strip_all_tags( $html ), $excerpt_length );
+
+			unset( $doc );
+
+			return $excerpt;
+		}
+	}
+
+	/**
+	 * Clean the HTML returned from Discourse.
+	 *
+	 * @param \DOMDocument $doc The DOMDocument to parse.
+	 *
+	 * @return string
+	 */
+	protected function clean_discourse_content( \DOMDocument $doc ) {
+		$xpath    = new \DOMXPath( $doc );
+		$elements = $xpath->query( "//span[@class]" );
+
+		if ( $elements && $elements->length ) {
+			foreach ( $elements as $element ) {
+				$element->parentNode->removeChild( $element );
+			}
+		}
+
+		$elements = $xpath->query( "//small" );
+
+		if ( $elements && $elements->length ) {
+			foreach ( $elements as $element ) {
+				$element->parentNode->removeChild( $element );
+			}
+		}
+
+		$html = $doc->saveHTML();
+
+		unset( $xpath );
+
+		return $html;
 	}
 }

@@ -59,7 +59,7 @@ class DiscourseTopicFormatter {
 			$date_format       = ! empty( $this->options['custom-datetime-format'] ) ? $this->options['custom-datetime-format'] : 'Y/m/d';
 
 			$output = '<div class="wpds-tile-wrapper' . esc_attr( $ajax_class ) . '" data-wpds-shortcode-id="' . esc_attr( $args['id'] ) .
-			'"><ul class="wpds-topiclist' . esc_attr( $tile_class ) . '">';
+			          '"><ul class="wpds-topiclist' . esc_attr( $tile_class ) . '">';
 
 			// Renders a div with data attributes that are retrieved by the client.
 			if ( $use_ajax ) {
@@ -77,7 +77,7 @@ class DiscourseTopicFormatter {
 					$likes_class          = $like_count ? ' wpds-has-likes' : '';
 					$reply_count          = $topic['posts_count'] - 1;
 					$posters              = $topic['posters'];
-					$cooked               = ! empty( $topic['cooked'] ) ? $topic['cooked'] : null;
+					$cooked               = ! empty( $topic['cooked'] ) ? $this->get_topic_content( $topic['cooked'], $args['excerpt_length'] ) : null;
 
 					foreach ( $posters as $poster ) {
 						if ( preg_match( '/Original Poster/', $poster['description'] ) ) {
@@ -118,7 +118,7 @@ class DiscourseTopicFormatter {
 					$output .= '</header>';
 
 					if ( $cooked ) {
-						$output .= '<div class="wpds-topiclist-content">' . $cooked . '</div>';
+						$output .= '<div class="wpds-topiclist-content">' . wp_kses_post( $cooked ) . '</div>';
 					}
 
 					$output = apply_filters( 'wpds_topiclist_above_footer', $output, $topic, $category, $poster_avatar_url, $args );
@@ -151,14 +151,7 @@ class DiscourseTopicFormatter {
 			$output .= '</ul></div>';
 		}
 
-		add_filter( 'safe_style_css', array( $this, 'add_display_to_safe_styles' ) );
-		// Todo: this is removing the data attributes.
-//		$output = wp_kses_post( apply_filters( 'wpds_after_topiclist_formatting', $output, $discourse_topics, $args ) );
-		if ( defined( 'DEV_MODE' ) && 'DEV_MODE' ) {
-//			write_log( 'Skipping wp_kses_post in dev mode. Remove this and allow data attributes to pass.' );
-			$output = apply_filters( 'wpds_after_topiclist_formatting', $output, $discourse_topics, $args );
-		}
-		remove_filter( 'safe_style_css', array( $this, 'add_display_to_safe_styles' ) );
+		$output = apply_filters( 'wpds_after_topiclist_formatting', $output, $discourse_topics, $args );
 
 		return $output;
 	}

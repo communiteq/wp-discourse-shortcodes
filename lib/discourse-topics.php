@@ -106,6 +106,8 @@ class DiscourseTopics {
 		}
 
 		update_option( 'wpds_update_latest', 1 );
+		delete_transient( 'wpds_latest_topics' );
+		delete_transient( 'wpds_latest_topics_html' );
 
 		return null;
 	}
@@ -123,7 +125,7 @@ class DiscourseTopics {
 		$source         = ! empty( $request['source'] ) ? esc_attr( wp_unslash( $request['source'] ) ) : 'latest';
 		$cache_duration = isset( $request['cache_duration'] ) ? esc_attr( wp_unslash( $request['cache_duration'] ) ) : 10;
 		$period         = ! empty( $request['period'] ) ? esc_attr( wp_unslash( $request['period'] ) ) : 'daily';
-		$id = esc_attr( wp_unslash( $request['id']));
+		$id             = esc_attr( wp_unslash( $request['id'] ) );
 		$sync_key       = 'latest' === $source ? 'wpds_latest_last_sync' : 'wpds_top_' . $period . '_last_sync';
 
 		if ( ! $use_webhook ) {
@@ -131,20 +133,17 @@ class DiscourseTopics {
 			$expired_cache = $cache_duration + $last_sync > time();
 		}
 
-		// Todo: find an option specific to the id.
 		if ( $expired_cache || ( 'latest' === $source && $use_webhook && empty( get_option( 'wpds_update_latest' ) ) ) ) {
-			write_log('why is this here?');
 
 			// The content is fresh.
-//			return 0;
+			return 0;
 		}
-		write_log('we want to get to here');
 
-		$args = [];
+		$args                   = [];
 		$args['cache_duration'] = $cache_duration;
-		$args['source'] = $source;
-		$args['period'] = $period;
-		$args['id'] = $id;
+		$args['source']         = $source;
+		$args['period']         = $period;
+		$args['id']             = $id;
 
 		if ( ! empty( $request['max_topics'] ) ) {
 			$args['max_topics'] = esc_attr( wp_unslash( $request['max_topics'] ) );
@@ -184,7 +183,7 @@ class DiscourseTopics {
 			$args['enable_ajax'] = esc_attr( wp_unslash( $request['enable_ajax'] ) );
 		}
 
-		$topics = $this->get_topics( $args, $expired_cache );
+		$topics = $this->get_topics( $args );
 
 		if ( is_wp_error( $topics ) || empty( $topics ) ) {
 
@@ -198,12 +197,11 @@ class DiscourseTopics {
 	 * Returns the formatted Discourse topics.
 	 *
 	 * @param array $args The shortcode args.
-	 * @param bool $force Force update.
 	 *
 	 * @return mixed|string|\WP_Error
 	 */
-	public function get_topics( $args, $force = false ) {
-		$args = shortcode_atts( array(
+	public function get_topics( $args ) {
+		$args   = shortcode_atts( array(
 			'max_topics'        => 5,
 			'cache_duration'    => 10,
 			'display_avatars'   => 'true',
@@ -216,99 +214,100 @@ class DiscourseTopics {
 			'date_position'     => 'top',
 			'enable_ajax'       => 'false',
 			'ajax_timeout'      => 120,
-			'id' => 'false',
+			'id'                => null,
 		), $args );
-		$time = time();
+		$time   = time();
+		$source = $args['source'];
+		$period = $args['period'];
 
-		if ( 'latest' === $args['source'] ) {
-			$transient_key = 'false' === $args['id'] ? 'wpds_latest_topics' : 'wpds_latest_topics_' . $args['id'];
-			$formatted_topics = get_transient( $transient_key );
-
-			if ( empty( $this->options['wpds_topic_webhook_refresh'] && ! $force ) ) {
-				// Webhooks aren't enabled, use the cache_duration arg.
-				$last_sync      = get_option( 'wpds_latest_last_sync' );
-				$cache_duration = $args['cache_duration'] * 60;
-				$update         = $cache_duration + $last_sync < $time;
-			} else {
-				$update = $force || ! empty( get_option( 'wpds_update_latest' ) );
-				write_log( 'this should be called twice. update?', get_option( 'wpds_update_latest'));
-			}
-
-			if ( empty( $formatted_topics ) || $update ) {
-
-				$latest_topics = $this->fetch_topics( 'latest', $args );
-
-				if ( empty( $latest_topics ) || is_wp_error( $latest_topics ) ) {
-
-					return new \WP_Error( 'wpds_get_topics_error', 'There was an error retrieving the formatted latest topics.' );
-				} else {
-					$formatted_topics = $this->topic_formatter->format_topics( $latest_topics, $args );
-					set_transient( $transient_key, $formatted_topics, DAY_IN_SECONDS );
-					update_option( 'wpds_update_latest', 0 );
-					update_option( 'wpds_latest_last_sync', $time );
-				}
-			}
-
-			return $formatted_topics;
+		if ( ! preg_match( '/^(all|yearly|quarterly|monthly|weekly|daily)$/', $period ) ) {
+			$period = 'yearly';
 		}
 
-		if ( 'top' === $args['source'] ) {
-			$period = $args['period'];
-			if ( ! preg_match( '/^(all|yearly|quarterly|monthly|weekly|daily)$/', $period ) ) {
-				$period = 'yearly';
+		$source_key = 'latest' === $source ? 'latest' : $period;
+		$path       = 'latest' === $source ? "/latest.json" : "/top/${period}.json";
+		$id         = $args['id'] ? $args['id'] : $source_key;
+		// The key under which the topic data transient is saved.
+		$topics_data_key = 'latest' === $source ? 'wpds_latest_topics' : 'wpds_' . $period . '_topics';
+		// The key under which the formatted topics transient is saved.
+		$formatted_html_key = $topics_data_key . '_html';
+		$sync_key           = $topics_data_key . '_last_sync';
+		$update = 0;
+
+		$last_sync      = get_option( $sync_key );
+		$cache_duration = $args['cache_duration'] * 60;
+		if ( ! empty( $this->options['wpds_topic_webhook_refresh'] ) && 'latest' === $source_key ) {
+			if ( ! empty( get_option( 'wpds_update_latest' ) ) ) {
+				$update = 1;
 			}
-			$top_key          = 'wpds_top_' . $period;
-			$top_sync_key     = 'false' === $args['id'] ? $top_key . '_last_sync' : $top_key . '_last_sync_' . $args['id'];
-			$last_sync        = get_option( $top_sync_key );
-			$cache_duration   = $args['cache_duration'] * 60;
-			$update           = $cache_duration + $last_sync < $time;
-			$formatted_topics = get_transient( $top_key );
-
-			if ( empty( $formatted_topics ) || $update ) {
-				$source = 'top/' . $period;
-
-				$top_topics = $this->fetch_topics( $source, $args );
-
-				if ( empty( $top_topics ) || is_wp_error( $top_topics ) ) {
-
-					return new \WP_Error( 'wpds_get_topics_error', 'There was an error retrieving the formatted top topics.' );
-				} else {
-					$formatted_topics = $this->topic_formatter->format_topics( $top_topics, $args );
-					set_transient( $top_key, $formatted_topics, DAY_IN_SECONDS );
-					update_option( $top_sync_key, $time );
-				}
-			}
-
-			return $formatted_topics;
+		} else {
+			$update = $cache_duration + $last_sync < $time ? 1 : 0;
 		}
 
-		return new \WP_Error( 'wpds_get_topics_error', 'A valid topics source was not provided.' );
+		// Get the topics data.
+		$topics = get_transient( $topics_data_key );
+
+		if ( empty( $topics ) || is_wp_error( $topics ) || $update ) {
+			$topics = $this->fetch_topics( $path );
+
+			if ( is_wp_error( $topics ) ) {
+
+				return new \WP_Error( 'wpds_request_error', 'The topic list could not be returned from Discourse.' );
+			}
+
+			set_transient( $topics_data_key, $topics, DAY_IN_SECONDS );
+			delete_transient( $formatted_html_key );
+			update_option( $sync_key, $time );
+			update_option( 'wpds_update_latest', 0 );
+		}
+
+		// Get the formatted topics.
+		$formatted_topics_array = get_transient( $formatted_html_key );
+
+		if ( empty( $formatted_topics_array[ $id ] ) ) {
+
+			$formatted_topics = $this->topic_formatter->format_topics( $topics, $args );
+
+			if ( empty( $formatted_topics ) ) {
+
+				return new \WP_Error();
+			}
+
+			$formatted_topics_array[ $id ] = $formatted_topics;
+
+			set_transient( $formatted_html_key, $formatted_topics_array, DAY_IN_SECONDS );
+		} else {
+			$formatted_topics = $formatted_topics_array[ $id ];
+		}
+
+		return $formatted_topics;
 	}
 
 	/**
 	 * Fetches a topic list from Discourse.
 	 *
-	 * @param string $source The Discourse path to pull from.
-	 * @param array $args The shortcode args.
+	 * @param $path $source The Discourse path to pull from.
 	 *
 	 * @return array|mixed|object|\WP_Error
 	 */
-	protected function fetch_topics( $source, $args ) {
+	protected function fetch_topics( $path ) {
 		if ( empty( $this->discourse_url ) || empty( $this->api_key ) || empty( $this->api_username ) ) {
 
 			return new \WP_Error( 'wpds_configuration_error', 'The WP Discourse plugin is not properly configured.' );
 		}
 
-		$topics_url = $this->discourse_url . "/{$source}.json";
+		$topics_url = $this->discourse_url . $path;
 
 		if ( ! empty( $this->options['wpds_display_private_topics'] ) ) {
-			$topics_url = add_query_arg( array(
+			$topics_url = esc_url_raw( add_query_arg( array(
 				'api_key'      => $this->api_key,
 				'api_username' => $this->api_username,
-			), $topics_url );
+			), $topics_url ) );
 		}
 
-		$response = wp_remote_get( $topics_url );
+		$response = wp_remote_get( $topics_url, array(
+			'timeout' => 60,
+		) );
 
 		if ( ! DiscourseUtilities::validate( $response ) ) {
 
@@ -318,37 +317,23 @@ class DiscourseTopics {
 		$topics_data = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		// Add the cooked content to each topic.
-		$excerpt_length = $args['excerpt_length'];
-		if ( $excerpt_length && 'false' !== $excerpt_length ) {
-			$max_topics = $args['max_topics'];
-			$topics     = $topics_data['topic_list']['topics'];
+		$topics = $topics_data['topic_list']['topics'];
 
-			$count = 0;
-			foreach ( $topics as $index => $topic ) {
-				if ( $count < $max_topics && $this->display_topic( $topic ) ) {
-					$cooked = $this->get_discourse_post( $topic['id'] );
+		$count      = 0;
+		$max_topics = ! empty( $this->options['wpds_max_topics'] ) ? $this->options['wpds_max_topics'] : 6;
+		foreach ( $topics as $index => $topic ) {
+			if ( $count < $max_topics && $this->display_topic( $topic ) ) {
+				$cooked = $this->get_discourse_post( $topic['id'] );
 
-					if ( is_wp_error( $cooked ) ) {
-						$excerpt = '';
-					} elseif ( 'full' === $excerpt_length ) {
-						$excerpt = $cooked;
-					} else {
-						libxml_use_internal_errors( true );
-						$doc = new \DOMDocument( '1.0', 'utf-8' );
-						libxml_clear_errors();
-						// Create a valid document with charset.
-						$html = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' . $cooked . '</body></html>';
-						$doc->loadHTML( $html );
-
-						$html    = $this->clean_discourse_content( $doc );
-						$excerpt = wp_trim_words( wp_strip_all_tags( $html ), $excerpt_length );
-
-						unset( $doc );
-					}
-
-					$topics_data['topic_list']['topics'][ $index ]['cooked'] = $excerpt;
-					$count                                                   += 1;
+				if ( is_wp_error( $cooked ) ) {
+					$cooked = '';
+				} else {
+					$cooked = wp_kses_post( $cooked );
 				}
+
+				$topics_data['topic_list']['topics'][ $index ]['cooked'] = $cooked;
+
+				$count += 1;
 			}
 		}
 
@@ -374,7 +359,9 @@ class DiscourseTopics {
 			'api_username' => $this->api_username,
 		), $topic_url ) );
 
-		$response = wp_remote_get( $topic_url );
+		$response = wp_remote_get( $topic_url, array(
+			'timeout' => 60,
+		) );
 
 		if ( ! DiscourseUtilities::validate( $response ) ) {
 
@@ -397,38 +384,5 @@ class DiscourseTopics {
 	protected function display_topic( $topic ) {
 
 		return ! $topic['pinned_globally'] && 'regular' === $topic['archetype'] && - 1 !== $topic['posters'][0]['user_id'];
-	}
-
-
-	/**
-	 * Clean the HTML returned from Discourse.
-	 *
-	 * @param \DOMDocument $doc The DOMDocument to parse.
-	 *
-	 * @return string
-	 */
-	protected function clean_discourse_content( \DOMDocument $doc ) {
-		$xpath    = new \DOMXPath( $doc );
-		$elements = $xpath->query( "//span[@class]" );
-
-		if ( $elements && $elements->length ) {
-			foreach ( $elements as $element ) {
-				$element->parentNode->removeChild( $element );
-			}
-		}
-
-		$elements = $xpath->query( "//small" );
-
-		if ( $elements && $elements->length ) {
-			foreach ( $elements as $element ) {
-				$element->parentNode->removeChild( $element );
-			}
-		}
-
-		$html = $doc->saveHTML();
-
-		unset( $xpath );
-
-		return $html;
 	}
 }

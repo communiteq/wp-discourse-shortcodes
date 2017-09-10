@@ -30,6 +30,7 @@ class DiscourseShortcodes {
 	 * @var array
 	 */
 	protected $wpds_options = array(
+		'wpds_max_topics' => 6,
 		'wpds_fetch_discourse_groups' => 0,
 		'wpds_display_private_topics' => 0,
 		'wpds_use_default_styles'     => 1,
@@ -51,6 +52,7 @@ class DiscourseShortcodes {
 	 */
 	public function initialize_plugin() {
 		add_option( 'wpds_options', $this->wpds_options );
+		add_option( 'wpds_update_flags', array() );
 		$this->options = $this->get_options();
 	}
 

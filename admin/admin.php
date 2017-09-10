@@ -97,6 +97,11 @@ class Admin {
 			'shortcode_settings_details',
 		), 'wpds_options' );
 
+		add_settings_field( 'wpds_max_topics', __( 'Maximum Number of Discourse Topics', 'wpds' ), array(
+			$this,
+			'max_topics_input',
+		), 'wpds_options', 'wpds_settings_section' );
+
 		add_settings_field( 'wpds_fetch_discourse_groups', __( 'Refresh Discourse Groups', 'wpds' ), array(
 			$this,
 			'fetch_discourse_groups_checkbox',
@@ -264,5 +269,9 @@ class Admin {
 
 	public function fetch_discourse_groups_checkbox() {
 		$this->form_helper->checkbox_input( 'wpds_fetch_discourse_groups', 'wpds_options', __( 'Refresh Discourse groups.', 'wpds' ) );
+	}
+
+	public function max_topics_input() {
+		$this->form_helper->input( 'wpds_max_topics', 'wpds_options', __( 'Maximum number of topids to display.', 'wpds' ), 'number', 0 );
 	}
 }
