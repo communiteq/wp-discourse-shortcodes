@@ -233,7 +233,7 @@ class DiscourseTopics {
 		}
 
 		$source_key = 'latest' === $source ? 'latest' : $period;
-		$path       = 'latest' === $source ? "/latest.json" : "/top/${period}.json";
+		$path       = 'latest' === $source ? "/latest.json" : "/top/{$period}.json";
 		$id         = $args['id'] ? $args['id'] : $source_key;
 		// The key under which the topic data transient is saved.
 		$topics_data_key = 'latest' === $source ? 'wpds_latest_topics' : 'wpds_' . $period . '_topics';
