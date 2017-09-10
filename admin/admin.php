@@ -70,10 +70,17 @@ class Admin {
 
 		if ( ! empty( $current_post->post_content ) && has_shortcode( $current_post->post_content, 'discourse_topics' ) ) {
 			delete_transient( 'wpds_latest_topics' );
-			delete_transient( 'wpds_top_yearly' );
-			delete_transient( 'wpds_top_quarterly' );
-			delete_transient( 'wpds_top_monthly' );
-			delete_transient( 'wpds_top_daily' );
+			delete_transient( 'wpds_latest_topics_html' );
+			delete_transient( 'wpds_all_topics' );
+			delete_transient( 'wpds_all_topics_html' );
+			delete_transient( 'wpds_daily_topics' );
+			delete_transient( 'wpds_daily_topics_html' );
+			delete_transient( 'wpds_monthly_topics' );
+			delete_transient( 'wpds_monthly_topics_html' );
+			delete_transient( 'wpds_quarterly_topics' );
+			delete_transient( 'wpds_quarterly_topics_html' );
+			delete_transient( 'wpds_yearly_topics' );
+			delete_transient( 'wpds_yearly_topics_html' );
 		}
 	}
 

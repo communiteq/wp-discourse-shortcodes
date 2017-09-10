@@ -105,7 +105,9 @@ class DiscourseTopics {
 			latest_topics webhook.' );
 		}
 
+		// Update the latest topics data the next time get_topics() is run.
 		update_option( 'wpds_update_latest', 1 );
+		// Delete the cached latest_topics data and html.
 		delete_transient( 'wpds_latest_topics' );
 		delete_transient( 'wpds_latest_topics_html' );
 
@@ -121,19 +123,27 @@ class DiscourseTopics {
 	 */
 	public function get_ajax_topics( $request ) {
 		$use_webhook    = ! empty( $this->options['wpds_topic_webhook_refresh'] );
-		$expired_cache  = false;
+		$keep_cache  = false;
 		$source         = ! empty( $request['source'] ) ? esc_attr( wp_unslash( $request['source'] ) ) : 'latest';
 		$cache_duration = isset( $request['cache_duration'] ) ? esc_attr( wp_unslash( $request['cache_duration'] ) ) : 10;
 		$period         = ! empty( $request['period'] ) ? esc_attr( wp_unslash( $request['period'] ) ) : 'daily';
 		$id             = esc_attr( wp_unslash( $request['id'] ) );
-		$sync_key       = 'latest' === $source ? 'wpds_latest_last_sync' : 'wpds_top_' . $period . '_last_sync';
+		$sync_key       = 'latest' === $source ? 'wpds_latest_topics_last_sync' : 'wpds_' . $period . 'topics_last_sync';
+		// The key under which the topic data transient is saved.
+		$topics_data_key = 'latest' === $source ? 'wpds_latest_topics' : 'wpds_' . $period . '_topics';
+		// The key under which the formatted topics transient is saved.
+		$formatted_html_key = $topics_data_key . '_html';
 
 		if ( ! $use_webhook ) {
 			$last_sync     = get_option( $sync_key );
-			$expired_cache = $cache_duration + $last_sync > time();
+			$keep_cache = $cache_duration + $last_sync > time();
+			if ( ! $keep_cache ) {
+				delete_transient( $topics_data_key );
+				delete_transient( $formatted_html_key );
+			}
 		}
 
-		if ( $expired_cache || ( 'latest' === $source && $use_webhook && empty( get_option( 'wpds_update_latest' ) ) ) ) {
+		if ( $keep_cache || ( 'latest' === $source && $use_webhook && empty( get_option( 'wpds_update_latest' ) ) ) ) {
 
 			// The content is fresh.
 			return 0;
@@ -149,11 +159,9 @@ class DiscourseTopics {
 			$args['max_topics'] = esc_attr( wp_unslash( $request['max_topics'] ) );
 		}
 
-
 		if ( ! empty( $request['display_avatars'] ) ) {
 			$args['display_avatars'] = esc_attr( wp_unslash( $request['display_avatars'] ) );
 		}
-
 
 		if ( ! empty( $request['tile'] ) ) {
 			$args['tile'] = esc_attr( wp_unslash( $request['tile'] ) );
@@ -213,7 +221,7 @@ class DiscourseTopics {
 			'category_position' => 'top',
 			'date_position'     => 'top',
 			'enable_ajax'       => 'false',
-			'ajax_timeout'      => 120,
+			'ajax_timeout'      => 2,
 			'id'                => null,
 		), $args );
 		$time   = time();

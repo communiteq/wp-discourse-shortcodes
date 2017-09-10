@@ -49,17 +49,18 @@ class DiscourseTopicFormatter {
 		if ( $use_plugin_formatting ) {
 			$topics            = $discourse_topics['topic_list']['topics'];
 			$users             = $discourse_topics['users'];
+			$source            = $args['source'];
 			$poster_avatar_url = '';
 			$poster_username   = '';
 			$topic_count       = 0;
-			$use_ajax          = ! empty( $this->options['wpds_ajax_refresh'] ) && 'true' === $args['enable_ajax'] &&
-			                     ( 'latest' === $args['source'] || 'daily' === $args['period'] );
+			$use_ajax          = ! empty( $this->options['wpds_ajax_refresh'] ) && 'true' === $args['enable_ajax'] && 'latest' === $source;
 			$ajax_class        = $use_ajax ? ' wpds-topiclist-refresh' : '';
 			$tile_class        = 'true' === $args['tile'] ? ' wpds-tile' : '';
+			$source_class      = 'latest' === $source ? ' wpds-latest-topics' : ' wpds-' . $source . '-' . $args['period'] . '-topics';
 			$date_format       = ! empty( $this->options['custom-datetime-format'] ) ? $this->options['custom-datetime-format'] : 'Y/m/d';
 
 			$output = '<div class="wpds-tile-wrapper' . esc_attr( $ajax_class ) . '" data-wpds-shortcode-id="' . esc_attr( $args['id'] ) .
-			          '"><ul class="wpds-topiclist' . esc_attr( $tile_class ) . '">';
+			          '"><ul class="wpds-topiclist' . esc_attr( $tile_class ) . esc_attr( $source_class ) . '">';
 
 			// Renders a div with data attributes that are retrieved by the client.
 			if ( $use_ajax ) {
@@ -156,6 +157,11 @@ class DiscourseTopicFormatter {
 		return $output;
 	}
 
+	/**
+	 * @param $topic The topic to check.
+	 *
+	 * @return bool
+	 */
 	protected function display_topic( $topic ) {
 
 		return ! $topic['pinned_globally'] && 'regular' === $topic['archetype'] && - 1 !== $topic['posters'][0]['user_id'];
