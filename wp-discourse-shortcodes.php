@@ -42,7 +42,7 @@ function init() {
 		$discourse_rss     = new DiscourseRSS( $rss_formatter );
 		$discourse_link    = new DiscourseLink();
 		$prefilled_message = new DiscoursePrefilledMessage( $discourse_link );
-		$discourse_groups  = new DiscourseGroups( $discourse_link, $prefilled_message );
+		$discourse_groups  = new DiscourseGroups( $discourse_link );
 		new DiscourseLinkShortcode( $discourse_link );
 		new DiscoursePrefilledMessageShortcode( $prefilled_message );
 		new DiscourseTopicsShortcode( $discourse_topics );

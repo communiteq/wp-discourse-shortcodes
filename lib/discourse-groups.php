@@ -2,7 +2,6 @@
 
 namespace WPDiscourse\Shortcodes;
 
-use WPDiscourse\Discourse\Discourse;
 use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
 
 class DiscourseGroups {
@@ -18,6 +17,30 @@ class DiscourseGroups {
 	protected $options;
 
 	/**
+	 * The Discourse forum url.
+	 *
+	 * @access protected
+	 * @var string
+	 */
+	protected $base_url;
+
+	/**
+	 * The Discourse API key.
+	 *
+	 * @access protected
+	 * @var string
+	 */
+	protected $api_key;
+
+	/**
+	 * The Discourse api_username.
+	 *
+	 * @access protected
+	 * @var string
+	 */
+	protected $api_username;
+
+	/**
 	 * In instance of the DiscourseLink class.
 	 *
 	 * @access protected
@@ -25,27 +48,32 @@ class DiscourseGroups {
 	 */
 	protected $discourse_link;
 
-
-	protected $prefilled_message;
-	protected $base_url;
-	protected $api_key;
-	protected $api_username;
-
-
-	public function __construct( $discourse_link, $prefilled_message ) {
-		$this->discourse_link    = $discourse_link;
-		$this->prefilled_message = $prefilled_message;
+	/**
+	 * DiscourseGroups constructor.
+	 *
+	 * @param DiscourseLink $discourse_link An instance of DiscourseLink.
+	 */
+	public function __construct( $discourse_link ) {
+		$this->discourse_link = $discourse_link;
 		add_action( 'init', array( $this, 'setup_options' ) );
 	}
 
-	public function setup_options( $prefilled_message ) {
+	/**
+	 * Setup the plugin options.
+	 */
+	public function setup_options() {
 		$this->options      = DiscourseUtilities::get_options();
 		$this->base_url     = ! empty( $this->options['url'] ) ? $this->options['url'] : null;
 		$this->api_key      = ! empty( $this->options['api-key'] ) ? $this->options['api-key'] : null;
 		$this->api_username = ! empty( $this->options['publish-username'] ) ? $this->options['publish-username'] : null;
 	}
 
-	public function get_discourse_groups( $group_names ) {
+	/**
+	 * @param string $group_names An optional string of groupnames to retrieve.
+	 *
+	 * @return array|mixed|null|object
+	 */
+	public function get_discourse_groups( $group_names = '' ) {
 		$discourse_groups = $this->get_all_groups();
 
 		if ( ! empty( $group_names ) ) {
@@ -66,55 +94,41 @@ class DiscourseGroups {
 	}
 
 	/**
-	 * @param array $groups The Discourse groups.
+	 * @param  array $groups An array of Discourse group data.
+	 * @param array $args The shortcode args.
 	 *
-	 * @return string
+	 * @return mixed
 	 */
-	public function format_groups( $groups, $attributes ) {
+	public function format_groups( $groups, $args ) {
 
-		$output = '<div class="wpdc-shortcodes-groups">';
+		$output = '<div class="wpds-groups-list">';
 		foreach ( $groups as $group ) {
 			$group_path      = '/groups/' . esc_attr( $group['name'] );
 			$full_group_name = ! empty( $group['full_name'] ) ? $group['full_name'] : str_replace( '_', ' ', $group['name'] );
-			$link_open_text  = ! empty( $attributes['link_open_text'] ) ? $attributes['link_open_text'] . ' ' : '';
-			$link_close_text = ! empty( $attributes['link_close_text'] ) ? ' ' . $attributes['link_close_text'] : '';
+			$link_open_text  = ! empty( $args['link_open_text'] ) ? $args['link_open_text'] . ' ' : '';
+			$link_close_text = ! empty( $args['link_close_text'] ) ? ' ' . $args['link_close_text'] : '';
 			$link_text       = esc_html( $link_open_text ) . ' ' . esc_html( $full_group_name ) . esc_html( $link_close_text );
 
-			$output .= '<div class="wpdc-shortcodes-group clearfix">';
-			$output .= '<h3 class="wpdc-shortcodes-groupname">' . $full_group_name . '</h3>';
+			$output .= '<div class="wpds-group clearfix">';
+			$output .= '<h3 class="wpds-groupname">' . $full_group_name . '</h3>';
 
-			$output .= '<div class="wpdc-shortcodes-group-description">';
+			$output .= '<div class="wpds-group-description">';
 			$output .= wp_kses_post( $group['bio_raw'] );
 			$output .= '</div>';
 
-			if ( ! empty( $this->options['enable-sso'] ) &&
-			     ! empty( $attributes['link_type'] ) && 'message' === $attributes['link_type'] &&
-			     ! empty( $attributes['allow_membership_requests'] )
-			) {
-				$message_args = array(
-					'title'     => 'Request to join the ' . $full_group_name . ' group',
-					'classes'   => 'wpdc-shortcodes-message-link',
-					'groupname' => $group['name'],
-					'link_text' => $link_text,
-				);
-
-				$output .= $this->prefilled_message->discourse_prefilled_message( $message_args );
-			} elseif ( ! empty( $attributes['link_type'] ) && 'visit' === $attributes['link_type'] ) {
-				$message_args = array(
-					'link_text' => $link_text,
-					'path'      => $group_path,
-					'classes'   => 'wpdc-shortcodes-visit-link',
-				);
-
-				$output .= $this->discourse_link->get_discourse_link( $message_args );
-			}
-			$output .= '</div>';
+			$link_args = array(
+				'link_text' => $link_text,
+				'path'      => $group_path,
+				'classes'   => 'wpds-group-link',
+			);
+			$output    .= $this->discourse_link->get_discourse_link( $link_args );
+			$output    .= '</div>';
 
 		}// End foreach().
 
 		$output .= '</div>';
 
-		return apply_filters( 'wpdc_shortcodes_groups', $output );
+		return apply_filters( 'wpds_formatted_groups', $output, $groups, $args );
 	}
 
 	/**
@@ -124,8 +138,8 @@ class DiscourseGroups {
 	 */
 	public
 	function get_all_groups() {
-		$groups       = get_option( 'wpds_discourse_groups' );
-		$force = false;
+		$groups = get_option( 'wpds_discourse_groups' );
+		$force  = false;
 
 		if ( ! empty( $this->options['wpds_fetch_discourse_groups'] ) ) {
 			// Set the wpds_fetch_discourse_groups option to 0 after a single request.
@@ -150,7 +164,7 @@ class DiscourseGroups {
 				'api_username' => $this->api_username,
 			), $groups_url ) );
 
-			$response   = wp_remote_get( $groups_url );
+			$response = wp_remote_get( $groups_url );
 
 			if ( ! DiscourseUtilities::validate( $response ) ) {
 
