@@ -11,6 +11,7 @@
  *     - wpds_update_latest Set in the API response handler, indicates whether Discourse content needs an update.
  *     - wpds_latest_last_sync Saves the time at which the latest topics were updated.
  *     - wpds_top_ (all|yearly|monthly|daily) _last_sync The time at which the top topics were updated.
+ *     - wpds_discourse_groups
  *
  * Transient list:
  *     - wpds_latest_topics The formatted Discourse latest topics.

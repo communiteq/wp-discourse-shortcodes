@@ -2,13 +2,30 @@
 
 namespace WPDiscourse\Shortcodes;
 
+use WPDiscourse\Discourse\Discourse;
 use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
 
 class DiscourseGroups {
-	use Utilities;
 
+	/**
+	 * The merged options from WP Discourse and WP Discourse Shortcodes.
+	 *
+	 * All options are held in a single array, use a custom plugin prefix to avoid naming collisions with wp-discourse.
+	 *
+	 * @access protected
+	 * @var array
+	 */
 	protected $options;
+
+	/**
+	 * In instance of the DiscourseLink class.
+	 *
+	 * @access protected
+	 * @var DiscourseLink
+	 */
 	protected $discourse_link;
+
+
 	protected $prefilled_message;
 	protected $base_url;
 	protected $api_key;
@@ -22,7 +39,7 @@ class DiscourseGroups {
 	}
 
 	public function setup_options( $prefilled_message ) {
-		$this->options      = $this->get_options();
+		$this->options      = DiscourseUtilities::get_options();
 		$this->base_url     = ! empty( $this->options['url'] ) ? $this->options['url'] : null;
 		$this->api_key      = ! empty( $this->options['api-key'] ) ? $this->options['api-key'] : null;
 		$this->api_username = ! empty( $this->options['publish-username'] ) ? $this->options['publish-username'] : null;
@@ -108,7 +125,7 @@ class DiscourseGroups {
 	public
 	function get_all_groups() {
 		$groups       = get_option( 'wpds_discourse_groups' );
-		$fetch_groups = false;
+		$force = false;
 
 		if ( ! empty( $this->options['wpds_fetch_discourse_groups'] ) ) {
 			// Set the wpds_fetch_discourse_groups option to 0 after a single request.
@@ -116,29 +133,28 @@ class DiscourseGroups {
 			$wpds_options['wpds_fetch_discourse_groups'] = 0;
 			update_option( 'wpds_options', $wpds_options );
 
-			$fetch_groups = true;
+			$force = true;
 		}
 
-		if ( empty( $groups ) || $fetch_groups ) {
+		if ( empty( $groups ) || $force ) {
 
 			if ( empty( $this->base_url ) || empty( $this->api_key ) || empty( $this->api_username ) ) {
 
-				return new \WP_Error( 'discourse_configuration_error', 'Unable to retrieve groups from Discourse. The WP Discourse plugin is
+				return new \WP_Error( 'wpds_configuration_error', 'Unable to retrieve groups from Discourse. The WP Discourse plugin is
 				not properly configured.' );
 			}
 
 			$groups_url = $this->base_url . '/admin/groups.json';
-			$groups_url = add_query_arg( array(
+			$groups_url = esc_url_raw( add_query_arg( array(
 				'api_key'      => $this->api_key,
 				'api_username' => $this->api_username,
-			), $groups_url );
+			), $groups_url ) );
 
-			$groups_url = esc_url_raw( $groups_url );
 			$response   = wp_remote_get( $groups_url );
 
-			if ( ! $this->validate( $response ) ) {
+			if ( ! DiscourseUtilities::validate( $response ) ) {
 
-				return new \WP_Error( 'discourse_invalid_response', 'An invalid response was returned when retrieving the Discourse groups.' );
+				return new \WP_Error( 'wpds_invalid_response', 'An invalid response was returned when retrieving the Discourse groups.' );
 			}
 
 			$groups               = json_decode( wp_remote_retrieve_body( $response ), true );
@@ -157,5 +173,4 @@ class DiscourseGroups {
 
 		return $groups;
 	}
-
 }
