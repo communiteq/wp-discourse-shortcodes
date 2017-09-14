@@ -5,6 +5,7 @@ namespace WPDiscourse\Shortcodes;
 use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
 
 class DiscourseGroups {
+	use Formatter;
 
 	/**
 	 * The merged options from WP Discourse and WP Discourse Shortcodes.
@@ -47,6 +48,7 @@ class DiscourseGroups {
 	 * @var DiscourseLink
 	 */
 	protected $discourse_link;
+
 
 	/**
 	 * DiscourseGroups constructor.
@@ -95,7 +97,9 @@ class DiscourseGroups {
 			'link_close_text'  => '',
 			'sso'              => 'false',
 			'tile'             => 'false',
-			'show_description' => 'true',
+			'display_description' => 'true',
+			'display_images' => 'true',
+			'excerpt_length' => 55,
 		), $args );
 		$groups = $this->get_discourse_groups( $args['group_list'] );
 
@@ -160,24 +164,34 @@ class DiscourseGroups {
 
 			$output = '<div class="wpds-groups wpds-tile-wrapper"><div class="' . esc_attr( $tile_class ) . '">';
 			foreach ( $groups as $group ) {
-				$group_name      = ! empty( $group['name'] ) ? $group['name'] : '';
-				$group_path      = "/groups/{$group_name}";
-				$full_group_name = ! empty( $group['full_name'] ) ? $group['full_name'] : str_replace( '_', ' ', $group_name );
-				$link_text       = $link_open_text . ' ' . $full_group_name . $link_close_text;
-				$link_args       = array(
+				$group_name       = ! empty( $group['name'] ) ? $group['name'] : '';
+				$group_path       = "/groups/{$group_name}";
+				$full_group_name  = ! empty( $group['full_name'] ) ? $group['full_name'] : str_replace( '_', ' ', $group_name );
+				$link_text        = $link_open_text . ' ' . $full_group_name . $link_close_text;
+				$link_args        = array(
 					'link_text' => $link_text,
 					'path'      => $group_path,
 					'classes'   => 'wpds-group-link',
 					'sso'       => $args['sso'],
 				);
+				$group_image = null;
+				$group_description = null;
+				$description_data = $this->parse_text_and_images( $group['bio_raw'], $args['excerpt_length'] );
+				if ( ! empty( $description_data ) && ! is_wp_error( $description_data ) ) {
+					$group_image = ! empty( $description_data['images']) ? $description_data['images'][0] : null;
+					$group_description = ! empty( $description_data['description']) ? $description_data['description'] : null;
+				}
 
 				$output .= '<div class="wpds-group">';
+				if ( 'true' === $args['display_images'] && $group_image ) {
+					$output .= '<div class="wpds-group-image">' . wp_kses_post( $group_image ) . '</div>';
+				}
 				$output .= '<header>';
 				$output .= '<h4 class="wpds-groupname">' . esc_html( $full_group_name ) . '</h4>';
 				$output .= '</header>';
 
-				if ( 'true' === $args['show_description'] ) {
-					$output .= '<div class="wpds-group-description">' . wp_kses_post( $group['bio_raw'] ) . '</div>';
+				if ( 'true' === $args['display_description'] ) {
+					$output .= '<div class="wpds-group-description">' . wp_kses_post( $group_description ) . '</div>';
 				}
 
 				$output .= '<footer>';

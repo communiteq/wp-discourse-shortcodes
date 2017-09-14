@@ -158,7 +158,8 @@ ul.wpds-tile {
 
     -webkit-flex-flow: row wrap;
     justify-content: center;
-    align-items: center;
+    /* Todo: check this */
+    /*align-items: center;*/
 }
 
 div.wpds-tile .wpds-group,
@@ -189,20 +190,20 @@ ul.wpds-tile .wpds-topiclist-footer-meta:after {
 }
 
 @media screen and (min-width: 370px) {
-    div.wpds-tile .wpds-group,
+    div.wpds-tile div.wpds-group,
     ul.wpds-tile li.wpds-topic,
     ul.wpds-tile li.wpds-rss-topic{
-        height: 300px;
+        /*height: 300px;*/
         width: 300px;
         margin-left: 20px;
         margin-right: 20px;
         margin-bottom: 40px;
         border: 1px solid #cccccc;
         border-radius: 3px;
-        /* Todo: the box-shadow probably shouldn't be in the default styles. */
-        /*-webkit-box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);*/
-        /*-moz-box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);*/
-        /*box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);*/
+    }
+
+    ul.wpds-tile li.wpds-rss-topic {
+        height: 300px;
     }
 
     .wpds-tile .wpds-rss-topic footer,

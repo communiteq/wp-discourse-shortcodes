@@ -161,6 +161,45 @@ trait Formatter {
 		}
 	}
 
+	public function parse_text_and_images( $html, $excerpt_length ) {
+		if ( 'full' !== $excerpt_length ) {
+			$excerpt_length = intval( $excerpt_length );
+		}
+
+		libxml_use_internal_errors( true );
+		$doc = new \DOMDocument( '1.0', 'utf-8' );
+		libxml_clear_errors();
+		$html = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' . $html . '</body></html>';
+		$doc->loadHTML( $html );
+
+		$images = $this->extract_and_remove_images( $doc );
+		$html = $doc->saveHTML();
+
+		if ( 'full' === $excerpt_length ) {
+			$excerpt = wp_strip_all_tags( $html );
+		} else {
+			$excerpt = wp_trim_words( wp_strip_all_tags( $html), $excerpt_length );
+		}
+
+		unset( $doc );
+
+		return array( 'images' => $images, 'description' => $excerpt );
+	}
+
+	protected function extract_and_remove_images( \DOMDocument $doc ) {
+		$images = [];
+		$image_tags = $doc->getElementsByTagName( 'img' );
+
+		if ( $image_tags->length ) {
+			foreach ( $image_tags as $image_tag ) {
+				$images[] = $doc->saveHTML( $image_tag );
+				$image_tag->parentNode->removeChild( $image_tag);
+			}
+		}
+
+		return $images;
+	}
+
 	/**
 	 * Clean the HTML returned from Discourse.
 	 *
