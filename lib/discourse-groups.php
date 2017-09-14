@@ -155,6 +155,13 @@ class DiscourseGroups {
 	 * @return mixed
 	 */
 	public function format_groups( $groups, $args ) {
+
+		if ( empty( $groups ) ) {
+
+			// Todo: add error message.
+			return new \WP_Error();
+		}
+
 		$output = get_transient( 'wpds_formatted_groups' );
 
 		if ( empty( $output ) ) {
