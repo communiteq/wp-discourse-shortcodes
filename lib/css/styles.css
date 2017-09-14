@@ -146,6 +146,7 @@ i.icon-heart {
     margin-right: -20px;
 }
 
+div.wpds-tile,
 ul.wpds-tile {
     margin: 0;
     padding: 0;
@@ -160,6 +161,7 @@ ul.wpds-tile {
     align-items: center;
 }
 
+div.wpds-tile .wpds-group,
 ul.wpds-tile li.wpds-topic,
 ul.wpds-tile li.wpds-rss-topic {
     position: relative;
@@ -187,6 +189,7 @@ ul.wpds-tile .wpds-topiclist-footer-meta:after {
 }
 
 @media screen and (min-width: 370px) {
+    div.wpds-tile .wpds-group,
     ul.wpds-tile li.wpds-topic,
     ul.wpds-tile li.wpds-rss-topic{
         height: 300px;
@@ -197,9 +200,9 @@ ul.wpds-tile .wpds-topiclist-footer-meta:after {
         border: 1px solid #cccccc;
         border-radius: 3px;
         /* Todo: the box-shadow probably shouldn't be in the default styles. */
-        -webkit-box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);
-        -moz-box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);
-        box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);
+        /*-webkit-box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);*/
+        /*-moz-box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);*/
+        /*box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);*/
     }
 
     .wpds-tile .wpds-rss-topic footer,
@@ -238,51 +241,29 @@ ul.wpds-tile .wpds-topiclist-content {
     padding-right: 6px;
 }
 
-/* A basic approach for dealing with text overflow. */
-/* Todo: don't add this to default styles. */
-/*.wpds-tile .wpds-topiclist-clamp {*/
-    /*height: 205px;*/
-    /*position: relative;*/
-    /*overflow: hidden;*/
-/*}*/
-
-/*.wpds-tile .wpds-topiclist-clamp:after {*/
-    /*content: "";*/
-    /*text-align: right;*/
-    /*position: absolute;*/
-    /*bottom: 0;*/
-    /*right: 0;*/
-    /*width: 50%;*/
-    /*height: 1.5em;*/
-    /*background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1) 80%);*/
-/*}*/
-
 /* Ajax loader. */
 .wpds-topic-list-wrapper.wpds-ajax-loading {
     /* Do something... */
-    /*position: relative;*/
-    /*z-index: 1000;*/
-    /*background-color: rgba(0, 0, 0, 0.5);*/
 }
 
 /* Style tests */
-/*@media screen and (min-width: 48em) {*/
-    /*body:not(.has-sidebar):not(.page-one-column) .page-header,*/
-    /*body.has-sidebar.error404 #primary .page-header,*/
-    /*body.page-two-column:not(.archive) #primary .entry-header,*/
-    /*body.page-two-column.archive:not(.has-sidebar) #primary .page-header {*/
-        /*display: none;*/
-    /*}*/
-/*}*/
-/**/
-/*@media screen and (min-width: 48em) {*/
-    /*body.page-two-column:not(.archive) #primary .entry-content {*/
-        /*width: 100% !important;*/
-    /*}*/
-/*}*/
-/**/
-/*@media screen and (min-width: 48em) {*/
-    /*.wrap {*/
-        /*max-width: 1200px !important;*/
-    /*}*/
-/*}*/
+@media screen and (min-width: 48em) {
+    body:not(.has-sidebar):not(.page-one-column) .page-header,
+    body.has-sidebar.error404 #primary .page-header,
+    body.page-two-column:not(.archive) #primary .entry-header,
+    body.page-two-column.archive:not(.has-sidebar) #primary .page-header {
+        display: none;
+    }
+}
+
+@media screen and (min-width: 48em) {
+    body.page-two-column:not(.archive) #primary .entry-content {
+        width: 100% !important;
+    }
+}
+
+@media screen and (min-width: 48em) {
+    .wrap {
+        max-width: 1200px !important;
+    }
+}

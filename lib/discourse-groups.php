@@ -90,11 +90,11 @@ class DiscourseGroups {
 
 	public function get_formatted_groups( $args ) {
 		$args   = shortcode_atts( array(
-			'group_list'      => '',
-			'link_open_text'  => 'Join the',
-			'link_close_text' => '',
-			'sso'             => 'false',
-			'tile' => 'false',
+			'group_list'       => '',
+			'link_open_text'   => 'Join the',
+			'link_close_text'  => '',
+			'sso'              => 'false',
+			'tile'             => 'false',
 			'show_description' => 'true',
 		), $args );
 		$groups = $this->get_discourse_groups( $args['group_list'] );
@@ -156,32 +156,36 @@ class DiscourseGroups {
 		if ( empty( $output ) ) {
 			$link_open_text  = ! empty( $args['link_open_text'] ) ? $args['link_open_text'] . ' ' : '';
 			$link_close_text = ! empty( $args['link_close_text'] ) ? ' ' . $args['link_close_text'] : '';
-			$tile_class        = 'true' === $args['tile'] ? ' wpds-tile' : '';
+			$tile_class      = 'true' === $args['tile'] ? ' wpds-tile' : 'wpds-no-tile';
 
-			$output = '<div class="wpds-groups wpds-tile-wrapper">';
+			$output = '<div class="wpds-groups wpds-tile-wrapper"><div class="' . esc_attr( $tile_class ) . '">';
 			foreach ( $groups as $group ) {
 				$group_name      = ! empty( $group['name'] ) ? $group['name'] : '';
 				$group_path      = "/groups/{$group_name}";
-				$full_group_name = ! empty( $group['full_name'] ) ? $group['full_name'] : str_replace( '_', ' ', $group['name'] );
+				$full_group_name = ! empty( $group['full_name'] ) ? $group['full_name'] : str_replace( '_', ' ', $group_name );
 				$link_text       = $link_open_text . ' ' . $full_group_name . $link_close_text;
 				$link_args       = array(
 					'link_text' => $link_text,
 					'path'      => $group_path,
 					'classes'   => 'wpds-group-link',
-					'sso' => $args['sso'],
+					'sso'       => $args['sso'],
 				);
 
-				$output .= '<div class="wpds-group' . esc_attr( $tile_class) . '">';
+				$output .= '<div class="wpds-group">';
+				$output .= '<header>';
 				$output .= '<h4 class="wpds-groupname">' . esc_html( $full_group_name ) . '</h4>';
+				$output .= '</header>';
 
 				if ( 'true' === $args['show_description'] ) {
 					$output .= '<div class="wpds-group-description">' . wp_kses_post( $group['bio_raw'] ) . '</div>';
 				}
 
+				$output .= '<footer>';
 				$output .= wp_kses_post( $this->discourse_link->get_discourse_link( $link_args ) ) . '</div>';
+				$output .= '</footer>';
 			}// End foreach().
 
-			$output .= '</div>';
+			$output .= '</div></div>';
 
 			set_transient( 'wpds_formatted_groups', $output, DAY_IN_SECONDS );
 		}
