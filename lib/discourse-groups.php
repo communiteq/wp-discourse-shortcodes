@@ -56,6 +56,7 @@ class DiscourseGroups {
 	public function __construct( $discourse_link ) {
 		$this->discourse_link = $discourse_link;
 		add_action( 'init', array( $this, 'setup_options' ) );
+		add_action( 'init', array( $this, 'clear_groups_data' ) );
 	}
 
 	/**
@@ -69,28 +70,78 @@ class DiscourseGroups {
 	}
 
 	/**
-	 * @param string $group_names An optional string of groupnames to retrieve.
+	 * Deletes the Discourse groups option and transients for a single request.
 	 *
-	 * @return array|mixed|null|object
+	 * @return null
 	 */
-	public function get_discourse_groups( $group_names = '' ) {
-		$discourse_groups = $this->get_all_groups();
+	public function clear_groups_data() {
+		if ( ! empty( $this->options['wpds_fetch_discourse_groups'] ) ) {
+			delete_option( 'wpds_discourse_groups' );
+			delete_transient( 'wpds_selected_groups_data' );
+			delete_transient( 'wpds_formatted_groups' );
 
-		if ( ! empty( $group_names ) ) {
-			$chosen_groups = [];
-			$selected      = array_map( 'trim', explode( ',', $group_names ) );
+			$wpds_options                                = get_option( 'wpds_options' );
+			$wpds_options['wpds_fetch_discourse_groups'] = 0;
+			update_option( 'wpds_options', $wpds_options );
+		}
 
-			foreach ( $discourse_groups as $group ) {
-				if ( in_array( $group['name'], $selected, true ) ) {
-					$chosen_groups[] = $group;
-				}
+		return null;
+	}
+
+	public function get_formatted_groups( $args ) {
+		$args   = shortcode_atts( array(
+			'group_list'      => '',
+			'link_open_text'  => 'Join the',
+			'link_close_text' => '',
+			'sso'             => 'false',
+			'tile' => 'false',
+			'show_description' => 'true',
+		), $args );
+		$groups = $this->get_discourse_groups( $args['group_list'] );
+
+		if ( empty( $groups ) || is_wp_error( $groups ) ) {
+
+			return '';
+		}
+		$formatted_groups = $this->format_groups( $groups, $args );
+
+		return $formatted_groups;
+	}
+
+	/**
+	 * @param string $group_list Groupnames to retrieve.
+	 *
+	 * @return array|\WP_Error
+	 */
+	public function get_discourse_groups( $group_list ) {
+		$discourse_groups = get_transient( 'wpds_selected_groups_data' );
+
+		if ( empty( $discourse_groups || is_wp_error( $discourse_groups ) ) ) {
+			$all_groups = $this->get_non_automatic_groups();
+
+			if ( empty( $all_groups || is_wp_error( $all_groups ) ) ) {
+
+				return new \WP_Error( 'wpds_response_error', 'The Discourse groups could not be retrieved.' );
 			}
 
-			return $chosen_groups;
-		} else {
+			if ( ! empty( $group_list ) ) {
+				$chosen_groups = [];
+				$selected      = array_map( 'trim', explode( ',', $group_list ) );
 
-			return $discourse_groups;
+				foreach ( $all_groups as $group ) {
+					if ( ! empty( $group['name'] ) && in_array( $group['name'], $selected, true ) ) {
+						$chosen_groups[] = $group;
+					}
+				}
+				$discourse_groups = $chosen_groups;
+			} else {
+				$discourse_groups = $all_groups;
+			}
+
+			set_transient( 'wpds_selected_groups_data', DAY_IN_SECONDS, $discourse_groups );
 		}
+
+		return $discourse_groups;
 	}
 
 	/**
@@ -100,33 +151,40 @@ class DiscourseGroups {
 	 * @return mixed
 	 */
 	public function format_groups( $groups, $args ) {
+		$output = get_transient( 'wpds_formatted_groups' );
 
-		$output = '<div class="wpds-groups-list">';
-		foreach ( $groups as $group ) {
-			$group_path      = '/groups/' . esc_attr( $group['name'] );
-			$full_group_name = ! empty( $group['full_name'] ) ? $group['full_name'] : str_replace( '_', ' ', $group['name'] );
+		if ( empty( $output ) ) {
 			$link_open_text  = ! empty( $args['link_open_text'] ) ? $args['link_open_text'] . ' ' : '';
 			$link_close_text = ! empty( $args['link_close_text'] ) ? ' ' . $args['link_close_text'] : '';
-			$link_text       = esc_html( $link_open_text ) . ' ' . esc_html( $full_group_name ) . esc_html( $link_close_text );
+			$tile_class        = 'true' === $args['tile'] ? ' wpds-tile' : '';
 
-			$output .= '<div class="wpds-group clearfix">';
-			$output .= '<h3 class="wpds-groupname">' . $full_group_name . '</h3>';
+			$output = '<div class="wpds-groups wpds-tile-wrapper">';
+			foreach ( $groups as $group ) {
+				$group_name      = ! empty( $group['name'] ) ? $group['name'] : '';
+				$group_path      = "/groups/{$group_name}";
+				$full_group_name = ! empty( $group['full_name'] ) ? $group['full_name'] : str_replace( '_', ' ', $group['name'] );
+				$link_text       = $link_open_text . ' ' . $full_group_name . $link_close_text;
+				$link_args       = array(
+					'link_text' => $link_text,
+					'path'      => $group_path,
+					'classes'   => 'wpds-group-link',
+					'sso' => $args['sso'],
+				);
 
-			$output .= '<div class="wpds-group-description">';
-			$output .= wp_kses_post( $group['bio_raw'] );
+				$output .= '<div class="wpds-group' . esc_attr( $tile_class) . '">';
+				$output .= '<h4 class="wpds-groupname">' . esc_html( $full_group_name ) . '</h4>';
+
+				if ( 'true' === $args['show_description'] ) {
+					$output .= '<div class="wpds-group-description">' . wp_kses_post( $group['bio_raw'] ) . '</div>';
+				}
+
+				$output .= wp_kses_post( $this->discourse_link->get_discourse_link( $link_args ) ) . '</div>';
+			}// End foreach().
+
 			$output .= '</div>';
 
-			$link_args = array(
-				'link_text' => $link_text,
-				'path'      => $group_path,
-				'classes'   => 'wpds-group-link',
-			);
-			$output    .= $this->discourse_link->get_discourse_link( $link_args );
-			$output    .= '</div>';
-
-		}// End foreach().
-
-		$output .= '</div>';
+			set_transient( 'wpds_formatted_groups', $output, DAY_IN_SECONDS );
+		}
 
 		return apply_filters( 'wpds_formatted_groups', $output, $groups, $args );
 	}
@@ -136,21 +194,10 @@ class DiscourseGroups {
 	 *
 	 * @return array|mixed|null|object
 	 */
-	public
-	function get_all_groups() {
+	protected function get_non_automatic_groups() {
 		$groups = get_option( 'wpds_discourse_groups' );
-		$force  = false;
 
-		if ( ! empty( $this->options['wpds_fetch_discourse_groups'] ) ) {
-			// Set the wpds_fetch_discourse_groups option to 0 after a single request.
-			$wpds_options                                = get_option( 'wpds_options' );
-			$wpds_options['wpds_fetch_discourse_groups'] = 0;
-			update_option( 'wpds_options', $wpds_options );
-
-			$force = true;
-		}
-
-		if ( empty( $groups ) || $force ) {
+		if ( empty( $groups ) ) {
 
 			if ( empty( $this->base_url ) || empty( $this->api_key ) || empty( $this->api_username ) ) {
 
@@ -175,7 +222,7 @@ class DiscourseGroups {
 			$non_automatic_groups = [];
 
 			foreach ( $groups as $group ) {
-				if ( empty( $group['automatic'] ) ) {
+				if ( ! empty( $group ) && empty( $group['automatic'] ) ) {
 					$non_automatic_groups[] = $group;
 				}
 			}

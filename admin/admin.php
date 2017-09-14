@@ -62,25 +62,34 @@ class Admin {
 
 	/**
 	 * Clear topics cache if a post contains the 'discourse_topics' shortcode.
-     *
-     * This allows updates to shortcode attributes to take effect immediately.
+	 *
+	 * This allows updates to shortcode attributes to take effect immediately.
 	 */
 	public function clear_topics_cache( $post_id ) {
-	    $current_post = get_post( $post_id );
+		$current_post = get_post( $post_id );
 
-		if ( ! empty( $current_post->post_content ) && has_shortcode( $current_post->post_content, 'discourse_topics' ) ) {
-			delete_transient( 'wpds_latest_topics' );
-			delete_transient( 'wpds_latest_topics_html' );
-			delete_transient( 'wpds_all_topics' );
-			delete_transient( 'wpds_all_topics_html' );
-			delete_transient( 'wpds_daily_topics' );
-			delete_transient( 'wpds_daily_topics_html' );
-			delete_transient( 'wpds_monthly_topics' );
-			delete_transient( 'wpds_monthly_topics_html' );
-			delete_transient( 'wpds_quarterly_topics' );
-			delete_transient( 'wpds_quarterly_topics_html' );
-			delete_transient( 'wpds_yearly_topics' );
-			delete_transient( 'wpds_yearly_topics_html' );
+		if ( ! empty( $current_post->post_content ) ) {
+			$content = $current_post->post_content;
+
+			if ( has_shortcode( $content, 'discourse_topics' ) ) {
+				delete_transient( 'wpds_latest_topics' );
+				delete_transient( 'wpds_latest_topics_html' );
+				delete_transient( 'wpds_all_topics' );
+				delete_transient( 'wpds_all_topics_html' );
+				delete_transient( 'wpds_daily_topics' );
+				delete_transient( 'wpds_daily_topics_html' );
+				delete_transient( 'wpds_monthly_topics' );
+				delete_transient( 'wpds_monthly_topics_html' );
+				delete_transient( 'wpds_quarterly_topics' );
+				delete_transient( 'wpds_quarterly_topics_html' );
+				delete_transient( 'wpds_yearly_topics' );
+				delete_transient( 'wpds_yearly_topics_html' );
+			}
+
+			if ( has_shortcode( $content, 'discourse_groups' ) ) {
+				delete_transient( 'wpds_selected_groups_data' );
+				delete_transient( 'wpds_formatted_groups' );
+			}
 		}
 	}
 
