@@ -94,11 +94,11 @@ class DiscourseTopicFormatter {
 					}
 
 					$output .= '<li class="wpds-topic' . esc_attr( $category_class ) . '">';
+					$output .= '<div class="wpds-topiclist-clamp">';
 
 					// Add content above the header.
 					$output = apply_filters( 'wpds_topiclist_above_header', $output, $topic, $category, $poster_avatar_url, $args );
 
-					$output .= '<div class="wpds-topiclist-clamp">';
 
 					$output .= '<header>';
 

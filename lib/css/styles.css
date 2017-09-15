@@ -15,6 +15,7 @@ ul.wpds-topiclist li.wpds-topic {
 
 /*.wpds-topic-poster-meta,*/
 /*.wpds-topic-activity-meta,*/
+.wpds-group,
 .wpds-topic,
 .wpds-rss-topic {
     font-size: 0.8125em;
@@ -82,7 +83,6 @@ span.wpds-likes-and-replies {
     padding-left: 4px;
     padding-right: 4px;
 }
-
 
 .wpds-topiclist .wpds-topic a.wpds-topiclist-reply-link:hover {
     color: #006acc;
@@ -156,10 +156,19 @@ ul.wpds-tile {
     display: -webkit-flex;
     display: flex;
 
+    /* Todo: flex-wrap : */
+    flex-wrap: wrap;
     -webkit-flex-flow: row wrap;
     justify-content: center;
     /* Todo: check this */
     /*align-items: center;*/
+}
+
+/* Todo: check this out. */
+div.wpds-tile:after {
+    content: "";
+    flex: 0 0 680px;
+
 }
 
 div.wpds-tile .wpds-group,
@@ -169,7 +178,7 @@ ul.wpds-tile li.wpds-rss-topic {
     padding-left: 12px;
     padding-right: 12px;
     padding-bottom: 1.5em;
-    padding-top: 1.5em;
+    /*padding-top: 1.5em;*/
     border-bottom: 1px solid #c3c3c3;
 }
 
@@ -192,18 +201,33 @@ ul.wpds-tile .wpds-topiclist-footer-meta:after {
 @media screen and (min-width: 370px) {
     div.wpds-tile div.wpds-group,
     ul.wpds-tile li.wpds-topic,
-    ul.wpds-tile li.wpds-rss-topic{
+    ul.wpds-tile li.wpds-rss-topic {
         /*height: 300px;*/
-        width: 300px;
+        /*width: 300px;*/
+        /*flex-basis: 300px;*/
+        flex: 0 0 300px;
         margin-left: 20px;
         margin-right: 20px;
         margin-bottom: 40px;
         border: 1px solid #cccccc;
         border-radius: 3px;
+        /* Todo: the box-shadow probably shouldn't be in the default styles. */
+        /*-webkit-box-shadow: 1px 1px 2px 0px rgba(133, 133, 133, 0.36);*/
+        /*-moz-box-shadow: 1px 1px 2px 0px rgba(133, 133, 133, 0.36);*/
+        /*box-shadow: 1px 1px 2px 0px rgba(133, 133, 133, 0.36);*/
     }
 
-    ul.wpds-tile li.wpds-rss-topic {
+    ul.wpds-tile li.wpds-topic {
         height: 300px;
+    }
+
+    div.wpds-tile div.wpds-group {
+        height: 500px;
+    }
+
+    div.wpds-tile .wpds-group-description {
+        padding-top: 1em;
+        overflow: hidden;
     }
 
     .wpds-tile .wpds-rss-topic footer,
@@ -215,6 +239,38 @@ ul.wpds-tile .wpds-topiclist-footer-meta:after {
         padding-bottom: 1.5em;
         padding-top: 1em;
     }
+
+    .wpds-tile .wpds-group header {
+        margin-top: 1em;
+    }
+
+    .wpds-tile .wpds-group-metadata {
+        line-height: 36px;
+    }
+
+    .wpds-tile .wpds-group footer {
+        position: absolute;
+        width: calc(100% - 24px);
+        bottom: 0;
+        /*height: 140px;*/
+        margin-top: 3em;
+        min-height: 80px;
+    }
+
+    .wpds-tile .wpds-group .wpds-footer-link {
+        width: 100%;
+        position: absolute;
+        bottom: 0;
+        text-align: center;
+        padding-bottom: 1.5em;
+    }
+
+    .wpds-tile .wpds-group-avatar {
+        width: 36px;
+        float: left;
+        padding-right: 4px;
+    }
+
 }
 
 ul.wpds-tile .wpds-rss-list-content,
@@ -242,6 +298,25 @@ ul.wpds-tile .wpds-topiclist-content {
     padding-right: 6px;
 }
 
+/* A basic approach for dealing with text overflow. */
+/* Todo: don't add this to default styles. */
+/*.wpds-tile .wpds-topiclist-clamp {*/
+/*height: 205px;*/
+/*position: relative;*/
+/*overflow: hidden;*/
+/*}*/
+
+/*.wpds-tile .wpds-topiclist-clamp:after {*/
+/*content: "";*/
+/*text-align: right;*/
+/*position: absolute;*/
+/*bottom: 0;*/
+/*right: 0;*/
+/*width: 50%;*/
+/*height: 1.5em;*/
+/*background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1) 80%);*/
+/*}*/
+
 /* Ajax loader. */
 .wpds-topic-list-wrapper.wpds-ajax-loading {
     /* Do something... */
@@ -267,4 +342,45 @@ ul.wpds-tile .wpds-topiclist-content {
     .wrap {
         max-width: 1200px !important;
     }
+}
+
+/* Site specific styles */
+
+.wpds-group-image {
+    max-height: 185px;
+    margin-left: -13px;
+    margin-right: -13px;
+    overflow: hidden;
+}
+
+.wpds-tile a.wpds-join-group {
+    background: #3498db;
+    background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
+    background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+    background-image: -ms-linear-gradient(top, #3498db, #2980b9);
+    background-image: -o-linear-gradient(top, #3498db, #2980b9);
+    background-image: linear-gradient(to bottom, #3498db, #2980b9);
+    -webkit-border-radius: 3;
+    -moz-border-radius: 3;
+    border-radius: 3px;
+    /*font-family: Arial;*/
+    color: #ffffff;
+    font-size: 1rem;
+    padding: 10px 20px 10px 20px;
+    text-decoration: none;
+    box-shadow: none;
+    display: inline-block;
+    width: 100%;
+}
+
+.wpds-tile a.wpds-join-group:hover {
+    background: #3cb0fd;
+    background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+    background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+    background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
+    background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+    background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+    text-decoration: none;
+    box-shadow: none;
+    color: #ffffff;
 }

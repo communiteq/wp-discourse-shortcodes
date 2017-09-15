@@ -161,6 +161,14 @@ trait Formatter {
 		}
 	}
 
+	/**
+	 * Extracts the images and an excerpt from a string of HTML.
+	 *
+	 * @param string $html The HTML to parse.
+	 * @param string $excerpt_length The excerpt length.
+	 *
+	 * @return array
+	 */
 	public function parse_text_and_images( $html, $excerpt_length ) {
 		if ( 'full' !== $excerpt_length ) {
 			$excerpt_length = intval( $excerpt_length );
@@ -186,6 +194,13 @@ trait Formatter {
 		return array( 'images' => $images, 'description' => $excerpt );
 	}
 
+	/**
+	 * Extracts the image tags from a DOMDocument.
+	 *
+	 * @param \DOMDocument $doc The DOMDocument to parse.
+	 *
+	 * @return array
+	 */
 	protected function extract_and_remove_images( \DOMDocument $doc ) {
 		$images = [];
 		$image_tags = $doc->getElementsByTagName( 'img' );

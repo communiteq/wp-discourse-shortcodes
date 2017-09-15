@@ -92,14 +92,16 @@ class DiscourseGroups {
 
 	public function get_formatted_groups( $args ) {
 		$args   = shortcode_atts( array(
-			'group_list'       => '',
-			'link_open_text'   => 'Join the',
-			'link_close_text'  => '',
-			'sso'              => 'false',
-			'tile'             => 'false',
-			'display_description' => 'true',
-			'display_images' => 'true',
-			'excerpt_length' => 55,
+			'group_list'           => '',
+			'link_open_text'       => 'Join the',
+			'link_close_text'      => '',
+			'sso'                  => 'false',
+			'tile'                 => 'false',
+			'display_description'  => 'true',
+			'display_images'       => 'true',
+			'excerpt_length'       => 55,
+			'show_header_metadata' => 'true',
+			'add_join_link'        => 'true',
 		), $args );
 		$groups = $this->get_discourse_groups( $args['group_list'] );
 
@@ -158,8 +160,7 @@ class DiscourseGroups {
 
 		if ( empty( $groups ) ) {
 
-			// Todo: add error message.
-			return new \WP_Error();
+			return new \WP_Error( 'wpds_error', 'The groups array was empty.' );
 		}
 
 		$output = get_transient( 'wpds_formatted_groups' );
@@ -171,39 +172,60 @@ class DiscourseGroups {
 
 			$output = '<div class="wpds-groups wpds-tile-wrapper"><div class="' . esc_attr( $tile_class ) . '">';
 			foreach ( $groups as $group ) {
-				$group_name       = ! empty( $group['name'] ) ? $group['name'] : '';
-				$group_path       = "/groups/{$group_name}";
-				$full_group_name  = ! empty( $group['full_name'] ) ? $group['full_name'] : str_replace( '_', ' ', $group_name );
-				$link_text        = $link_open_text . ' ' . $full_group_name . $link_close_text;
-				$link_args        = array(
+				write_log( 'group', $group );
+				$group_name        = ! empty( $group['name'] ) ? $group['name'] : '';
+				$group_path        = "/groups/{$group_name}";
+				$full_group_name   = ! empty( $group['full_name'] ) ? $group['full_name'] : str_replace( '_', ' ', $group_name );
+				$member_number     = ! empty( $group['user_count'] ) ? $group['user_count'] : null;
+				$flair_url         = ! empty( $group['flair_url'] ) ? $group['flair_url'] : null;
+				$join_enabled      = ! empty( $group['allow_membership_requests'] );
+				$link_text         = $link_open_text . ' ' . $full_group_name . $link_close_text;
+				$link_args         = array(
 					'link_text' => $link_text,
 					'path'      => $group_path,
-					'classes'   => 'wpds-group-link',
+					'classes'   => 'wpds-join-group',
 					'sso'       => $args['sso'],
 				);
-				$group_image = null;
+				$group_image       = null;
 				$group_description = null;
-				$description_data = $this->parse_text_and_images( $group['bio_raw'], $args['excerpt_length'] );
+				$description_data  = $this->parse_text_and_images( $group['bio_raw'], $args['excerpt_length'] );
 				if ( ! empty( $description_data ) && ! is_wp_error( $description_data ) ) {
-					$group_image = ! empty( $description_data['images']) ? $description_data['images'][0] : null;
-					$group_description = ! empty( $description_data['description']) ? $description_data['description'] : null;
+					$group_image       = ! empty( $description_data['images'] ) ? $description_data['images'][0] : null;
+					$group_description = ! empty( $description_data['description'] ) ? $description_data['description'] : null;
 				}
 
 				$output .= '<div class="wpds-group">';
+				$output .= '<div class="wpds-group-clamp">';
+
 				if ( 'true' === $args['display_images'] && $group_image ) {
 					$output .= '<div class="wpds-group-image">' . wp_kses_post( $group_image ) . '</div>';
 				}
+
 				$output .= '<header>';
 				$output .= '<h4 class="wpds-groupname">' . esc_html( $full_group_name ) . '</h4>';
+
+				if ( 'true' === $args['show_header_metadata'] && ( $member_number || $flair_url ) ){
+					$output .= '<div class="wpds-group-metadata">';
+					if ( $flair_url ) {
+						$output .= '<img class="wpds-group-avatar" src="' . esc_url_raw( $flair_url ) . '">';
+					}
+					if ( $member_number ) {
+						$output .= '<span class="wpds-member-number">' . $this->member_text( esc_attr( $member_number)) . '</span>';
+					}
+					$output .= '</div>';
+				}
+
 				$output .= '</header>';
 
 				if ( 'true' === $args['display_description'] ) {
 					$output .= '<div class="wpds-group-description">' . wp_kses_post( $group_description ) . '</div>';
 				}
+				$output .= '</div>'; // End of .wpds-group-clamp.
 
 				$output .= '<footer>';
+				$output .= '<div class="wpds-footer-link">';
 				$output .= wp_kses_post( $this->discourse_link->get_discourse_link( $link_args ) ) . '</div>';
-				$output .= '</footer>';
+				$output .= '</div></footer>'; // End of .wpds-footer-link.
 			}// End foreach().
 
 			$output .= '</div></div>';
@@ -212,6 +234,14 @@ class DiscourseGroups {
 		}
 
 		return apply_filters( 'wpds_formatted_groups', $output, $groups, $args );
+	}
+
+	protected function member_text( $members ) {
+		if ( 1 === intval( $members ) ) {
+			return '1 ' . __( 'member', 'wpds' );
+		} else {
+			return $members . ' ' . __( 'members', 'wpds' );
+		}
 	}
 
 	/**
