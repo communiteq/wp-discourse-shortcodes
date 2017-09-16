@@ -101,7 +101,7 @@ class DiscourseGroups {
 			'display_images'       => 'true',
 			'excerpt_length'       => 55,
 			'show_header_metadata' => 'true',
-			'add_join_link'        => 'true',
+			'show_join_link'        => 'true',
 		), $args );
 		$groups = $this->get_discourse_groups( $args['group_list'] );
 
@@ -172,16 +172,22 @@ class DiscourseGroups {
 
 			$output = '<div class="wpds-groups wpds-tile-wrapper"><div class="' . esc_attr( $tile_class ) . '">';
 			foreach ( $groups as $group ) {
-				write_log( 'group', $group );
 				$group_name        = ! empty( $group['name'] ) ? $group['name'] : '';
 				$group_path        = "/groups/{$group_name}";
 				$full_group_name   = ! empty( $group['full_name'] ) ? $group['full_name'] : str_replace( '_', ' ', $group_name );
 				$member_number     = ! empty( $group['user_count'] ) ? $group['user_count'] : null;
 				$flair_url         = ! empty( $group['flair_url'] ) ? $group['flair_url'] : null;
-				$join_enabled      = ! empty( $group['allow_membership_requests'] );
-				$link_text         = $link_open_text . ' ' . $full_group_name . $link_close_text;
-				$link_args         = array(
-					'link_text' => $link_text,
+				$join_enabled      = ! empty( $group['allow_membership_requests'] ) && 'true' === $args['show_join_link'];
+				$title_text        = $full_group_name;
+				$title_link_args   = array(
+					'link_text' => $title_text,
+					'path'      => $group_path,
+					'classes'   => 'wpds-group-title-link',
+					'sso'       => $args['sso'],
+				);
+				$join_link_text    = $link_open_text . ' ' . $full_group_name . $link_close_text;
+				$join_link_args    = array(
+					'link_text' => $join_link_text,
 					'path'      => $group_path,
 					'classes'   => 'wpds-join-group',
 					'sso'       => $args['sso'],
@@ -196,21 +202,22 @@ class DiscourseGroups {
 
 				$output .= '<div class="wpds-group">';
 				$output .= '<div class="wpds-group-clamp">';
+				$output = apply_filters( 'wpds_group_above_header', $output, $group, $args );
 
 				if ( 'true' === $args['display_images'] && $group_image ) {
 					$output .= '<div class="wpds-group-image">' . wp_kses_post( $group_image ) . '</div>';
 				}
 
 				$output .= '<header>';
-				$output .= '<h4 class="wpds-groupname">' . esc_html( $full_group_name ) . '</h4>';
+				$output .= '<h4 class="wpds-groupname">' . wp_kses_post( $this->discourse_link->get_discourse_link( $title_link_args ) ) . '</h4>';
 
-				if ( 'true' === $args['show_header_metadata'] && ( $member_number || $flair_url ) ){
+				if ( 'true' === $args['show_header_metadata'] && ( $member_number || $flair_url ) ) {
 					$output .= '<div class="wpds-group-metadata">';
 					if ( $flair_url ) {
 						$output .= '<img class="wpds-group-avatar" src="' . esc_url_raw( $flair_url ) . '">';
 					}
 					if ( $member_number ) {
-						$output .= '<span class="wpds-member-number">' . $this->member_text( esc_attr( $member_number)) . '</span>';
+						$output .= '<span class="wpds-member-number">' . $this->member_text( esc_attr( $member_number ) ) . '</span>';
 					}
 					$output .= '</div>';
 				}
@@ -220,12 +227,20 @@ class DiscourseGroups {
 				if ( 'true' === $args['display_description'] ) {
 					$output .= '<div class="wpds-group-description">' . wp_kses_post( $group_description ) . '</div>';
 				}
+
+				$output = apply_filters( 'wpds_group_above_footer', $output, $group, $args );
 				$output .= '</div>'; // End of .wpds-group-clamp.
 
 				$output .= '<footer>';
-				$output .= '<div class="wpds-footer-link">';
-				$output .= wp_kses_post( $this->discourse_link->get_discourse_link( $link_args ) ) . '</div>';
-				$output .= '</div></footer>'; // End of .wpds-footer-link.
+
+				if ( $join_enabled ) {
+					$output .= '<div class="wpds-footer-link">';
+					$output .= wp_kses_post( $this->discourse_link->get_discourse_link( $join_link_args ) );
+					$output .= '</div>';
+				}
+
+				$output .= '</footer>'; // End of .wpds-footer-link.
+				$output .= '</div>';
 			}// End foreach().
 
 			$output .= '</div></div>';

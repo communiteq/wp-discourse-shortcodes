@@ -222,7 +222,7 @@ ul.wpds-tile .wpds-topiclist-footer-meta:after {
     }
 
     div.wpds-tile div.wpds-group {
-        height: 500px;
+        /*height: 500px;*/
     }
 
     div.wpds-tile .wpds-group-description {
@@ -232,7 +232,7 @@ ul.wpds-tile .wpds-topiclist-footer-meta:after {
 
     .wpds-tile .wpds-rss-topic footer,
     .wpds-tile .wpds-topic footer {
-        position: absolute;
+        /*position: absolute;*/
         background-color: #ffffff;
         width: calc(100% - 24px);
         bottom: 0;
@@ -249,20 +249,21 @@ ul.wpds-tile .wpds-topiclist-footer-meta:after {
     }
 
     .wpds-tile .wpds-group footer {
-        position: absolute;
-        width: calc(100% - 24px);
-        bottom: 0;
+        /*position: absolute;*/
+        /*width: calc(100% - 24px);*/
+        /*bottom: 0;*/
         /*height: 140px;*/
-        margin-top: 3em;
-        min-height: 80px;
+        margin-top: 1.5em;
+        background-color: #ffffff;
+        /*min-height: 80px;*/
     }
 
     .wpds-tile .wpds-group .wpds-footer-link {
         width: 100%;
-        position: absolute;
+        /*position: absolute;*/
         bottom: 0;
         text-align: center;
-        padding-bottom: 1.5em;
+        /*padding-bottom: 1.5em;*/
     }
 
     .wpds-tile .wpds-group-avatar {
