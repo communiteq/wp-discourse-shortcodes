@@ -1,11 +1,41 @@
-/* Topic list styles */
+/*****************
+ *
+ * General styles.
+ *
+ *****************/
 
+.wpds-term {
+    font-style: italic;
+}
+
+.wpds-metadata {
+    font-size: 0.8125rem;
+    margin-bottom: 0.75rem;
+}
+
+/*************************************************
+ *
+ * Base Topic List styles (used for latest & top.)
+ *
+ *************************************************/
+
+.wpds-topiclist {
+    list-style: none;
+}
+
+.wpds-topic {
+    font-size: 0.8125em;
+    color: #777777;
+}
+
+/* Left padding gives space for the avatar. */
 ul.wpds-topiclist li.wpds-topic {
     position: relative;
     padding-left: 56px;
     padding-bottom: 1.5em;
 }
 
+/* Todo: rename class. */
 .wpds-latest-avatar {
     border-radius: 50%;
     position: absolute;
@@ -13,49 +43,25 @@ ul.wpds-topiclist li.wpds-topic {
     left: 0;
 }
 
-/*.wpds-topic-poster-meta,*/
-/*.wpds-topic-activity-meta,*/
-.wpds-group,
-.wpds-topic,
-.wpds-rss-topic {
-    font-size: 0.8125em;
-    color: #777777;
-}
-
-.wpds-term {
-    font-style: italic;
-}
-
-.wpds-topiclist,
-.wpds-rss-list {
-    list-style: none;
-}
-
-.wpds-rss-list header,
 .wpds-topiclist header {
     margin-bottom: 4px;
 }
 
-.wpds-rss-list .wpds-rss-topic h4.wpds-rss-title,
 .wpds-topiclist .wpds-topic h4.wpds-topic-title {
     margin-bottom: 0;
     padding-top: 0;
 }
 
-.wpds-rss-list .wpds-rss-topic h4.wpds-rss-title a,
-.wpds-rss-list .wpds-rss-topic a.wpds-rss-list-reply-link,
 .wpds-topiclist .wpds-topic h4.wpds-topic-title a,
 .wpds-topiclist .wpds-topic a.wpds-topiclist-reply-link {
     text-decoration: none;
     box-shadow: none;
 }
 
-.wpds-rss-list .wpds-rss-topic h4.wpds-rss-title a,
 .wpds-topiclist .wpds-topic h4.wpds-topic-title a {
     color: #636363;
 }
 
-.wpds-rss-list .wpds-rss-topic h4.wpds-rss-title a:hover,
 .wpds-topiclist .wpds-topic h4.wpds-topic-title a:hover {
     color: #006acc;
 }
@@ -101,51 +107,55 @@ i.icon-heart {
     padding-left: 2px;
 }
 
-/* RSS list styles. */
-/* A hack, but more efficient than removing it from the DOM. */
-.wpds-rss-list .lightbox-wrapper {
-    display: none;
+/********************
+ *
+ * Base Group styles.
+ *
+ ********************/
+
+/* Could be overwritten to be a multiple of the line-height. */
+.wpds-group {
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #eeeeee;
 }
 
-.wpds-rss-list.wpds-rss-display-images .lightbox-wrapper {
-    display: block;
-    padding-bottom: 1.5em;
+img.wpds-group-avatar {
+    max-width: 38px;
+    float: left;
 }
 
-.wpds-rss-list .wpds-rss-topic a.wpds-rss-list-reply-link {
-    color: #006acc;
+/* Vertically center the text. */
+span.wpds-member-number {
+    line-height: 38px;
 }
 
-.wpds-rss-list .wpds-rss-topic a.wpds-rss-list-reply-link:hover {
-    color: #636363;
+/* Clearfix for floated avatar. */
+.wpds-metadata:after {
+    display: table;
+    content: "";
+    clear: both;
 }
 
-.wpds-rss-topic {
-    padding-bottom: 40px;
+.wpds-group-description {
+    margin-bottom: 1.5rem;
 }
 
-.wpds-rss-topic blockquote {
-    font-size: 1em;
-    font-style: normal;
-    margin-left: 0;
-    margin-right: 0;
-    padding: 12px;
-    border-left: 5px solid #e9e9e9;
-    background-color: #f9f9f9;
-    margin-bottom: 1.5em;
-}
+/**************************************************
+ *
+ * Tiles - tiled styles for topic lists and groups.
+ *
+ **************************************************/
 
-.wpds-rss-topic blockquote p:last-child {
-    margin-bottom: 0;
-}
+/* Tile base styles. */
 
-/* Tiled topic list. */
 /* Allows left and right margins on the tiles to be ignored on wrappers edge. */
 .wpds-tile-wrapper {
     margin-left: -20px;
     margin-right: -20px;
 }
 
+/* The flex container. */
 div.wpds-tile,
 ul.wpds-tile {
     margin: 0;
@@ -155,16 +165,12 @@ ul.wpds-tile {
     display: -ms-flexbox;
     display: -webkit-flex;
     display: flex;
-
-    /* Todo: flex-wrap : */
     flex-wrap: wrap;
     -webkit-flex-flow: row wrap;
     justify-content: center;
-    /* Todo: check this */
-    /*align-items: center;*/
 }
 
-/* Todo: check this out. */
+/* This is a hack to force items in an incomplete row to align left. */
 div.wpds-tile:after {
     content: "";
     flex: 0 0 680px;
@@ -172,17 +178,14 @@ div.wpds-tile:after {
 }
 
 div.wpds-tile .wpds-group,
-ul.wpds-tile li.wpds-topic,
-ul.wpds-tile li.wpds-rss-topic {
+ul.wpds-tile li.wpds-topic {
     position: relative;
     padding-left: 12px;
     padding-right: 12px;
     padding-bottom: 1.5em;
-    /*padding-top: 1.5em;*/
     border-bottom: 1px solid #c3c3c3;
 }
 
-ul.wpds-tile .wpds-rss-list header,
 ul.wpds-tile .wpds-topiclist header {
     line-height: 1.35;
     margin-bottom: 7px;
@@ -198,83 +201,7 @@ ul.wpds-tile .wpds-topiclist-footer-meta:after {
     clear: both;
 }
 
-@media screen and (min-width: 370px) {
-    div.wpds-tile div.wpds-group,
-    ul.wpds-tile li.wpds-topic,
-    ul.wpds-tile li.wpds-rss-topic {
-        /*height: 300px;*/
-        /*width: 300px;*/
-        /*flex-basis: 300px;*/
-        flex: 0 0 300px;
-        margin-left: 20px;
-        margin-right: 20px;
-        margin-bottom: 40px;
-        border: 1px solid #cccccc;
-        border-radius: 3px;
-        /* Todo: the box-shadow probably shouldn't be in the default styles. */
-        /*-webkit-box-shadow: 1px 1px 2px 0px rgba(133, 133, 133, 0.36);*/
-        /*-moz-box-shadow: 1px 1px 2px 0px rgba(133, 133, 133, 0.36);*/
-        /*box-shadow: 1px 1px 2px 0px rgba(133, 133, 133, 0.36);*/
-    }
-
-    ul.wpds-tile li.wpds-topic {
-        height: 300px;
-    }
-
-    div.wpds-tile div.wpds-group {
-        /*height: 500px;*/
-    }
-
-    div.wpds-tile .wpds-group-description {
-        padding-top: 1em;
-        overflow: hidden;
-    }
-
-    .wpds-tile .wpds-rss-topic footer,
-    .wpds-tile .wpds-topic footer {
-        /*position: absolute;*/
-        background-color: #ffffff;
-        width: calc(100% - 24px);
-        bottom: 0;
-        padding-bottom: 1.5em;
-        padding-top: 1em;
-    }
-
-    .wpds-tile .wpds-group header {
-        margin-top: 1em;
-    }
-
-    .wpds-tile .wpds-group-metadata {
-        line-height: 36px;
-    }
-
-    .wpds-tile .wpds-group footer {
-        /*position: absolute;*/
-        /*width: calc(100% - 24px);*/
-        /*bottom: 0;*/
-        /*height: 140px;*/
-        margin-top: 1.5em;
-        background-color: #ffffff;
-        /*min-height: 80px;*/
-    }
-
-    .wpds-tile .wpds-group .wpds-footer-link {
-        width: 100%;
-        /*position: absolute;*/
-        bottom: 0;
-        text-align: center;
-        /*padding-bottom: 1.5em;*/
-    }
-
-    .wpds-tile .wpds-group-avatar {
-        width: 36px;
-        float: left;
-        padding-right: 4px;
-    }
-
-}
-
-ul.wpds-tile .wpds-rss-list-content,
+/* Todo: setting max-height seems questionable. */
 ul.wpds-tile .wpds-topiclist-content {
     max-height: 180px;
     overflow: hidden;
@@ -282,10 +209,6 @@ ul.wpds-tile .wpds-topiclist-content {
 
 .wpds-tile .wpds-likes-and-replies {
     float: right;
-}
-
-.wpds-tile.wpds-rss-list .wpds-likes-and-replies {
-    float: none;
 }
 
 .wpds-tile .wpds-latest-avatar {
@@ -299,89 +222,65 @@ ul.wpds-tile .wpds-topiclist-content {
     padding-right: 6px;
 }
 
-/* A basic approach for dealing with text overflow. */
-/* Todo: don't add this to default styles. */
-/*.wpds-tile .wpds-topiclist-clamp {*/
-/*height: 205px;*/
-/*position: relative;*/
-/*overflow: hidden;*/
-/*}*/
+@media screen and (min-width: 370px) {
+    div.wpds-tile div.wpds-group,
+    ul.wpds-tile li.wpds-topic {
+        flex: 0 0 300px;
+        margin-left: 20px;
+        margin-right: 20px;
+        margin-bottom: 40px;
+        border: 1px solid #cccccc;
+        border-radius: 3px;
+    }
 
-/*.wpds-tile .wpds-topiclist-clamp:after {*/
-/*content: "";*/
-/*text-align: right;*/
-/*position: absolute;*/
-/*bottom: 0;*/
-/*right: 0;*/
-/*width: 50%;*/
-/*height: 1.5em;*/
-/*background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1) 80%);*/
-/*}*/
+    /* Todo: setting the height seems questionable. */
+    ul.wpds-tile li.wpds-topic {
+        height: 300px;
+    }
+
+    div.wpds-tile .wpds-group-description {
+        padding-top: 1em;
+        overflow: hidden;
+    }
+
+    .wpds-tile .wpds-topic footer {
+        background-color: #ffffff;
+        width: calc(100% - 24px);
+        bottom: 0;
+        padding-bottom: 1.5em;
+        padding-top: 1em;
+    }
+
+    /* Group tile styles. */
+
+    .wpds-tile .wpds-group header {
+        margin-top: 1em;
+    }
+
+    .wpds-tile .wpds-group-metadata {
+        line-height: 36px;
+    }
+
+    .wpds-tile .wpds-group footer {
+        margin-top: 1.5em;
+        background-color: #ffffff;
+    }
+
+    .wpds-tile .wpds-group .wpds-footer-link {
+        width: 100%;
+        bottom: 0;
+        text-align: center;
+    }
+
+    .wpds-tile .wpds-group-avatar {
+        width: 36px;
+        float: left;
+        padding-right: 4px;
+    }
+
+}
 
 /* Ajax loader. */
 .wpds-topic-list-wrapper.wpds-ajax-loading {
     /* Do something... */
-}
-
-/* Style tests */
-@media screen and (min-width: 48em) {
-    body:not(.has-sidebar):not(.page-one-column) .page-header,
-    body.has-sidebar.error404 #primary .page-header,
-    body.page-two-column:not(.archive) #primary .entry-header,
-    body.page-two-column.archive:not(.has-sidebar) #primary .page-header {
-        display: none;
-    }
-}
-
-@media screen and (min-width: 48em) {
-    body.page-two-column:not(.archive) #primary .entry-content {
-        width: 100% !important;
-    }
-}
-
-@media screen and (min-width: 48em) {
-    .wrap {
-        max-width: 1200px !important;
-    }
-}
-
-/* Site specific styles */
-
-.wpds-group-image {
-    max-height: 185px;
-    margin-left: -13px;
-    margin-right: -13px;
-    overflow: hidden;
-}
-
-.wpds-tile a.wpds-join-group {
-    background: #3498db;
-    background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
-    background-image: -moz-linear-gradient(top, #3498db, #2980b9);
-    background-image: -ms-linear-gradient(top, #3498db, #2980b9);
-    background-image: -o-linear-gradient(top, #3498db, #2980b9);
-    background-image: linear-gradient(to bottom, #3498db, #2980b9);
-    -webkit-border-radius: 3;
-    -moz-border-radius: 3;
-    border-radius: 3px;
-    /*font-family: Arial;*/
-    color: #ffffff;
-    font-size: 1rem;
-    padding: 10px 20px 10px 20px;
-    text-decoration: none;
-    box-shadow: none;
-    display: inline-block;
-    width: 100%;
-}
-
-.wpds-tile a.wpds-join-group:hover {
-    background: #3cb0fd;
-    background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
-    background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
-    background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
-    background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
-    background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
-    text-decoration: none;
-    box-shadow: none;
-    color: #ffffff;
 }

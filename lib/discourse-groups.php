@@ -212,7 +212,7 @@ class DiscourseGroups {
 				$output .= '<h4 class="wpds-groupname">' . wp_kses_post( $this->discourse_link->get_discourse_link( $title_link_args ) ) . '</h4>';
 
 				if ( 'true' === $args['show_header_metadata'] && ( $member_number || $flair_url ) ) {
-					$output .= '<div class="wpds-group-metadata">';
+					$output .= '<div class="wpds-metadata">';
 					if ( $flair_url ) {
 						$output .= '<img class="wpds-group-avatar" src="' . esc_url_raw( $flair_url ) . '">';
 					}
