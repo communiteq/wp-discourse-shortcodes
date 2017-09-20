@@ -102,6 +102,7 @@ class DiscourseGroups {
 			'excerpt_length'       => 55,
 			'show_header_metadata' => 'true',
 			'show_join_link'        => 'true',
+			'add_button_styles' => 'true',
 		), $args );
 		$groups = $this->get_discourse_groups( $args['group_list'] );
 
@@ -189,7 +190,7 @@ class DiscourseGroups {
 				$join_link_args    = array(
 					'link_text' => $join_link_text,
 					'path'      => $group_path,
-					'classes'   => 'wpds-join-group',
+					'classes'   => 'true' === $args['add_button_styles'] ? 'wpds-join-group wpds-button' : 'wpds-join-group',
 					'sso'       => $args['sso'],
 				);
 				$group_image       = null;

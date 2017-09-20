@@ -13,6 +13,43 @@
     margin-bottom: 0.75rem;
 }
 
+/* Button base styles. */
+a.wpds-button {
+    background: #3498db;
+    background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
+    background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+    background-image: -ms-linear-gradient(top, #3498db, #2980b9);
+    background-image: -o-linear-gradient(top, #3498db, #2980b9);
+    background-image: linear-gradient(to bottom, #3498db, #2980b9);
+    border-radius: 3px;
+    color: #ffffff;
+    font-size: 1rem;
+    padding-top: 0.75rem;
+    padding-right: 1.5rem;
+    padding-bottom: 0.75rem;
+    width: 100%;
+    padding-left: 1.5rem;
+    text-align: center;
+    text-decoration: none;
+    box-shadow: none;
+    display: inline-block;
+}
+
+.entry-content a.wpds-button:hover,
+.entry-content a.wpds-button:active,
+a.wpds-button:hover,
+a.wpds-button:active {
+    background: #3cb0fd;
+    background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+    background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+    background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
+    background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+    background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+    text-decoration: none;
+    box-shadow: none;
+    color: #ffffff;
+}
+
 /*************************************************
  *
  * Base Topic List styles (used for latest & top.)
@@ -117,7 +154,10 @@ i.icon-heart {
 .wpds-group {
     padding-bottom: 1.5rem;
     margin-bottom: 1.5rem;
-    border-bottom: 1px solid #eeeeee;
+}
+
+.wpds-group-image {
+    padding-bottom: 0.75rem;
 }
 
 img.wpds-group-avatar {
