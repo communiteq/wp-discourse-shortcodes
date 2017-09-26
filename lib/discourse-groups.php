@@ -103,6 +103,7 @@ class DiscourseGroups {
 			'show_header_metadata' => 'true',
 			'show_join_link'        => 'true',
 			'add_button_styles' => 'true',
+			'id' => null,
 		), $args );
 		$groups = $this->get_discourse_groups( $args['group_list'] );
 
