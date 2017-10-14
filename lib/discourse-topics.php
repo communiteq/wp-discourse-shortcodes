@@ -1,9 +1,22 @@
 <?php
+/**
+ * Gets and returns formatted Discourse topics.
+ *
+ * Sets up the REST API route for updating topics through an optional webhook.
+ * Topics are formatted based on args passed to the `get_topics` function.
+ *
+ * @package WPDiscourse\Shortcodes
+ */
 
 namespace WPDiscourse\Shortcodes;
 
 use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
 
+/**
+ * Class DiscourseTopics
+ *
+ * @package WPDiscourse\Shortcodes
+ */
 class DiscourseTopics {
 
 	/**
@@ -64,7 +77,8 @@ class DiscourseTopics {
 	 * Sets up the plugin options.
 	 */
 	public function setup_options() {
-		add_option( 'wpds_update_latest', 1 );
+		// Set to 1 when the plugin is installed. Does this need to be here?
+//		add_option( 'wpds_update_latest', 1 );
 		$this->options       = DiscourseUtilities::get_options();
 		$this->discourse_url = ! empty( $this->options['url'] ) ? $this->options['url'] : null;
 		$this->api_key       = ! empty( $this->options['api-key'] ) ? $this->options['api-key'] : null;
@@ -110,6 +124,7 @@ class DiscourseTopics {
 		}
 
 		// Update the latest topics data the next time get_topics() is run.
+		// Todo: is this required? The transients are being deleted, so it shouldn't matter.
 		update_option( 'wpds_update_latest', 1 );
 		// Delete the cached latest_topics data and html.
 		delete_transient( 'wpds_latest_topics' );
@@ -231,15 +246,18 @@ class DiscourseTopics {
 			), $args
 		);
 		$time   = time();
+		// The source can be set to either 'latest' or 'top'.
 		$source = $args['source'];
+		// If top is the source, the period is used to select the top correct top page.
 		$period = $args['period'];
-
+		// Just in case it's been set incorrectly.
 		if ( ! preg_match( '/^(all|yearly|quarterly|monthly|weekly|daily)$/', $period ) ) {
 			$period = 'yearly';
 		}
 
 		$source_key = 'latest' === $source ? 'latest' : $period;
 		$path       = 'latest' === $source ? '/latest.json' : "/top/{$period}.json";
+		// $id is used so that more than one shortcode for a given source can be stored as a transient.
 		$id         = $args['id'] ? $args['id'] : $source_key;
 		// The key under which the topic data transient is saved.
 		$topics_data_key = 'latest' === $source ? 'wpds_latest_topics' : 'wpds_' . $period . '_topics';
@@ -250,6 +268,7 @@ class DiscourseTopics {
 
 		$last_sync      = get_option( $sync_key );
 		$cache_duration = $args['cache_duration'] * 60;
+		// Todo: not sure this needs to be here. It should be enough to delete the transients.
 		if ( ! empty( $this->options['wpds_topic_webhook_refresh'] ) && 'latest' === $source_key ) {
 			if ( ! empty( get_option( 'wpds_update_latest' ) ) ) {
 				$update = 1;
@@ -300,7 +319,7 @@ class DiscourseTopics {
 	/**
 	 * Fetches a topic list from Discourse.
 	 *
-	 * @param $path $source The Discourse path to pull from.
+	 * @param string $path The Discourse path to pull from.
 	 *
 	 * @return array|mixed|object|\WP_Error
 	 */
@@ -353,7 +372,7 @@ class DiscourseTopics {
 
 				$topics_data['topic_list']['topics'][ $index ]['cooked'] = $cooked;
 
-				$count += 1;
+				$count++;
 			}
 		}
 
