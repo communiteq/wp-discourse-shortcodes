@@ -33,7 +33,7 @@ class SettingsValidator {
 
 	public function validate_webhook_refresh( $input ) {
 		$this->webhook_refresh = $this->validate_checkbox( $input );
-		if ( 1 === $this->webhook_refresh && empty( $this->options['webhook-secret'])) {
+		if ( 1 === $this->webhook_refresh && empty( $this->options['webhook-secret'] ) ) {
 			add_settings_error( 'wpds', 'webhook_refresh', __( 'To use a the latest_topics webhook, you must set a webhook secret key on the Webhook options tab.', 'wpds' ) );
 
 			return 0;

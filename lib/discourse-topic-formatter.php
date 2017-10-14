@@ -60,7 +60,7 @@ class DiscourseTopicFormatter {
 			$date_format       = ! empty( $this->options['custom-datetime-format'] ) ? $this->options['custom-datetime-format'] : 'Y/m/d';
 
 			$output = '<div class="wpds-tile-wrapper' . esc_attr( $ajax_class ) . '" data-wpds-shortcode-id="' . esc_attr( $args['id'] ) .
-			          '"><ul class="wpds-topiclist' . esc_attr( $tile_class ) . esc_attr( $source_class ) . '">';
+					  '"><ul class="wpds-topiclist' . esc_attr( $tile_class ) . esc_attr( $source_class ) . '">';
 
 			// Renders a div with data attributes that are retrieved by the client.
 			if ( $use_ajax ) {

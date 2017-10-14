@@ -1,9 +1,19 @@
 <?php
+/**
+ * Gets and formats RSS feeds from Discourse.
+ *
+ * @package WPDiscourse\Shortcodes
+ */
 
 namespace WPDiscourse\Shortcodes;
 
 use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
 
+/**
+ * Class DiscourseRSS
+ *
+ * @package WPDiscourse\Shortcodes
+ */
 class DiscourseRSS {
 
 	/**
@@ -43,12 +53,13 @@ class DiscourseRSS {
 		add_action( 'init', array( $this, 'setup_options' ) );
 		// Todo: workaround for accessing rss URLs with a port number. Remove this code!
 		if ( defined( 'DEV_MODE' ) && 'DEV_MODE' ) {
-//			write_log( 'in dev mode, remove this code discourse-rss.php' );
-			add_filter( 'http_request_args', function ( $args ) {
-				$args['reject_unsafe_urls'] = false;
+			add_filter(
+				'http_request_args', function ( $args ) {
+					$args['reject_unsafe_urls'] = false;
 
-				return $args;
-			} );
+					return $args;
+				}
+			);
 		}
 	}
 
@@ -56,26 +67,35 @@ class DiscourseRSS {
 	 * Adds the plugin options, gets the merged wp-discourse/wp-discourse-latest-topics options, sets the discourse_url.
 	 */
 	public function setup_options() {
-		add_option( 'wpds_update_latest_rss', 1 );
+	//	add_option( 'wpds_update_latest_rss', 1 );
 		$this->options       = DiscourseUtilities::get_options();
 		$this->discourse_url = ! empty( $this->options['url'] ) ? $this->options['url'] : null;
 	}
 
+	/**
+	 * Returns the formatted RSS feed, format is based on the arguments passed to the function.
+	 *
+	 * @param array $args The arguments array, generally passed from the shortcode attributes.
+	 *
+	 * @return mixed|string|\WP_Error
+	 */
 	public function get_rss( $args ) {
-		$args = shortcode_atts( array(
-			'max_topics'        => 5,
-			'source'            => 'latest',
-			'period'            => 'yearly',
-			'cache_duration'    => 10,
-			'excerpt_length'    => 27,
-			'display_images'    => 'true',
-			'wp_link'           => 'false',
-			'tile'              => 'false',
-			'username_position' => 'top',
-			'date_position'     => 'top',
-			'category_position' => 'top',
-			'show_replies'      => 'true',
-		), $args );
+		$args = shortcode_atts(
+			array(
+				'max_topics'        => 5,
+				'source'            => 'latest',
+				'period'            => 'yearly',
+				'cache_duration'    => 10,
+				'excerpt_length'    => 27,
+				'display_images'    => 'true',
+				'wp_link'           => 'false',
+				'tile'              => 'false',
+				'username_position' => 'top',
+				'date_position'     => 'top',
+				'category_position' => 'top',
+				'show_replies'      => 'true',
+			), $args
+		);
 		$time = time();
 
 		if ( 'latest' === $args['source'] ) {
@@ -136,22 +156,23 @@ class DiscourseRSS {
 		return new \WP_Error( 'wpds_get_rss_error', 'A valid RSS source was not set.' );
 	}
 
-	public
-	function feed_cache_duration() {
+	/**
+	 * Used for unsetting and resetting the default WordPress wp_feed_cache_transient_lifetime period.
+	 *
+	 * @return int
+	 */
+	public function feed_cache_duration() {
 		return 30;
 	}
 
 	/**
 	 * Fetch and parse the latest RSS feed from Discourse.
 	 *
-	 * This function should only be run when content has been updated on Discourse.
-	 *
+	 * @param string $source Which Discourse feed to pull.
+	 * @param array  $args The array of args.
 	 * @return array|\WP_Error
 	 */
-	protected
-	function fetch_rss(
-		$source, $args
-	) {
+	protected function fetch_rss( $source, $args ) {
 		if ( empty( $this->discourse_url ) ) {
 
 			return new \WP_Error( 'wp_discourse_configuration_error', 'The WP Discourse plugin is not properly configured.' );
@@ -165,7 +186,7 @@ class DiscourseRSS {
 		$feed = fetch_feed( $rss_url );
 		remove_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'feed_cache_duration' ) );
 
-		if ( ! empty ( $feed->errors ) || is_wp_error( $feed ) ) {
+		if ( ! empty( $feed->errors ) || is_wp_error( $feed ) ) {
 
 			return new \WP_Error( 'wp_discourse_rss_error', 'An RSS feed was not returned by Discourse.' );
 		}

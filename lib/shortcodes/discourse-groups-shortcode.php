@@ -18,12 +18,14 @@ class DiscourseGroupsShortcode {
 	 * @return string
 	 */
 	public function discourse_groups( $attributes ) {
-		$attributes = shortcode_atts( array(
-			'link_type'         => 'visit',
-			'group_list'     => '',
-			'link_open_text'    => 'Join',
-			'link_close_text' => '',
-		), $attributes, 'discourse_groups' );
+		$attributes = shortcode_atts(
+			array(
+				'link_type'         => 'visit',
+				'group_list'     => '',
+				'link_open_text'    => 'Join',
+				'link_close_text' => '',
+			), $attributes, 'discourse_groups'
+		);
 
 		$groups = $this->discourse_groups->get_discourse_groups( $attributes['group_list'] );
 

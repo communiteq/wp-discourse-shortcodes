@@ -154,15 +154,21 @@ class DiscourseGroups {
 
 			if ( empty( $this->base_url ) || empty( $this->api_key ) || empty( $this->api_username ) ) {
 
-				return new \WP_Error( 'wpds_configuration_error', 'Unable to retrieve groups from Discourse. The WP Discourse plugin is
-				not properly configured.' );
+				return new \WP_Error(
+					'wpds_configuration_error', 'Unable to retrieve groups from Discourse. The WP Discourse plugin is
+				not properly configured.'
+				);
 			}
 
 			$groups_url = $this->base_url . '/admin/groups.json';
-			$groups_url = esc_url_raw( add_query_arg( array(
-				'api_key'      => $this->api_key,
-				'api_username' => $this->api_username,
-			), $groups_url ) );
+			$groups_url = esc_url_raw(
+				add_query_arg(
+					array(
+						'api_key'      => $this->api_key,
+						'api_username' => $this->api_username,
+					), $groups_url
+				)
+			);
 
 			$response = wp_remote_get( $groups_url );
 

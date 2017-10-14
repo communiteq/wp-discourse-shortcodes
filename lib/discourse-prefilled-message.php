@@ -23,14 +23,16 @@ class DiscoursePrefilledMessage {
 	}
 
 	public function discourse_prefilled_message( $attributes ) {
-		$attributes = shortcode_atts( array(
-			'link_text' => 'Contact Us',
-			'classes'   => '',
-			'title'     => '',
-			'message'   => '',
-			'username'  => '',
-			'groupname' => '',
-		), $attributes );
+		$attributes = shortcode_atts(
+			array(
+				'link_text' => 'Contact Us',
+				'classes'   => '',
+				'title'     => '',
+				'message'   => '',
+				'username'  => '',
+				'groupname' => '',
+			), $attributes
+		);
 
 		$link_text = ! empty( $attributes['link_text'] ) ? $attributes['link_text'] : '';
 		$classes   = ! empty( $attributes['classes'] ) ? $attributes['classes'] : '';
@@ -42,8 +44,10 @@ class DiscoursePrefilledMessage {
 
 		if ( empty( $this->options['enable-sso'] ) ) {
 
-			return new \WP_Error( 'discourse_shortcode_configuration_error', 'The Discourse Prefilled Message shortcode
-			requires WordPress to be enabled as the SSO Provider for your Discourse forum.' );
+			return new \WP_Error(
+				'discourse_shortcode_configuration_error', 'The Discourse Prefilled Message shortcode
+			requires WordPress to be enabled as the SSO Provider for your Discourse forum.'
+			);
 		}
 
 		if ( empty( $username ) && empty( $groupname ) ) {
@@ -58,17 +62,25 @@ class DiscoursePrefilledMessage {
 
 		$message_url = $this->base_url . '/new-message';
 		if ( $username ) {
-			$message_url = urlencode( add_query_arg( array(
-				'username' => $username,
-				'title' => $title,
-				'body' => $message,
-			), $message_url ) );
+			$message_url = urlencode(
+				add_query_arg(
+					array(
+						'username' => $username,
+						'title' => $title,
+						'body' => $message,
+					), $message_url
+				)
+			);
 		} else {
-			$message_url = urlencode( add_query_arg( array(
-				'groupname' => $groupname,
-				'title' => $title,
-				'body' => $message,
-			), $message_url ) );
+			$message_url = urlencode(
+				add_query_arg(
+					array(
+						'groupname' => $groupname,
+						'title' => $title,
+						'body' => $message,
+					), $message_url
+				)
+			);
 		}
 
 		$message_attributes = array(

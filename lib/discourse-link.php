@@ -18,12 +18,14 @@ class DiscourseLink {
 	}
 
 	public function get_discourse_link( $attributes ) {
-		$attributes = shortcode_atts( array(
-			'link_text'   => 'Visit Our Forum',
-			'path' => '/',
-			'classes'     => '',
-			'login'       => true,
-		), $attributes );
+		$attributes = shortcode_atts(
+			array(
+				'link_text'   => 'Visit Our Forum',
+				'path' => '/',
+				'classes'     => '',
+				'login'       => true,
+			), $attributes
+		);
 
 		$url = esc_url( $this->get_url( $this->base_url, $attributes['login'], $attributes['path'] ) );
 		$classes        = $attributes['classes'] ? 'class="' . $attributes['classes'] . '"' : '';

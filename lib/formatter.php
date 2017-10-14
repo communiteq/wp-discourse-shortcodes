@@ -54,7 +54,7 @@ trait Formatter {
 		$category_name  = $category['name'];
 		$category_color = '#' . $category['color'];
 		$category_badge = '<span class="discourse-shortcode-category-badge" style="width: 8px; height: 8px; background-color: ' .
-		                  esc_attr( $category_color ) . '; display: inline-block;"></span><span class="discourse-category-name"> ' . esc_html( $category_name ) . '</span>';
+						  esc_attr( $category_color ) . '; display: inline-block;"></span><span class="discourse-category-name"> ' . esc_html( $category_name ) . '</span>';
 
 		return $category_badge;
 	}
@@ -115,8 +115,8 @@ trait Formatter {
 		$id                = ' data-wpds-id="' . esc_attr( $args['id'] ) . '"';
 
 		$output = '<div class="wpds-topic-shortcode-options" ' . $max_topics . $cache_duration . $display_avatars . $source .
-		          $period . $tile . $excerpt_length . $username_position . $category_position . $date_position . $ajax_timeout .
-		          $id . '></div>';
+				  $period . $tile . $excerpt_length . $username_position . $category_position . $date_position . $ajax_timeout .
+				  $id . '></div>';
 
 		return $output;
 	}
@@ -170,7 +170,7 @@ trait Formatter {
 	 */
 	protected function clean_discourse_content( \DOMDocument $doc ) {
 		$xpath    = new \DOMXPath( $doc );
-		$elements = $xpath->query( "//span[@class]" );
+		$elements = $xpath->query( '//span[@class]' );
 
 		if ( $elements && $elements->length ) {
 			foreach ( $elements as $element ) {
@@ -178,7 +178,7 @@ trait Formatter {
 			}
 		}
 
-		$elements = $xpath->query( "//small" );
+		$elements = $xpath->query( '//small' );
 
 		if ( $elements && $elements->length ) {
 			foreach ( $elements as $element ) {

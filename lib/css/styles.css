@@ -1,288 +1,288 @@
 /* Topic list styles */
 
 ul.wpds-topiclist li.wpds-topic {
-    position: relative;
-    padding-left: 56px;
-    padding-bottom: 1.5em;
+	position: relative;
+	padding-left: 56px;
+	padding-bottom: 1.5em;
 }
 
 .wpds-latest-avatar {
-    border-radius: 50%;
-    position: absolute;
-    top: 0;
-    left: 0;
+	border-radius: 50%;
+	position: absolute;
+	top: 0;
+	left: 0;
 }
 
 /*.wpds-topic-poster-meta,*/
 /*.wpds-topic-activity-meta,*/
 .wpds-topic,
 .wpds-rss-topic {
-    font-size: 0.8125em;
-    color: #777777;
+	font-size: 0.8125em;
+	color: #777777;
 }
 
 .wpds-term {
-    font-style: italic;
+	font-style: italic;
 }
 
 .wpds-topiclist,
 .wpds-rss-list {
-    list-style: none;
+	list-style: none;
 }
 
 .wpds-rss-list header,
 .wpds-topiclist header {
-    margin-bottom: 4px;
+	margin-bottom: 4px;
 }
 
 .wpds-rss-list .wpds-rss-topic h4.wpds-rss-title,
 .wpds-topiclist .wpds-topic h4.wpds-topic-title {
-    margin-bottom: 0;
-    padding-top: 0;
+	margin-bottom: 0;
+	padding-top: 0;
 }
 
 .wpds-rss-list .wpds-rss-topic h4.wpds-rss-title a,
 .wpds-rss-list .wpds-rss-topic a.wpds-rss-list-reply-link,
 .wpds-topiclist .wpds-topic h4.wpds-topic-title a,
 .wpds-topiclist .wpds-topic a.wpds-topiclist-reply-link {
-    text-decoration: none;
-    box-shadow: none;
+	text-decoration: none;
+	box-shadow: none;
 }
 
 .wpds-rss-list .wpds-rss-topic h4.wpds-rss-title a,
 .wpds-topiclist .wpds-topic h4.wpds-topic-title a {
-    color: #636363;
+	color: #636363;
 }
 
 .wpds-rss-list .wpds-rss-topic h4.wpds-rss-title a:hover,
 .wpds-topiclist .wpds-topic h4.wpds-topic-title a:hover {
-    color: #006acc;
+	color: #006acc;
 }
 
 /* Todo: is this doing anything? */
 .wpds-topiclist .wpds-topic h4.wpds-topic-title a:hover {
-    text-decoration: inherit;
-    box-shadow: inherit;
+	text-decoration: inherit;
+	box-shadow: inherit;
 }
 
 .wpds-topiclist-content {
-    padding-bottom: 8px;
+	padding-bottom: 8px;
 }
 
 .wpds-topiclist-footer-meta {
-    line-height: 1.35;
+	line-height: 1.35;
 }
 
 span.wpds-likes-and-replies {
-    display: inline-block;
+	display: inline-block;
 }
 
 .wpds-topiclist .wpds-topic a.wpds-topiclist-reply-link {
-    color: #777777;
-    padding-left: 4px;
-    padding-right: 4px;
+	color: #777777;
+	padding-left: 4px;
+	padding-right: 4px;
 }
 
 
 .wpds-topiclist .wpds-topic a.wpds-topiclist-reply-link:hover {
-    color: #006acc;
+	color: #006acc;
 }
 
 i.icon-heart {
-    color: #c8c8c8;
+	color: #c8c8c8;
 }
 
 .wpds-has-likes i.icon-heart {
-    color: #fa6c8d;
+	color: #fa6c8d;
 }
 
 /* Some padding before the category badge. */
 .wpds-shortcode-category {
-    padding-left: 2px;
+	padding-left: 2px;
 }
 
 /* RSS list styles. */
 /* A hack, but more efficient than removing it from the DOM. */
 .wpds-rss-list .lightbox-wrapper {
-    display: none;
+	display: none;
 }
 
 .wpds-rss-list.wpds-rss-display-images .lightbox-wrapper {
-    display: block;
-    padding-bottom: 1.5em;
+	display: block;
+	padding-bottom: 1.5em;
 }
 
 .wpds-rss-list .wpds-rss-topic a.wpds-rss-list-reply-link {
-    color: #006acc;
+	color: #006acc;
 }
 
 .wpds-rss-list .wpds-rss-topic a.wpds-rss-list-reply-link:hover {
-    color: #636363;
+	color: #636363;
 }
 
 .wpds-rss-topic {
-    padding-bottom: 40px;
+	padding-bottom: 40px;
 }
 
 .wpds-rss-topic blockquote {
-    font-size: 1em;
-    font-style: normal;
-    margin-left: 0;
-    margin-right: 0;
-    padding: 12px;
-    border-left: 5px solid #e9e9e9;
-    background-color: #f9f9f9;
-    margin-bottom: 1.5em;
+	font-size: 1em;
+	font-style: normal;
+	margin-left: 0;
+	margin-right: 0;
+	padding: 12px;
+	border-left: 5px solid #e9e9e9;
+	background-color: #f9f9f9;
+	margin-bottom: 1.5em;
 }
 
 .wpds-rss-topic blockquote p:last-child {
-    margin-bottom: 0;
+	margin-bottom: 0;
 }
 
 /* Tiled topic list. */
 /* Allows left and right margins on the tiles to be ignored on wrappers edge. */
 .wpds-tile-wrapper {
-    margin-left: -20px;
-    margin-right: -20px;
+	margin-left: -20px;
+	margin-right: -20px;
 }
 
 ul.wpds-tile {
-    margin: 0;
-    padding: 0;
-    display: -webkit-box;
-    display: -moz-box;
-    display: -ms-flexbox;
-    display: -webkit-flex;
-    display: flex;
+	margin: 0;
+	padding: 0;
+	display: -webkit-box;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	display: flex;
 
-    -webkit-flex-flow: row wrap;
-    justify-content: center;
-    align-items: center;
+	-webkit-flex-flow: row wrap;
+	justify-content: center;
+	align-items: center;
 }
 
 ul.wpds-tile li.wpds-topic,
 ul.wpds-tile li.wpds-rss-topic {
-    position: relative;
-    padding-left: 12px;
-    padding-right: 12px;
-    padding-bottom: 1.5em;
-    padding-top: 1.5em;
-    border-bottom: 1px solid #c3c3c3;
+	position: relative;
+	padding-left: 12px;
+	padding-right: 12px;
+	padding-bottom: 1.5em;
+	padding-top: 1.5em;
+	border-bottom: 1px solid #c3c3c3;
 }
 
 ul.wpds-tile .wpds-rss-list header,
 ul.wpds-tile .wpds-topiclist header {
-    line-height: 1.35;
-    margin-bottom: 7px;
+	line-height: 1.35;
+	margin-bottom: 7px;
 }
 
 ul.wpds-tile .wpds-topiclist-footer-meta {
-    line-height: 44px;
+	line-height: 44px;
 }
 
 ul.wpds-tile .wpds-topiclist-footer-meta:after {
-    content: "";
-    display: table;
-    clear: both;
+	content: "";
+	display: table;
+	clear: both;
 }
 
 @media screen and (min-width: 370px) {
-    ul.wpds-tile li.wpds-topic,
-    ul.wpds-tile li.wpds-rss-topic{
-        height: 300px;
-        width: 300px;
-        margin-left: 20px;
-        margin-right: 20px;
-        margin-bottom: 40px;
-        border: 1px solid #cccccc;
-        border-radius: 3px;
-        /* Todo: the box-shadow probably shouldn't be in the default styles. */
-        -webkit-box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);
-        -moz-box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);
-        box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);
-    }
+	ul.wpds-tile li.wpds-topic,
+	ul.wpds-tile li.wpds-rss-topic{
+		height: 300px;
+		width: 300px;
+		margin-left: 20px;
+		margin-right: 20px;
+		margin-bottom: 40px;
+		border: 1px solid #cccccc;
+		border-radius: 3px;
+		/* Todo: the box-shadow probably shouldn't be in the default styles. */
+		-webkit-box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);
+		-moz-box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);
+		box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);
+	}
 
-    .wpds-tile .wpds-rss-topic footer,
-    .wpds-tile .wpds-topic footer {
-        position: absolute;
-        background-color: #ffffff;
-        width: calc(100% - 24px);
-        bottom: 0;
-        padding-bottom: 1.5em;
-        padding-top: 1em;
-    }
+	.wpds-tile .wpds-rss-topic footer,
+	.wpds-tile .wpds-topic footer {
+		position: absolute;
+		background-color: #ffffff;
+		width: calc(100% - 24px);
+		bottom: 0;
+		padding-bottom: 1.5em;
+		padding-top: 1em;
+	}
 }
 
 ul.wpds-tile .wpds-rss-list-content,
 ul.wpds-tile .wpds-topiclist-content {
-    max-height: 180px;
-    overflow: hidden;
+	max-height: 180px;
+	overflow: hidden;
 }
 
 .wpds-tile .wpds-likes-and-replies {
-    float: right;
+	float: right;
 }
 
 .wpds-tile.wpds-rss-list .wpds-likes-and-replies {
-    float: none;
+	float: none;
 }
 
 .wpds-tile .wpds-latest-avatar {
-    position: static;
-    float: left;
-    padding-right: 6px;
+	position: static;
+	float: left;
+	padding-right: 6px;
 }
 
 .wpds-tile img.wpds-latest-avatar {
-    float: left;
-    padding-right: 6px;
+	float: left;
+	padding-right: 6px;
 }
 
 /* A basic approach for dealing with text overflow. */
 /* Todo: don't add this to default styles. */
 /*.wpds-tile .wpds-topiclist-clamp {*/
-    /*height: 205px;*/
-    /*position: relative;*/
-    /*overflow: hidden;*/
+	/*height: 205px;*/
+	/*position: relative;*/
+	/*overflow: hidden;*/
 /*}*/
 
 /*.wpds-tile .wpds-topiclist-clamp:after {*/
-    /*content: "";*/
-    /*text-align: right;*/
-    /*position: absolute;*/
-    /*bottom: 0;*/
-    /*right: 0;*/
-    /*width: 50%;*/
-    /*height: 1.5em;*/
-    /*background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1) 80%);*/
+	/*content: "";*/
+	/*text-align: right;*/
+	/*position: absolute;*/
+	/*bottom: 0;*/
+	/*right: 0;*/
+	/*width: 50%;*/
+	/*height: 1.5em;*/
+	/*background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1) 80%);*/
 /*}*/
 
 /* Ajax loader. */
 .wpds-topic-list-wrapper.wpds-ajax-loading {
-    /* Do something... */
-    /*position: relative;*/
-    /*z-index: 1000;*/
-    /*background-color: rgba(0, 0, 0, 0.5);*/
+	/* Do something... */
+	/*position: relative;*/
+	/*z-index: 1000;*/
+	/*background-color: rgba(0, 0, 0, 0.5);*/
 }
 
 /* Style tests */
 /*@media screen and (min-width: 48em) {*/
-    /*body:not(.has-sidebar):not(.page-one-column) .page-header,*/
-    /*body.has-sidebar.error404 #primary .page-header,*/
-    /*body.page-two-column:not(.archive) #primary .entry-header,*/
-    /*body.page-two-column.archive:not(.has-sidebar) #primary .page-header {*/
-        /*display: none;*/
-    /*}*/
+	/*body:not(.has-sidebar):not(.page-one-column) .page-header,*/
+	/*body.has-sidebar.error404 #primary .page-header,*/
+	/*body.page-two-column:not(.archive) #primary .entry-header,*/
+	/*body.page-two-column.archive:not(.has-sidebar) #primary .page-header {*/
+		/*display: none;*/
+	/*}*/
 /*}*/
 /**/
 /*@media screen and (min-width: 48em) {*/
-    /*body.page-two-column:not(.archive) #primary .entry-content {*/
-        /*width: 100% !important;*/
-    /*}*/
+	/*body.page-two-column:not(.archive) #primary .entry-content {*/
+		/*width: 100% !important;*/
+	/*}*/
 /*}*/
 /**/
 /*@media screen and (min-width: 48em) {*/
-    /*.wrap {*/
-        /*max-width: 1200px !important;*/
-    /*}*/
+	/*.wrap {*/
+		/*max-width: 1200px !important;*/
+	/*}*/
 /*}*/

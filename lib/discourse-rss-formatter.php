@@ -50,7 +50,7 @@ class DiscourseRSSFormatter {
 		if ( $use_plugin_formatting ) {
 
 			$output = '<div class="wpds-tile-wrapper" id="' . esc_attr( $topic_list_id ) .
-			          '"><ul class="wpds-rss-list ' . esc_attr( $image_class ) . esc_attr( $tile_class ) . '">';
+					  '"><ul class="wpds-rss-list ' . esc_attr( $image_class ) . esc_attr( $tile_class ) . '">';
 
 			if ( ! empty( $this->options['wpds_ajax_refresh'] ) ) {
 				$output .= $this->render_rss_shortcode_options( $args );
@@ -100,12 +100,11 @@ class DiscourseRSSFormatter {
 
 				$output .= '</header>';
 
-
 				if ( 'full' !== $args['excerpt_length'] ) {
 					$output .= '<p class="wpds-rss-list-description">' . wp_kses_post( $description ) . '</p>';
 				} else {
 					// Todo: sub this back in.
-//				$output .= wp_kses_post( $description );
+					// $output .= wp_kses_post( $description );
 					$output .= '<div class="wpds-rss-list-content">' . $description . '</div>';
 				}
 
@@ -124,7 +123,7 @@ class DiscourseRSSFormatter {
 				$output .= '<span class="wpds-likes-and-replies">';
 				if ( $args['show_replies'] ) {
 					$output .= '<a class="wpds-rss-list-reply-link" href="' . esc_url( $permalink ) . '"><span class="wpds-topiclist-replies">' .
-					           esc_attr( $reply_count ) . ' </span>' . esc_html( $replies_text ) . '</a>';
+							   esc_attr( $reply_count ) . ' </span>' . esc_html( $replies_text ) . '</a>';
 				}
 				$output .= '</span></div>';
 				$output = apply_filters( 'wpds_rss_list_footer_bottom', $output, $topics, $args );

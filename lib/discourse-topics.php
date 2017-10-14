@@ -2,7 +2,7 @@
 
 namespace WPDiscourse\Shortcodes;
 
-Use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
+use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
 
 class DiscourseTopics {
 
@@ -76,16 +76,18 @@ class DiscourseTopics {
 	 */
 	public function initialize_topic_route() {
 		if ( ! empty( $this->options['wpds_topic_webhook_refresh'] ) || ! empty( $this->options['wpds_ajax_refresh'] ) ) {
-			register_rest_route( 'wp-discourse/v1', 'latest-topics', array(
-				array(
-					'methods'  => \WP_REST_Server::CREATABLE,
-					'callback' => array( $this, 'set_update_flag' ),
-				),
-				array(
-					'methods'  => \WP_REST_Server::READABLE,
-					'callback' => array( $this, 'get_ajax_topics' ),
-				),
-			) );
+			register_rest_route(
+				'wp-discourse/v1', 'latest-topics', array(
+					array(
+						'methods'  => \WP_REST_Server::CREATABLE,
+						'callback' => array( $this, 'set_update_flag' ),
+					),
+					array(
+						'methods'  => \WP_REST_Server::READABLE,
+						'callback' => array( $this, 'get_ajax_topics' ),
+					),
+				)
+			);
 		}
 	}
 
@@ -101,8 +103,10 @@ class DiscourseTopics {
 
 		if ( is_wp_error( $data ) ) {
 
-			return new \WP_Error( 'discourse_response_error', 'There was an error returned from Discourse when processing the
-			latest_topics webhook.' );
+			return new \WP_Error(
+				'discourse_response_error', 'There was an error returned from Discourse when processing the
+			latest_topics webhook.'
+			);
 		}
 
 		// Update the latest topics data the next time get_topics() is run.
@@ -209,21 +213,23 @@ class DiscourseTopics {
 	 * @return mixed|string|\WP_Error
 	 */
 	public function get_topics( $args ) {
-		$args   = shortcode_atts( array(
-			'max_topics'        => 5,
-			'cache_duration'    => 10,
-			'display_avatars'   => 'true',
-			'source'            => 'latest',
-			'period'            => 'daily',
-			'tile'              => 'false',
-			'excerpt_length'    => null,
-			'username_position' => 'top',
-			'category_position' => 'top',
-			'date_position'     => 'top',
-			'enable_ajax'       => 'false',
-			'ajax_timeout'      => 2,
-			'id'                => null,
-		), $args );
+		$args   = shortcode_atts(
+			array(
+				'max_topics'        => 5,
+				'cache_duration'    => 10,
+				'display_avatars'   => 'true',
+				'source'            => 'latest',
+				'period'            => 'daily',
+				'tile'              => 'false',
+				'excerpt_length'    => null,
+				'username_position' => 'top',
+				'category_position' => 'top',
+				'date_position'     => 'top',
+				'enable_ajax'       => 'false',
+				'ajax_timeout'      => 2,
+				'id'                => null,
+			), $args
+		);
 		$time   = time();
 		$source = $args['source'];
 		$period = $args['period'];
@@ -233,7 +239,7 @@ class DiscourseTopics {
 		}
 
 		$source_key = 'latest' === $source ? 'latest' : $period;
-		$path       = 'latest' === $source ? "/latest.json" : "/top/{$period}.json";
+		$path       = 'latest' === $source ? '/latest.json' : "/top/{$period}.json";
 		$id         = $args['id'] ? $args['id'] : $source_key;
 		// The key under which the topic data transient is saved.
 		$topics_data_key = 'latest' === $source ? 'wpds_latest_topics' : 'wpds_' . $period . '_topics';
@@ -307,15 +313,21 @@ class DiscourseTopics {
 		$topics_url = $this->discourse_url . $path;
 
 		if ( ! empty( $this->options['wpds_display_private_topics'] ) ) {
-			$topics_url = esc_url_raw( add_query_arg( array(
-				'api_key'      => $this->api_key,
-				'api_username' => $this->api_username,
-			), $topics_url ) );
+			$topics_url = esc_url_raw(
+				add_query_arg(
+					array(
+						'api_key'      => $this->api_key,
+						'api_username' => $this->api_username,
+					), $topics_url
+				)
+			);
 		}
 
-		$response = wp_remote_get( $topics_url, array(
-			'timeout' => 60,
-		) );
+		$response = wp_remote_get(
+			$topics_url, array(
+				'timeout' => 60,
+			)
+		);
 
 		if ( ! DiscourseUtilities::validate( $response ) ) {
 
@@ -362,14 +374,20 @@ class DiscourseTopics {
 		}
 
 		$topic_url = "{$this->discourse_url}/t/{$topic_id}.json";
-		$topic_url = esc_url_raw( add_query_arg( array(
-			'api_key'      => $this->api_key,
-			'api_username' => $this->api_username,
-		), $topic_url ) );
+		$topic_url = esc_url_raw(
+			add_query_arg(
+				array(
+					'api_key'      => $this->api_key,
+					'api_username' => $this->api_username,
+				), $topic_url
+			)
+		);
 
-		$response = wp_remote_get( $topic_url, array(
-			'timeout' => 60,
-		) );
+		$response = wp_remote_get(
+			$topic_url, array(
+				'timeout' => 60,
+			)
+		);
 
 		if ( ! DiscourseUtilities::validate( $response ) ) {
 
