@@ -1,0 +1,25 @@
+{
+  "name": "scossar/wp-discourse-shortcodes",
+  "type": "wordpress-plugin",
+  "license": "GPLv3",
+  "description": "WordPress plugin that extends the WP Discourse plugin to add various shortcodes.",
+  "homepage": "https://github.com/scossar/wp-discourse-shortcodes",
+  "authors": [
+    {
+      "name": "Simon Cossar",
+      "homepage": "https://github.com/scossar"
+    }
+  ],
+  "keywords": ["wordpress", "discourse"],
+  "support": {
+    "issues": "https://scossar.com"
+  },
+  "require": {
+    "php": ">=5.4",
+    "composer/installers": "1.0.*"
+  },
+  "require-dev": {
+    "squizlabs/php_codesniffer": ">=2.7",
+    "10up/wp_mock": "dev-master"
+  }
+}
