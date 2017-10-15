@@ -252,16 +252,17 @@ class Admin {
 	 */
 	public function webhook_refresh_checkbox() {
 		$wordpress_url = home_url( '/wp-json/wp-discourse/v1/latest-topics' );
+		// Todo: use sprintf here!
 		if ( ! empty( $this->webhook_url ) ) {
-			$description = 'To use the latest_topics shortcode, you need to setup a <strong>webhook</strong> on your Discourse forum at <a href="' .
+			$description = 'To update the latest_topics with a webhook, you need to setup a <strong>webhook</strong> on your Discourse forum at <a target="_blank" href="' .
 						   esc_url( $this->webhook_url ) . '">' . esc_url( $this->webhook_url ) . '</a>. ' .
-						   'On that page, set the "Payload URL" to <strong>' . esc_url( $wordpress_url ) . '</strong>.
+						   'On that page, set the "Payload URL" to <strong>' . esc_url( $wordpress_url ) . '</strong> .
                            On the events section of that page, select the "Topic Event" checkbox to receive
                            updates when there is a new topic. To receive updates when there are new replies, also select the "Post Event" checkbox.';
 
 		} else {
-			$description = 'To use the latest_topics shortcode you need to setup a <strong>webhook</strong> on your Discourse forum at <strong>http://discourse.example.com/admin/api/web_hooks</strong>
-		                   On that page, set the "Payload URL" to <strong>' . esc_url( $wordpress_url ) . '</strong>. On the events section of that page, select the "Topic Event" checkbox to receive
+			$description = 'To update the latest topics with a webhook you need to setup a <strong>webhook</strong> on your Discourse forum at <strong>http://discourse.example.com/admin/api/web_hooks</strong>
+		                   On that page, set the "Payload URL" to <strong>' . esc_url( $wordpress_url ) . '</strong> . On the events section of that page, select the "Topic Event" checkbox to receive
                            updates when there is a new topic. To receive updates when there are new replies, also select the "Post Event" checkbox.';
 		}
 
