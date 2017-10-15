@@ -69,6 +69,8 @@ class DiscourseTopics {
 	public function __construct( $topic_formatter ) {
 		$this->topic_formatter = $topic_formatter;
 
+		// A flag set for webhook requests.
+		add_option( 'wpds_update_latest', 1 );
 		add_action( 'init', array( $this, 'setup_options' ) );
 		add_action( 'rest_api_init', array( $this, 'initialize_topic_route' ) );
 	}
@@ -77,8 +79,6 @@ class DiscourseTopics {
 	 * Sets up the plugin options.
 	 */
 	public function setup_options() {
-		// Set to 1 when the plugin is installed. Does this need to be here?
-//		add_option( 'wpds_update_latest', 1 );
 		$this->options       = DiscourseUtilities::get_options();
 		$this->discourse_url = ! empty( $this->options['url'] ) ? $this->options['url'] : null;
 		$this->api_key       = ! empty( $this->options['api-key'] ) ? $this->options['api-key'] : null;
@@ -123,12 +123,7 @@ class DiscourseTopics {
 			);
 		}
 
-		// Update the latest topics data the next time get_topics() is run.
-		// Todo: is this required? The transients are being deleted, so it shouldn't matter.
 		update_option( 'wpds_update_latest', 1 );
-		// Delete the cached latest_topics data and html.
-		//delete_transient( 'wpds_latest_topics' );
-		//delete_transient( 'wpds_latest_topics_html' );
 
 		return null;
 	}
@@ -142,29 +137,26 @@ class DiscourseTopics {
 	 */
 	public function get_ajax_topics( $request ) {
 		$use_webhook    = ! empty( $this->options['wpds_topic_webhook_refresh'] );
-		$keep_cache  = false;
-		$source         = ! empty( $request['source'] ) ? esc_attr( wp_unslash( $request['source'] ) ) : 'latest';
 		$cache_duration = isset( $request['cache_duration'] ) ? esc_attr( wp_unslash( $request['cache_duration'] ) ) : 10;
-		$period         = ! empty( $request['period'] ) ? esc_attr( wp_unslash( $request['period'] ) ) : 'daily';
+		$keep_cache  = false;
 		$id             = esc_attr( wp_unslash( $request['id'] ) );
+		// For now, ajax requests are only being called when $source is 'latest', it might make sense to add 'top/daily'.
+		$source         = ! empty( $request['source'] ) ? esc_attr( wp_unslash( $request['source'] ) ) : 'latest';
+		$period         = ! empty( $request['period'] ) ? esc_attr( wp_unslash( $request['period'] ) ) : 'daily';
 		$sync_key       = 'latest' === $source ? 'wpds_latest_topics_last_sync' : 'wpds_' . $period . 'topics_last_sync';
-		// The key under which the topic data transient is saved.
-		$topics_data_key = 'latest' === $source ? 'wpds_latest_topics' : 'wpds_' . $period . '_topics';
-		// The key under which the formatted topics transient is saved.
-		$formatted_html_key = $topics_data_key . '_html';
 
 		if ( ! $use_webhook ) {
 			$last_sync     = get_option( $sync_key );
-			$keep_cache = $cache_duration + $last_sync > time();
-			if ( ! $keep_cache ) {
-				delete_transient( $topics_data_key );
-				delete_transient( $formatted_html_key );
-			}
+			// The cache_duration arg is in minutes. Convert to seconds.
+			$keep_cache = ( $cache_duration * 60 ) + $last_sync > time();
+			// If a webhook is being used, keep the cached topics if wpds_update_latest hasn't been set to 1.
+		} elseif ( 'latest' === $source && empty( get_option( 'wpds_update_latest' ) ) ) {
+			$keep_cache = true;
 		}
 
-		if ( $keep_cache || ( 'latest' === $source && $use_webhook && empty( get_option( 'wpds_update_latest' ) ) ) ) {
+		if ( $keep_cache ) {
 
-			// The content is fresh.
+			// Returning 0 to the AJAX request will prevent it from reloading the HTML.
 			return 0;
 		}
 
@@ -206,6 +198,7 @@ class DiscourseTopics {
 			$args['ajax_timeout'] = esc_attr( wp_unslash( $request['ajax_timeout'] ) );
 		}
 
+		// Returns the HTML.
 		$topics = $this->get_topics( $args );
 
 		if ( is_wp_error( $topics ) || empty( $topics ) ) {
@@ -259,15 +252,12 @@ class DiscourseTopics {
 		// The key under which the formatted topics transient is saved.
 		$formatted_html_key = $topics_data_key . '_html';
 		$sync_key           = $topics_data_key . '_last_sync';
-		$update = 0;
-
 		$last_sync      = get_option( $sync_key );
 		$cache_duration = $args['cache_duration'] * 60;
 
+		// If this is being called from the AJAX function, it will be calculated twice. Should be refactored.
 		if ( ! empty( $this->options['wpds_topic_webhook_refresh'] ) && 'latest' === $source_key ) {
-			if ( ! empty( get_option( 'wpds_update_latest' ) ) ) {
-				$update = 1;
-			}
+				$update = get_option( 'wpds_update_latest' );
 		} else {
 			$update = $cache_duration + $last_sync < $time ? 1 : 0;
 		}
@@ -286,6 +276,7 @@ class DiscourseTopics {
 
 			set_transient( $topics_data_key, $topics_data, DAY_IN_SECONDS );
 			// It's safe to delete this here, the topics_data has been successfully returned.
+			// Deletes the entire formated_html transient array, so subsequent shortcodes of same type will also be refreshed.
 			delete_transient( $formatted_html_key );
 			update_option( $sync_key, $time );
 			update_option( 'wpds_update_latest', 0 );
