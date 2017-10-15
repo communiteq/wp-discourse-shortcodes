@@ -347,21 +347,25 @@ class DiscourseTopics {
 		// Add the cooked content to each topic.
 		$topics = $topics_data['topic_list']['topics'];
 
-		$count      = 0;
-		$max_topics = ! empty( $this->options['wpds_max_topics'] ) ? $this->options['wpds_max_topics'] : 6;
-		foreach ( $topics as $index => $topic ) {
-			if ( $count < $max_topics && $this->display_topic( $topic ) ) {
-				$cooked = $this->get_discourse_post( $topic['id'] );
+		// Only get topic content if wpds_topic_content is enabled.
+		if ( ! empty( $this->options['wpds_topic_content'] ) ) {
 
-				if ( is_wp_error( $cooked ) ) {
-					$cooked = '';
-				} else {
-					$cooked = wp_kses_post( $cooked );
+			$count      = 0;
+			$max_topics = ! empty( $this->options['wpds_max_topics'] ) ? $this->options['wpds_max_topics'] : 6;
+			foreach ( $topics as $index => $topic ) {
+				if ( $count < $max_topics && $this->display_topic( $topic ) ) {
+					$cooked = $this->get_discourse_post( $topic['id'] );
+
+					if ( is_wp_error( $cooked ) ) {
+						$cooked = '';
+					} else {
+						$cooked = wp_kses_post( $cooked );
+					}
+
+					$topics_data['topic_list']['topics'][ $index ]['cooked'] = $cooked;
+
+					$count++;
 				}
-
-				$topics_data['topic_list']['topics'][ $index ]['cooked'] = $cooked;
-
-				$count++;
 			}
 		}
 

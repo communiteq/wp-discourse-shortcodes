@@ -57,18 +57,25 @@ class Admin {
 		add_action( 'admin_menu', array( $this, 'add_latest_topics_page' ) );
 		add_action( 'wpdc_options_page_append_settings_tabs', array( $this, 'settings_tab' ), 5, 1 );
 		add_action( 'wpdc_options_page_after_tab_switch', array( $this, 'wpds_settings_fields' ) );
-		add_action( 'save_post', array( $this, 'clear_topics_cache' ) );
+		add_action( 'save_post', array( $this, 'clear_post_topics_cache' ) );
+		add_action( 'update_option_wpds_options', array( $this, 'clear_topics_cache' ) );
 	}
 
+	public function clear_post_topics_cache( $post_id ) {
+	    $current_post = get_post( $post_id );
+	    if ( ! empty( $current_post-> post_content ) && has_shortcode( $current_post->post_content, 'discourse_topics' ) ) {
+	        $this->clear_topics_cache();
+        }
+
+        return null;
+    }
+
 	/**
-	 * Clear topics cache if a post contains the 'discourse_topics' shortcode.
+	 * Clear topics caches.
 	 *
 	 * This allows updates to shortcode attributes to take effect immediately.
 	 */
-	public function clear_topics_cache( $post_id ) {
-		$current_post = get_post( $post_id );
-
-		if ( ! empty( $current_post->post_content ) && has_shortcode( $current_post->post_content, 'discourse_topics' ) ) {
+	public function clear_topics_cache() {
 			delete_transient( 'wpds_latest_topics' );
 			delete_transient( 'wpds_latest_topics_html' );
 			delete_transient( 'wpds_all_topics' );
@@ -81,7 +88,6 @@ class Admin {
 			delete_transient( 'wpds_quarterly_topics_html' );
 			delete_transient( 'wpds_yearly_topics' );
 			delete_transient( 'wpds_yearly_topics_html' );
-		}
 	}
 
 	/**
@@ -112,6 +118,13 @@ class Admin {
 				'max_topics_input',
 			), 'wpds_options', 'wpds_settings_section'
 		);
+
+		add_settings_field(
+            'wpds_topic_content', __( 'Retrieve Topic Content', 'wpds' ), array(
+                $this,
+                'topic_content_checkbox',
+            ), 'wpds_options', 'wpds_settings_section'
+        );
 
 		add_settings_field(
 			'wpds_fetch_discourse_groups', __( 'Refresh Discourse Groups', 'wpds' ), array(
@@ -297,6 +310,11 @@ class Admin {
 	}
 
 	public function max_topics_input() {
-		$this->form_helper->input( 'wpds_max_topics', 'wpds_options', __( 'Maximum number of topids to display.', 'wpds' ), 'number', 0 );
+		$this->form_helper->input( 'wpds_max_topics', 'wpds_options', __( 'Maximum number of topics to retrieve from Discourse.', 'wpds' ), 'number', 0 );
 	}
+
+	public function topic_content_checkbox() {
+	    $this->form_helper->checkbox_input( 'wpds_topic_content', 'wpds_options', __( 'Retrieve topic content from Discourse.', 'wpds' ),
+            __( 'Requires extra HTTP requests to Discourse.', 'wpds' ) );
+    }
 }
