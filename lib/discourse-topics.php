@@ -118,7 +118,7 @@ class DiscourseTopics {
 		if ( is_wp_error( $data ) ) {
 
 			return new \WP_Error(
-				'discourse_response_error', 'There was an error returned from Discourse when processing the
+				'wpds_response_error', 'There was an error returned from Discourse when processing the
 			latest_topics webhook.'
 			);
 		}
@@ -127,8 +127,8 @@ class DiscourseTopics {
 		// Todo: is this required? The transients are being deleted, so it shouldn't matter.
 		update_option( 'wpds_update_latest', 1 );
 		// Delete the cached latest_topics data and html.
-		delete_transient( 'wpds_latest_topics' );
-		delete_transient( 'wpds_latest_topics_html' );
+		//delete_transient( 'wpds_latest_topics' );
+		//delete_transient( 'wpds_latest_topics_html' );
 
 		return null;
 	}
@@ -246,7 +246,7 @@ class DiscourseTopics {
 			), $args
 		);
 		$time   = time();
-		// The source can be set to either 'latest' or 'top'.
+		// The source can be set to either 'latest' or 'top'. If set to anything else it will return topics based on the period.
 		$source = $args['source'];
 		// If top is the source, the period is used to select the top correct top page.
 		$period = $args['period'];
@@ -268,7 +268,7 @@ class DiscourseTopics {
 
 		$last_sync      = get_option( $sync_key );
 		$cache_duration = $args['cache_duration'] * 60;
-		// Todo: not sure this needs to be here. It should be enough to delete the transients.
+
 		if ( ! empty( $this->options['wpds_topic_webhook_refresh'] ) && 'latest' === $source_key ) {
 			if ( ! empty( get_option( 'wpds_update_latest' ) ) ) {
 				$update = 1;
@@ -278,32 +278,35 @@ class DiscourseTopics {
 		}
 
 		// Get the topics data.
-		$topics = get_transient( $topics_data_key );
+		$topics_data = get_transient( $topics_data_key );
 
-		if ( empty( $topics ) || is_wp_error( $topics ) || $update ) {
-			$topics = $this->fetch_topics( $path );
+		// Maybe update the topics data. If updated, delete the formatted topics.
+		if ( empty( $topics_data ) || is_wp_error( $topics_data ) || $update ) {
+			$topics_data = $this->fetch_topics_data( $path );
 
-			if ( is_wp_error( $topics ) ) {
+			if ( is_wp_error( $topics_data ) ) {
 
 				return new \WP_Error( 'wpds_request_error', 'The topic list could not be returned from Discourse.' );
 			}
 
-			set_transient( $topics_data_key, $topics, DAY_IN_SECONDS );
+			set_transient( $topics_data_key, $topics_data, DAY_IN_SECONDS );
+			// It's safe to delete this here, the topics_data has been successfully returned.
 			delete_transient( $formatted_html_key );
 			update_option( $sync_key, $time );
 			update_option( 'wpds_update_latest', 0 );
 		}
 
-		// Get the formatted topics.
+		// The formatted topics are stored in an array. Allows for caching topics for more than one shortcode.
 		$formatted_topics_array = get_transient( $formatted_html_key );
 
+		// Will be empty after either saving a post that contains a discourse_topics shortcode, or updating topics_data.
 		if ( empty( $formatted_topics_array[ $id ] ) ) {
 
-			$formatted_topics = $this->topic_formatter->format_topics( $topics, $args );
+			$formatted_topics = $this->topic_formatter->format_topics( $topics_data, $args );
 
 			if ( empty( $formatted_topics ) ) {
 
-				return new \WP_Error();
+				return new \WP_Error( 'wpds_topics_formatting_error', 'An error was returned from the topics_formatter' );
 			}
 
 			$formatted_topics_array[ $id ] = $formatted_topics;
@@ -317,19 +320,19 @@ class DiscourseTopics {
 	}
 
 	/**
-	 * Fetches a topic list from Discourse.
+	 * Fetches the topic list data from Discourse.
 	 *
 	 * @param string $path The Discourse path to pull from.
 	 *
 	 * @return array|mixed|object|\WP_Error
 	 */
-	protected function fetch_topics( $path ) {
+	protected function fetch_topics_data( $path ) {
 		if ( empty( $this->discourse_url ) || empty( $this->api_key ) || empty( $this->api_username ) ) {
 
 			return new \WP_Error( 'wpds_configuration_error', 'The WP Discourse plugin is not properly configured.' );
 		}
 
-		$topics_url = $this->discourse_url . $path;
+		$topics_url = esc_url_raw( $this->discourse_url . $path );
 
 		if ( ! empty( $this->options['wpds_display_private_topics'] ) ) {
 			$topics_url = esc_url_raw(
