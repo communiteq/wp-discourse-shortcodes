@@ -148,6 +148,13 @@ class Admin {
 		);
 
 		add_settings_field(
+		        'wpds_vertical_ellipsis', __( 'Truncate Topic Content', 'wpds' ), array(
+		                $this,
+                    'vertical_ellipsis_checkbox',
+            ), 'wpds_options', 'wpds_settings_section'
+        );
+
+		add_settings_field(
 			'wpds_topic_webhook_refresh', __( 'Enable Discourse Webhook', 'wpds' ), array(
 				$this,
 				'webhook_refresh_checkbox',
@@ -304,6 +311,10 @@ class Admin {
 	public function use_default_styles_checkbox() {
 		$this->form_helper->checkbox_input( 'wpds_use_default_styles', 'wpds_options', __( 'Use the default plugin styles.', 'wpds' ) );
 	}
+
+	public function vertical_ellipsis_checkbox() {
+	    $this->form_helper->checkbox_input( 'wpds_vertical_ellipsis', 'wpds_options', __( "Use the plugin's vertical_ellipsis javascript to truncate overflowing text content", 'wpds'));
+    }
 
 	public function fetch_discourse_groups_checkbox() {
 		$this->form_helper->checkbox_input( 'wpds_fetch_discourse_groups', 'wpds_options', __( 'Refresh Discourse groups.', 'wpds' ) );
