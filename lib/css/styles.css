@@ -13,10 +13,7 @@ ul.wpds-topiclist li.wpds-topic {
 	left: 0;
 }
 
-/*.wpds-topic-poster-meta,*/
-/*.wpds-topic-activity-meta,*/
-.wpds-topic,
-.wpds-rss-topic {
+.wpds-topic {
 	font-size: 0.8125em;
 	color: #777777;
 }
@@ -25,36 +22,29 @@ ul.wpds-topiclist li.wpds-topic {
 	font-style: italic;
 }
 
-.wpds-topiclist,
-.wpds-rss-list {
+.wpds-topiclist {
 	list-style: none;
 }
 
-.wpds-rss-list header,
 .wpds-topiclist header {
 	margin-bottom: 4px;
 }
 
-.wpds-rss-list .wpds-rss-topic h4.wpds-rss-title,
 .wpds-topiclist .wpds-topic h4.wpds-topic-title {
 	margin-bottom: 0;
 	padding-top: 0;
 }
 
-.wpds-rss-list .wpds-rss-topic h4.wpds-rss-title a,
-.wpds-rss-list .wpds-rss-topic a.wpds-rss-list-reply-link,
 .wpds-topiclist .wpds-topic h4.wpds-topic-title a,
 .wpds-topiclist .wpds-topic a.wpds-topiclist-reply-link {
 	text-decoration: none;
 	box-shadow: none;
 }
 
-.wpds-rss-list .wpds-rss-topic h4.wpds-rss-title a,
 .wpds-topiclist .wpds-topic h4.wpds-topic-title a {
 	color: #636363;
 }
 
-.wpds-rss-list .wpds-rss-topic h4.wpds-rss-title a:hover,
 .wpds-topiclist .wpds-topic h4.wpds-topic-title a:hover {
 	color: #006acc;
 }
@@ -101,44 +91,6 @@ i.icon-heart {
 	padding-left: 2px;
 }
 
-/* RSS list styles. */
-/* A hack, but more efficient than removing it from the DOM. */
-.wpds-rss-list .lightbox-wrapper {
-	display: none;
-}
-
-.wpds-rss-list.wpds-rss-display-images .lightbox-wrapper {
-	display: block;
-	padding-bottom: 1.5em;
-}
-
-.wpds-rss-list .wpds-rss-topic a.wpds-rss-list-reply-link {
-	color: #006acc;
-}
-
-.wpds-rss-list .wpds-rss-topic a.wpds-rss-list-reply-link:hover {
-	color: #636363;
-}
-
-.wpds-rss-topic {
-	padding-bottom: 40px;
-}
-
-.wpds-rss-topic blockquote {
-	font-size: 1em;
-	font-style: normal;
-	margin-left: 0;
-	margin-right: 0;
-	padding: 12px;
-	border-left: 5px solid #e9e9e9;
-	background-color: #f9f9f9;
-	margin-bottom: 1.5em;
-}
-
-.wpds-rss-topic blockquote p:last-child {
-	margin-bottom: 0;
-}
-
 /* Tiled topic list. */
 /* Allows left and right margins on the tiles to be ignored on wrappers edge. */
 .wpds-tile-wrapper {
@@ -160,8 +112,7 @@ ul.wpds-tile {
 	align-items: center;
 }
 
-ul.wpds-tile li.wpds-topic,
-ul.wpds-tile li.wpds-rss-topic {
+ul.wpds-tile li.wpds-topic {
 	position: relative;
 	padding-left: 12px;
 	padding-right: 12px;
@@ -170,7 +121,6 @@ ul.wpds-tile li.wpds-rss-topic {
 	border-bottom: 1px solid #c3c3c3;
 }
 
-ul.wpds-tile .wpds-rss-list header,
 ul.wpds-tile .wpds-topiclist header {
 	line-height: 1.35;
 	margin-bottom: 7px;
@@ -187,8 +137,7 @@ ul.wpds-tile .wpds-topiclist-footer-meta:after {
 }
 
 @media screen and (min-width: 370px) {
-	ul.wpds-tile li.wpds-topic,
-	ul.wpds-tile li.wpds-rss-topic{
+	ul.wpds-tile li.wpds-topic {
 		height: 300px;
 		width: 300px;
 		margin-left: 20px;
@@ -202,7 +151,6 @@ ul.wpds-tile .wpds-topiclist-footer-meta:after {
 		box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);
 	}
 
-	.wpds-tile .wpds-rss-topic footer,
 	.wpds-tile .wpds-topic footer {
 		position: absolute;
 		background-color: #ffffff;
@@ -213,7 +161,6 @@ ul.wpds-tile .wpds-topiclist-footer-meta:after {
 	}
 }
 
-ul.wpds-tile .wpds-rss-list-content,
 ul.wpds-tile .wpds-topiclist-content {
 	max-height: 180px;
 	overflow: hidden;
@@ -221,10 +168,6 @@ ul.wpds-tile .wpds-topiclist-content {
 
 .wpds-tile .wpds-likes-and-replies {
 	float: right;
-}
-
-.wpds-tile.wpds-rss-list .wpds-likes-and-replies {
-	float: none;
 }
 
 .wpds-tile .wpds-latest-avatar {
@@ -238,51 +181,9 @@ ul.wpds-tile .wpds-topiclist-content {
 	padding-right: 6px;
 }
 
-/* A basic approach for dealing with text overflow. */
-/* Todo: don't add this to default styles. */
-/*.wpds-tile .wpds-topiclist-clamp {*/
-	/*height: 205px;*/
-	/*position: relative;*/
-	/*overflow: hidden;*/
-/*}*/
-
-/*.wpds-tile .wpds-topiclist-clamp:after {*/
-	/*content: "";*/
-	/*text-align: right;*/
-	/*position: absolute;*/
-	/*bottom: 0;*/
-	/*right: 0;*/
-	/*width: 50%;*/
-	/*height: 1.5em;*/
-	/*background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1) 80%);*/
-/*}*/
-
 /* Ajax loader. */
 .wpds-topic-list-wrapper.wpds-ajax-loading {
 	/* Do something... */
-	/*position: relative;*/
-	/*z-index: 1000;*/
-	/*background-color: rgba(0, 0, 0, 0.5);*/
 }
 
-/* Style tests */
-/*@media screen and (min-width: 48em) {*/
-	/*body:not(.has-sidebar):not(.page-one-column) .page-header,*/
-	/*body.has-sidebar.error404 #primary .page-header,*/
-	/*body.page-two-column:not(.archive) #primary .entry-header,*/
-	/*body.page-two-column.archive:not(.has-sidebar) #primary .page-header {*/
-		/*display: none;*/
-	/*}*/
-/*}*/
-/**/
-/*@media screen and (min-width: 48em) {*/
-	/*body.page-two-column:not(.archive) #primary .entry-content {*/
-		/*width: 100% !important;*/
-	/*}*/
-/*}*/
-/**/
-/*@media screen and (min-width: 48em) {*/
-	/*.wrap {*/
-		/*max-width: 1200px !important;*/
-	/*}*/
-/*}*/
+
