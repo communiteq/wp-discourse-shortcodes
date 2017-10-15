@@ -53,7 +53,7 @@ class DiscourseTopicFormatter {
 			$poster_avatar_url = '';
 			$poster_username   = '';
 			$topic_count       = 0;
-			$use_ajax          = ! empty( $this->options['wpds_ajax_refresh'] ) && 'true' === $args['enable_ajax'] && 'latest' === $source;
+			$use_ajax          = ! empty( $this->options['wpds_ajax_refresh'] ) && 'latest' === $source;
 			$ajax_class        = $use_ajax ? ' wpds-topiclist-refresh' : '';
 			$tile_class        = 'true' === $args['tile'] ? ' wpds-tile' : '';
 			$source_class      = 'latest' === $source ? ' wpds-latest-topics' : ' wpds-' . $source . '-' . $args['period'] . '-topics';

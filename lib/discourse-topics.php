@@ -206,10 +206,6 @@ class DiscourseTopics {
 			$args['ajax_timeout'] = esc_attr( wp_unslash( $request['ajax_timeout'] ) );
 		}
 
-		if ( ! empty( $request['enable_ajax'] ) ) {
-			$args['enable_ajax'] = esc_attr( wp_unslash( $request['enable_ajax'] ) );
-		}
-
 		$topics = $this->get_topics( $args );
 
 		if ( is_wp_error( $topics ) || empty( $topics ) ) {
@@ -240,7 +236,6 @@ class DiscourseTopics {
 				'username_position' => 'top',
 				'category_position' => 'top',
 				'date_position'     => 'top',
-				'enable_ajax'       => 'false',
 				'ajax_timeout'      => 2,
 				'id'                => null,
 			), $args
