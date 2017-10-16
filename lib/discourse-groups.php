@@ -58,7 +58,6 @@ class DiscourseGroups {
 	public function __construct( $discourse_link ) {
 		$this->discourse_link = $discourse_link;
 		add_action( 'init', array( $this, 'setup_options' ) );
-		add_action( 'init', array( $this, 'clear_groups_data' ) );
 	}
 
 	/**
@@ -69,25 +68,6 @@ class DiscourseGroups {
 		$this->base_url     = ! empty( $this->options['url'] ) ? $this->options['url'] : null;
 		$this->api_key      = ! empty( $this->options['api-key'] ) ? $this->options['api-key'] : null;
 		$this->api_username = ! empty( $this->options['publish-username'] ) ? $this->options['publish-username'] : null;
-	}
-
-	/**
-	 * Deletes the Discourse groups option and transients for a single request.
-	 *
-	 * @return null
-	 */
-	public function clear_groups_data() {
-		if ( ! empty( $this->options['wpds_fetch_discourse_groups'] ) ) {
-			delete_option( 'wpds_discourse_groups' );
-			delete_transient( 'wpds_selected_groups_data' );
-			delete_transient( 'wpds_formatted_groups' );
-
-			$wpds_options                                = get_option( 'wpds_options' );
-			$wpds_options['wpds_fetch_discourse_groups'] = 0;
-			update_option( 'wpds_options', $wpds_options );
-		}
-
-		return null;
 	}
 
 	public function get_formatted_groups( $args ) {

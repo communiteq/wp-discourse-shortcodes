@@ -145,13 +145,6 @@ class Admin {
         );
 
 		add_settings_field(
-			'wpds_fetch_discourse_groups', __( 'Refresh Discourse Groups', 'wpds' ), array(
-				$this,
-				'fetch_discourse_groups_checkbox',
-			), 'wpds_options', 'wpds_settings_section'
-		);
-
-		add_settings_field(
 			'wpds_display_private_topics', __( 'Display Private Topics', 'wpds' ), array(
 				$this,
 				'display_private_topics_checkbox',
@@ -333,10 +326,6 @@ class Admin {
 	public function vertical_ellipsis_checkbox() {
 	    $this->form_helper->checkbox_input( 'wpds_vertical_ellipsis', 'wpds_options', __( "Use the plugin's vertical_ellipsis javascript to truncate overflowing text content", 'wpds'));
     }
-
-	public function fetch_discourse_groups_checkbox() {
-		$this->form_helper->checkbox_input( 'wpds_fetch_discourse_groups', 'wpds_options', __( 'Refresh Discourse groups.', 'wpds' ) );
-	}
 
 	public function max_topics_input() {
 		$this->form_helper->input( 'wpds_max_topics', 'wpds_options', __( 'Maximum number of topics to retrieve from Discourse.', 'wpds' ), 'number', 0 );

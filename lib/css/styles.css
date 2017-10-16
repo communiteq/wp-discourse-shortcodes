@@ -131,19 +131,21 @@ span.wpds-member-number {
 	margin-right: -20px;
 }
 
-/* Set the ul element as the flex container. */
+/* The flex container. */
+div.wpds-tile,
 ul.wpds-tile {
-	margin: 0;
-	padding: 0;
-	display: -webkit-box;
-	display: -moz-box;
-	display: -ms-flexbox;
-	display: -webkit-flex;
-	display: flex;
-
-	-webkit-flex-flow: row wrap;
-	justify-content: center;
-	align-items: center;
+    margin: 0;
+    padding: 0;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -ms-flex-flow: row wrap;
+    flex-flow: row wrap;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
 }
 
 ul.wpds-tile li.wpds-topic {
@@ -172,25 +174,89 @@ ul.wpds-tile .wpds-topiclist-footer-meta:after {
 
 /* Create tiles for widths > 370px. */
 @media screen and (min-width: 370px) {
-	ul.wpds-tile li.wpds-topic {
-		height: 300px;
-		width: 300px;
-		margin-left: 20px;
-		margin-right: 20px;
-		margin-bottom: 40px;
-		border: 1px solid;
-		border-radius: 3px;
-	}
 
-	.wpds-tile .wpds-topic footer {
-		position: absolute;
-		background-color: #ffffff;
-		/* 100% - left and right padding that's on the li element. */
-		width: calc(100% - 24px);
-		bottom: 0;
-		padding-bottom: 1.5em;
-		padding-top: 1em;
-	}
+    /*The width height and margin values set here are fairly arbitrary - can be overridden in a separate stylesheet. */
+    .wpds-tile .wpds-group,
+    ul.wpds-tile li.wpds-topic {
+        -webkit-box-flex: 0;
+        -ms-flex: none;
+        flex: none;
+        width: 300px;
+        margin-left: 20px;
+        margin-right: 20px;
+        margin-bottom: 40px;
+        border: 1px solid #cccccc;
+        border-radius: 3px;
+        position: relative;
+        padding-left: 12px;
+        padding-right: 12px;
+        padding-bottom: 1.5rem;
+    }
+
+    /* Todo: why does the height need to be set here, but not for the groups shortcode? */
+    .wpds-tile .wpds-topic {
+        padding-top: 12px;
+        height: 300px;
+    }
+
+    /* This is a hack to force items in an incomplete row to align left. */
+    .wpds-tile:after {
+        content: "";
+        -webkit-box-flex: 0;
+        -ms-flex: 0 0 680px;
+        flex: 0 0 680px;
+    }
+
+    /* Topic Lists */
+
+    .wpds-tile .wpds-latest-avatar {
+        position: static;
+        float: left;
+        width: 38px;
+        height: 38px;
+        margin-right: 6px;
+    }
+
+    /* Vertically center the text. */
+    .wpds-tile .wpds-topic footer .wpds-topiclist-username {
+        line-height: 38px;
+    }
+
+    .wpds-tile .wpds-topic footer .wpds-likes-and-replies {
+        line-height: 38px;
+    }
+
+    .wpds-tile .wpds-topic footer {
+        background-color: #ffffff;
+        position: absolute;
+        bottom: 1.5rem;
+        left: 12px;
+        right: 12px;
+    }
+
+    /* Groups */
+    .wpds-tile .wpds-group-image {
+        /* Extend the image past the tile's padding. */
+        margin-left: -12px;
+        margin-right: -12px;
+        margin-bottom: 0.75rem;
+        max-height: 185px;
+        overflow: hidden;
+    }
+
+    .wpds-tile .wpds-group-description {
+        /* The footer is positioned absolutely, give it some room. */
+        padding-bottom: 2.5rem;
+        overflow: hidden;
+    }
+
+    .wpds-tile .wpds-group footer {
+        background-color: #ffffff;
+        position: absolute;
+        bottom: 1.5rem;
+        left: 12px;
+        right: 12px;
+    }
 }
 
 .wpds-tile .wpds-likes-and-replies {
