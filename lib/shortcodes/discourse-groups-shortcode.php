@@ -27,17 +27,6 @@ class DiscourseGroupsShortcode {
 	 *
 	 * @return string
 	 */
-<<<<<<< HEAD
-	public function discourse_groups( $attributes ) {
-		$attributes = shortcode_atts(
-			array(
-				'link_type'         => 'visit',
-				'group_list'     => '',
-				'link_open_text'    => 'Join',
-				'link_close_text' => '',
-			), $attributes, 'discourse_groups'
-		);
-=======
 	public function discourse_groups( $args ) {
 //		$attributes = shortcode_atts( array(
 //			'link_type'         => 'visit',
@@ -53,7 +42,6 @@ class DiscourseGroupsShortcode {
 		$groups = $this->discourse_groups->get_formatted_groups( $args );
 
 		if ( is_wp_error( $groups )) {
->>>>>>> 475d86b121c4b92b595a66d28762f3a93fd9faaa
 
 			return '';
 		}
