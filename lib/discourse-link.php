@@ -1,9 +1,21 @@
 <?php
+/**
+ * Creates a link to the forum URL.
+ *
+ * If given an sso=true argument it will create an SSO link.
+ *
+ * @package WPDiscourse\Shortcodes
+ */
 
 namespace WPDiscourse\Shortcodes;
 
 use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
 
+/**
+ * Class DiscourseLink
+ *
+ * @package WPDiscourse\Shortcodes
+ */
 class DiscourseLink {
 
 	/**
@@ -38,6 +50,8 @@ class DiscourseLink {
 	}
 
 	/**
+	 * Creates a Discourse link from the given args.
+	 *
 	 * @param array $args The shortcode attributes.
 	 *
 	 * @return string
@@ -64,8 +78,8 @@ class DiscourseLink {
 	/**
 	 * Gets a  Discourse URL for a specific path.
 	 *
-	 * @param string $sso Whether or not to create an SSO link.
 	 * @param string $path The Discourse relative URL.
+	 * @param string $sso Whether or not to create an SSO link.
 	 *
 	 * @return string
 	 */

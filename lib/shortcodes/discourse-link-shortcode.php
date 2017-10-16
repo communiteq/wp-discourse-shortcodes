@@ -1,7 +1,17 @@
 <?php
+/**
+ * Adds a discourse_link shortcode.
+ *
+ * @package WPDiscourse\Shortcodes
+ */
 
 namespace WPDiscourse\Shortcodes;
 
+/**
+ * Class DiscourseLinkShortcode
+ *
+ * @package WPDiscourse\Shortcodes
+ */
 class DiscourseLinkShortcode {
 
 	/**
@@ -24,6 +34,8 @@ class DiscourseLinkShortcode {
 	}
 
 	/**
+	 * Returns a Discourse link.
+	 *
 	 * @param array $args The shortcode attributes.
 	 *
 	 * @return string
