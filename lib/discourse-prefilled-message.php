@@ -2,8 +2,9 @@
 
 namespace WPDiscourse\Shortcodes;
 
+use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
+
 class DiscoursePrefilledMessage {
-	use Utilities;
 
 	protected $options;
 
@@ -18,7 +19,7 @@ class DiscoursePrefilledMessage {
 	}
 
 	public function setup_options() {
-		$this->options = $this->get_options();
+		$this->options = DiscourseUtilities::get_options();
 		$this->base_url = ! empty( $this->options['url'] ) ? $this->options['url'] : '';
 	}
 

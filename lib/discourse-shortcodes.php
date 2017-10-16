@@ -2,8 +2,9 @@
 
 namespace WPDiscourse\Shortcodes;
 
+use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
+
 class DiscourseShortcodes {
-	use Utilities;
 
 	/**
 	 * The key for the plugin's options array.
@@ -54,7 +55,7 @@ class DiscourseShortcodes {
 	public function initialize_plugin() {
 		add_option( 'wpds_options', $this->wpds_options );
 		add_option( 'wpds_update_flags', array() );
-		$this->options = $this->get_options();
+		$this->options = DiscourseUtilities::get_options();
 	}
 
 	/**

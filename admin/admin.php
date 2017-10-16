@@ -2,8 +2,9 @@
 
 namespace WPDiscourse\Shortcodes;
 
+use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
+
 class Admin {
-	use Utilities;
 
 	/**
 	 * The WPDiscourse options page.
@@ -115,7 +116,7 @@ class Admin {
 	 * plugin in `discourse-latest-topics.php`.
 	 */
 	public function setup_options() {
-		$this->options     = $this->get_options();
+		$this->options     = DiscourseUtilities::get_options();
 		$this->webhook_url = ! empty( $this->options['url'] ) ? $this->options['url'] . '/admin/api/web_hooks' : null;
 	}
 
