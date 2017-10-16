@@ -1,8 +1,13 @@
 <?php
 /**
  * Plugin Name: WP Discourse Shortcodes
+ * Description: Extends the WP Discourse plugin to add Discourse content to your WordPress site
  * Version: 0.2
  * Author: scossar
+ * Text Domain: wpds
+ * Plugin URI: https://github.com/scossar/wp-discourse-shortcodes
+ *
+ * @package WPDiscourse\Shortcodes
  */
 
 namespace WPDiscourse\Shortcodes;
