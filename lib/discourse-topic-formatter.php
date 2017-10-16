@@ -1,12 +1,30 @@
 <?php
+/**
+ * Formats Discourse topics.
+ *
+ * @package WPDiscourse\Shortcodes
+ */
 
 namespace WPDiscourse\Shortcodes;
 
 use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
 
+/**
+ * Class DiscourseTopicFormatter
+ *
+ * @package WPDiscourse\Shortcodes
+ */
 class DiscourseTopicFormatter {
 	use Formatter;
 
+	/**
+	 * The merged options from WP Discourse and WP Discourse Shortcodes.
+	 *
+	 * All options are held in a single array, use a custom plugin prefix to avoid naming collisions with wp-discourse.
+	 *
+	 * @access protected
+	 * @var array
+	 */
 	protected $options;
 
 	/**
@@ -17,10 +35,16 @@ class DiscourseTopicFormatter {
 	 */
 	protected $discourse_url;
 
+	/**
+	 * DiscourseTopicFormatter constructor.
+	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'setup_options' ) );
 	}
 
+	/**
+	 * Sets up the plugin options.
+	 */
 	public function setup_options() {
 		$this->options       = DiscourseUtilities::get_options();
 		$this->discourse_url = ! empty( $this->options['url'] ) ? $this->options['url'] : null;
@@ -99,7 +123,6 @@ class DiscourseTopicFormatter {
 					// Add content above the header.
 					$output = apply_filters( 'wpds_topiclist_above_header', $output, $topic, $category, $poster_avatar_url, $args );
 
-
 					$output .= '<header>';
 
 					if ( 'top' === $args['username_position'] ) {
@@ -113,7 +136,7 @@ class DiscourseTopicFormatter {
 					$output .= '<h4 class="wpds-topic-title"><a href="' . esc_url( $topic_url ) . '">' . esc_html( $topic['title'] ) . '</a></h4>';
 
 					if ( 'top' === $args['category_position'] ) {
-						$output .= '<span class="wpds-term">' . __( '', 'wpds' ) . '</span> <span class="wpds-shortcode-category">' . $this->discourse_category_badge( $category ) . '</span>';
+						$output .= '<span class="wpds-shortcode-category">' . $this->discourse_category_badge( $category ) . '</span>';
 					}
 
 					$output .= '</header>';
@@ -136,7 +159,7 @@ class DiscourseTopicFormatter {
 						$output .= '<span class="wpds-topiclist-username">' . esc_html( $poster_username ) . '</span>';
 					}
 					if ( 'bottom' === $args['category_position'] ) {
-						$output .= '<span class="wpds-term">' . __( '', 'wpds' ) . '</span> <span class="wpds-shortcode-category">' . $this->discourse_category_badge( $category ) . '</span>';
+						$output .= '<span class="wpds-shortcode-category">' . $this->discourse_category_badge( $category ) . '</span>';
 					}
 					$output .= '<span class="wpds-likes-and-replies">';
 					$output .= '<span class="wpds-topiclist-likes' . esc_attr( $likes_class ) . '"><i class="icon-heart" aria-hidden="true"></i><span class="wpds-topiclist-like-count">' . esc_attr( $like_count ) . '</span></span>';
@@ -146,7 +169,7 @@ class DiscourseTopicFormatter {
 					$output = apply_filters( 'wpds_topiclist_below_footer', $output, $topic, $category, $args );
 					$output .= '</li>';
 
-					$topic_count += 1;
+					$topic_count++;
 				}// End if().
 			}// End foreach().
 			$output .= '</ul></div>';
@@ -158,6 +181,10 @@ class DiscourseTopicFormatter {
 	}
 
 	/**
+	 * Whether or not to display a topic.
+	 *
+	 * Don't display topics that are pinned_globally, or created by the system user.
+	 *
 	 * @param array $topic The topic to check.
 	 *
 	 * @return bool

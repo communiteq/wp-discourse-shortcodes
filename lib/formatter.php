@@ -1,10 +1,28 @@
 <?php
+/**
+ * A collection of helper function.
+ *
+ * @package WPDiscourse\Shortcodes
+ */
 
 namespace WPDiscourse\Shortcodes;
 
 use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
 
+/**
+ * Trait Formatter
+ *
+ * @package WPDiscourse\Shortcodes
+ */
 trait Formatter {
+
+	/**
+	 * Gets a Discourse category from its name.
+	 *
+	 * @param string $name The name of the category to find.
+	 *
+	 * @return null
+	 */
 	public function find_discourse_category_by_name( $name ) {
 		$categories = DiscourseUtilities::get_discourse_categories();
 		foreach ( $categories as $category ) {
@@ -102,6 +120,13 @@ trait Formatter {
 		return 1 === $years ? '1 year ago' : $years . ' years ago';
 	}
 
+	/**
+	 * Returns a string of HTML that's used to add the shortcode parameters as data attrubutes for ajax requests.
+	 *
+	 * @param array $args The shortcode args.
+	 *
+	 * @return string
+	 */
 	public function render_topics_shortcode_options( $args ) {
 		$max_topics        = ' data-wpds-maxtopics="' . esc_attr( $args['max_topics'] ) . '"';
 		$cache_duration    = ' data-wpds-cache-duration="' . esc_attr( $args['cache_duration'] ) . '"';
@@ -138,6 +163,14 @@ trait Formatter {
 		return $styles;
 	}
 
+	/**
+	 * Returns either the full topic content, or an excerpt of a given length.
+	 *
+	 * @param string $html The topic html.
+	 * @param int|string $excerpt_length The excerpt length to return.
+	 *
+	 * @return null|string
+	 */
 	public function get_topic_content( $html, $excerpt_length ) {
 		if ( ! $excerpt_length ) {
 
@@ -147,8 +180,10 @@ trait Formatter {
 			return $html;
 		} else {
 			$excerpt_length = intval( $excerpt_length );
+			// Setting use_internal_errors makes it possible to pass badly fomatted HTML.
 			libxml_use_internal_errors( true );
 			$doc = new \DOMDocument( '1.0', 'utf-8' );
+			// Clear errors to free memory.
 			libxml_clear_errors();
 			// Create a valid document with charset.
 			$html = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' . $html . '</body></html>';

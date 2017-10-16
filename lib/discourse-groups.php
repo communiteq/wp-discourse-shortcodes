@@ -1,9 +1,19 @@
 <?php
+/**
+ * Gets and returns Discourse group data.
+ *
+ * @package WPDiscourse\Shortcodes;
+ */
 
 namespace WPDiscourse\Shortcodes;
 
 use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
 
+/**
+ * Class DiscourseGroups
+ *
+ * @package WPDiscourse\Shortcodes
+ */
 class DiscourseGroups {
 	use Formatter;
 
@@ -70,6 +80,13 @@ class DiscourseGroups {
 		$this->api_username = ! empty( $this->options['publish-username'] ) ? $this->options['publish-username'] : null;
 	}
 
+	/**
+	 * Gets the groups HTML.
+	 *
+	 * @param array $args An array of arguments, normally passed from the shorcode.
+	 *
+	 * @return mixed|string
+	 */
 	public function get_formatted_groups( $args ) {
 		$args   = shortcode_atts( array(
 			'group_list'           => '',
@@ -97,7 +114,12 @@ class DiscourseGroups {
 	}
 
 	/**
-	 * @param string $group_list Groupnames to retrieve.
+	 * Gets the groups data for an ID.
+	 *
+	 * The groups data is an array that's saved in a transient. First look for it in the
+	 * array. Create and store it if it doesn't exist.
+	 *
+	 * @param array $args The arguments passed to the function.
 	 *
 	 * @return array|\WP_Error
 	 */
@@ -239,7 +261,7 @@ class DiscourseGroups {
 
 			$output .= '</div></div>';
 
-			$formatted_groups[ $groups_key] = $output;
+			$formatted_groups[ $groups_key ] = $output;
 
 			set_transient( 'wpds_formatted_groups', $formatted_groups, DAY_IN_SECONDS );
 		}
@@ -247,6 +269,13 @@ class DiscourseGroups {
 		return apply_filters( 'wpds_formatted_groups', $formatted_groups[ $groups_key ], $groups, $args );
 	}
 
+	/**
+	 * Returns the pluralized memebers text.
+	 *
+	 * @param int $members The number of members in the group.
+	 *
+	 * @return string
+	 */
 	protected function member_text( $members ) {
 		if ( 1 === intval( $members ) ) {
 			return '1 ' . __( 'member', 'wpds' );

@@ -1,9 +1,19 @@
 <?php
+/**
+ * Sets up the plugin.
+ *
+ * @package WPDiscourse\Shortcodes
+ */
 
 namespace WPDiscourse\Shortcodes;
 
 use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
 
+/**
+ * Class DiscourseShortcodes
+ *
+ * @package WPDiscourse\Shortcodes
+ */
 class DiscourseShortcodes {
 
 	/**

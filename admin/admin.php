@@ -1,9 +1,19 @@
 <?php
+/**
+ * Sets up the plugins options page.
+ *
+ * @package WPDiscourse\Shortcodes
+ */
 
 namespace WPDiscourse\Shortcodes;
 
 use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
 
+/**
+ * Class Admin
+ *
+ * @package WPDiscourse\Shortcodes
+ */
 class Admin {
 
 	/**
@@ -64,29 +74,43 @@ class Admin {
 		add_action( 'update_option_wpds_options', array( $this, 'clear_groups_cache' ) );
 	}
 
+	/**
+	 * Checks if a discourse_topics shortcode exists in a post that is saved, if so, it calls clear_topics_cache.
+	 *
+	 * @param int $post_id The post_id to check.
+	 *
+	 * @return null
+	 */
 	public function clear_post_topics_cache( $post_id ) {
-	    $current_post = get_post( $post_id );
-	    if ( ! empty( $current_post-> post_content ) && has_shortcode( $current_post->post_content, 'discourse_topics' ) ) {
-	        $this->clear_topics_cache();
-        }
+		$current_post = get_post( $post_id );
+		if ( ! empty( $current_post-> post_content ) && has_shortcode( $current_post->post_content, 'discourse_topics' ) ) {
+			$this->clear_topics_cache();
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    public function clear_post_groups_cache( $post_id ) {
-	    $current_post = get_post( $post_id );
-	    if ( ! empty( $current_post-> post_content ) && has_shortcode( $current_post->post_content, 'discourse_groups' ) ) {
-		    delete_transient( 'wpds_groups' );
-		    delete_transient( 'wpds_formatted_groups' );
-	    }
+	/**
+	 * Chacks if a discourse_groups shortcode exists in a post that is saved, if so, it deletes the groups transients.
+	 *
+	 * @param int $post_id The post_id to check.
+	 *
+	 * @return null
+	 */
+	public function clear_post_groups_cache( $post_id ) {
+		$current_post = get_post( $post_id );
+		if ( ! empty( $current_post-> post_content ) && has_shortcode( $current_post->post_content, 'discourse_groups' ) ) {
+			delete_transient( 'wpds_groups' );
+			delete_transient( 'wpds_formatted_groups' );
+		}
 
-	    return null;
-    }
+		return null;
+	}
 
 	/**
 	 * Clear topics caches.
 	 *
-	 * This allows updates to shortcode attributes to take effect immediately.
+	 * Called directly when the wpds options page is saved.
 	 */
 	public function clear_topics_cache() {
 			delete_transient( 'wpds_latest_topics' );
@@ -103,11 +127,16 @@ class Admin {
 			delete_transient( 'wpds_yearly_topics_html' );
 	}
 
+	/**
+	 * Clears the groups transients and the wpds_discourse_groups option.
+	 *
+	 * Called when the wpds options page is saved.
+	 */
 	public function clear_groups_cache() {
-	    delete_transient( 'wpds_groups' );
-	    delete_transient( 'wpds_formatted_groups' );
-	    delete_option( 'wpds_discourse_groups');
-    }
+		delete_transient( 'wpds_groups' );
+		delete_transient( 'wpds_formatted_groups' );
+		delete_option( 'wpds_discourse_groups' );
+	}
 
 	/**
 	 * Setup the plugin options.
@@ -139,11 +168,11 @@ class Admin {
 		);
 
 		add_settings_field(
-            'wpds_topic_content', __( 'Retrieve Topic Content', 'wpds' ), array(
-                $this,
-                'topic_content_checkbox',
-            ), 'wpds_options', 'wpds_settings_section'
-        );
+			'wpds_topic_content', __( 'Retrieve Topic Content', 'wpds' ), array(
+				$this,
+				'topic_content_checkbox',
+			), 'wpds_options', 'wpds_settings_section'
+		);
 
 		add_settings_field(
 			'wpds_display_private_topics', __( 'Display Private Topics', 'wpds' ), array(
@@ -160,11 +189,11 @@ class Admin {
 		);
 
 		add_settings_field(
-		        'wpds_vertical_ellipsis', __( 'Truncate Topic Content', 'wpds' ), array(
-		                $this,
-                    'vertical_ellipsis_checkbox',
-            ), 'wpds_options', 'wpds_settings_section'
-        );
+			'wpds_vertical_ellipsis', __( 'Truncate Topic Content', 'wpds' ), array(
+				$this,
+				'vertical_ellipsis_checkbox',
+			), 'wpds_options', 'wpds_settings_section'
+		);
 
 		add_settings_field(
 			'wpds_topic_webhook_refresh', __( 'Enable Discourse Webhook', 'wpds' ), array(
@@ -180,7 +209,6 @@ class Admin {
 			), 'wpds_options', 'wpds_settings_section'
 		);
 
-		// The settings fields will be saved in the 'wpds_options' array as `wpds_options[ $key ].`
 		register_setting( 'wpds_options', 'wpds_options', array( $this->form_helper, 'validate_options' ) );
 	}
 
@@ -277,10 +305,6 @@ class Admin {
 
 	/**
 	 * Displays the webhook_refresh_checkbox field.
-	 *
-	 * This, and all the other settings fields functions, use the FormHelper methods to create the form elements.
-	 * Using the FormHelper methods is optional. If they are used, you need to be certain that your plugin options are
-	 * being added to the array returned by DiscourseUtilities::get_options. See discourse-latest-topics.php for details.
 	 */
 	public function webhook_refresh_checkbox() {
 		$wordpress_url = home_url( '/wp-json/wp-discourse/v1/latest-topics' );
@@ -308,13 +332,11 @@ class Admin {
 		$this->form_helper->checkbox_input( 'wpds_ajax_refresh', 'wpds_options', __( 'Use an ajax request to load topics on the front end.', 'wpds' ) );
 	}
 
+	/**
+	 * Displays the display_private_topics checkbox field.
+	 */
 	public function display_private_topics_checkbox() {
-		$this->form_helper->checkbox_input(
-			'wpds_display_private_topics', 'wpds_options', __(
-				'Display private topics in
-	    topic list.', 'wpds'
-			)
-		);
+		$this->form_helper->checkbox_input( 'wpds_display_private_topics', 'wpds_options', __( 'Display private topics in topic list.', 'wpds' ) );
 	}
 
 	/**
@@ -324,16 +346,27 @@ class Admin {
 		$this->form_helper->checkbox_input( 'wpds_use_default_styles', 'wpds_options', __( 'Use the default plugin styles.', 'wpds' ) );
 	}
 
+	/**
+	 * Displays the vertical_ellipsis checkbox field.
+	 */
 	public function vertical_ellipsis_checkbox() {
-	    $this->form_helper->checkbox_input( 'wpds_vertical_ellipsis', 'wpds_options', __( "Use the plugin's vertical_ellipsis javascript to truncate overflowing text content", 'wpds'));
-    }
+		$this->form_helper->checkbox_input( 'wpds_vertical_ellipsis', 'wpds_options', __( "Use the plugin's vertical_ellipsis javascript to truncate overflowing text content", 'wpds' ) );
+	}
 
+	/**
+	 * Displays the max_topics input field.
+	 */
 	public function max_topics_input() {
 		$this->form_helper->input( 'wpds_max_topics', 'wpds_options', __( 'Maximum number of topics to retrieve from Discourse.', 'wpds' ), 'number', 0 );
 	}
 
+	/**
+	 * Displays the topic_content checkbox field.
+	 */
 	public function topic_content_checkbox() {
-	    $this->form_helper->checkbox_input( 'wpds_topic_content', 'wpds_options', __( 'Retrieve topic content from Discourse.', 'wpds' ),
-            __( 'Requires extra HTTP requests to Discourse.', 'wpds' ) );
-    }
+		$this->form_helper->checkbox_input(
+			'wpds_topic_content', 'wpds_options', __( 'Retrieve topic content from Discourse.', 'wpds' ),
+			__( 'Requires extra HTTP requests to Discourse.', 'wpds' )
+		);
+	}
 }

@@ -1,6 +1,9 @@
 <?php
 /**
  * Creates a Discourse link that opens a prefilled message.
+ *
+ * I'm not sure this needs to stay in the plugin. It would be better to create a message
+ * through the Discourse API so that the user isn't required to use the Discourse composer.
  */
 
 namespace WPDiscourse\Shortcodes;
