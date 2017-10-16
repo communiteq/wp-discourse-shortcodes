@@ -62,6 +62,8 @@ trait Formatter {
 	/**
 	 * Formats the last_activity string.
 	 *
+	 * This isn't being used anywhere.
+	 *
 	 * @param string $last_activity The time of the last activity on the topic.
 	 *
 	 * @return string

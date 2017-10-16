@@ -1,11 +1,15 @@
 /* Topic list styles */
+.wpds-topiclist {
+	list-style: none;
+}
 
-ul.wpds-topiclist li.wpds-topic {
+/* Left padding gives space for the avatar. */
+.wpds-topiclist .wpds-topic {
 	position: relative;
 	padding-left: 56px;
 	padding-bottom: 1.5em;
 }
-
+/* Position absolutely in space added by .wpds-topic padding. */
 .wpds-latest-avatar {
 	border-radius: 50%;
 	position: absolute;
@@ -15,41 +19,30 @@ ul.wpds-topiclist li.wpds-topic {
 
 .wpds-topic {
 	font-size: 0.8125em;
-	color: #777777;
 }
 
+/* Used for terms like 'posted on'. */
 .wpds-term {
 	font-style: italic;
-}
-
-.wpds-topiclist {
-	list-style: none;
 }
 
 .wpds-topiclist header {
 	margin-bottom: 4px;
 }
 
+/* Remove margin and padding so meta-data can go directly above and beneath title. */
 .wpds-topiclist .wpds-topic h4.wpds-topic-title {
 	margin-bottom: 0;
 	padding-top: 0;
 }
 
+/* Remove any default decoration on the title link. */
 .wpds-topiclist .wpds-topic h4.wpds-topic-title a,
 .wpds-topiclist .wpds-topic a.wpds-topiclist-reply-link {
 	text-decoration: none;
 	box-shadow: none;
 }
 
-.wpds-topiclist .wpds-topic h4.wpds-topic-title a {
-	color: #636363;
-}
-
-.wpds-topiclist .wpds-topic h4.wpds-topic-title a:hover {
-	color: #006acc;
-}
-
-/* Todo: is this doing anything? */
 .wpds-topiclist .wpds-topic h4.wpds-topic-title a:hover {
 	text-decoration: inherit;
 	box-shadow: inherit;
@@ -68,14 +61,8 @@ span.wpds-likes-and-replies {
 }
 
 .wpds-topiclist .wpds-topic a.wpds-topiclist-reply-link {
-	color: #777777;
 	padding-left: 4px;
 	padding-right: 4px;
-}
-
-
-.wpds-topiclist .wpds-topic a.wpds-topiclist-reply-link:hover {
-	color: #006acc;
 }
 
 i.icon-heart {
@@ -98,6 +85,7 @@ i.icon-heart {
 	margin-right: -20px;
 }
 
+/* Set the ul element as the flex container. */
 ul.wpds-tile {
 	margin: 0;
 	padding: 0;
@@ -136,6 +124,7 @@ ul.wpds-tile .wpds-topiclist-footer-meta:after {
 	clear: both;
 }
 
+/* Create tiles for widths > 370px. */
 @media screen and (min-width: 370px) {
 	ul.wpds-tile li.wpds-topic {
 		height: 300px;
@@ -143,27 +132,19 @@ ul.wpds-tile .wpds-topiclist-footer-meta:after {
 		margin-left: 20px;
 		margin-right: 20px;
 		margin-bottom: 40px;
-		border: 1px solid #cccccc;
+		border: 1px solid;
 		border-radius: 3px;
-		/* Todo: the box-shadow probably shouldn't be in the default styles. */
-		-webkit-box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);
-		-moz-box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);
-		box-shadow: 1px 1px 2px 0px rgba(133,133,133,0.36);
 	}
 
 	.wpds-tile .wpds-topic footer {
 		position: absolute;
 		background-color: #ffffff;
+		/* 100% - left and right padding that's on the li element. */
 		width: calc(100% - 24px);
 		bottom: 0;
 		padding-bottom: 1.5em;
 		padding-top: 1em;
 	}
-}
-
-ul.wpds-tile .wpds-topiclist-content {
-	max-height: 180px;
-	overflow: hidden;
 }
 
 .wpds-tile .wpds-likes-and-replies {
@@ -173,17 +154,13 @@ ul.wpds-tile .wpds-topiclist-content {
 .wpds-tile .wpds-latest-avatar {
 	position: static;
 	float: left;
-	padding-right: 6px;
 }
 
-.wpds-tile img.wpds-latest-avatar {
-	float: left;
-	padding-right: 6px;
+.wpds-topiclist-username {
+	padding-left: 6px;
 }
 
-/* Ajax loader. */
+/* Ajax loader. Added when topics are being loaded with ajax. */
 .wpds-topic-list-wrapper.wpds-ajax-loading {
 	/* Do something... */
 }
-
-

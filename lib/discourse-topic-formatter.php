@@ -158,7 +158,7 @@ class DiscourseTopicFormatter {
 	}
 
 	/**
-	 * @param $topic The topic to check.
+	 * @param array $topic The topic to check.
 	 *
 	 * @return bool
 	 */
