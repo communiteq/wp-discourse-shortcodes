@@ -77,15 +77,15 @@ class DiscourseGroups {
 			'link_close_text'      => '',
 			'sso'                  => 'false',
 			'tile'                 => 'false',
-			'display_description'  => 'true',
-			'display_images'       => 'true',
+			'show_description'  => 'true',
+			'show_images'       => 'true',
 			'excerpt_length'       => 55,
 			'show_header_metadata' => 'true',
 			'show_join_link'        => 'true',
 			'add_button_styles' => 'true',
 			'id' => null,
 		), $args );
-		$groups = $this->get_discourse_groups( $args['group_list'] );
+		$groups = $this->get_discourse_groups( $args );
 
 		if ( empty( $groups ) || is_wp_error( $groups ) ) {
 
@@ -101,38 +101,49 @@ class DiscourseGroups {
 	 *
 	 * @return array|\WP_Error
 	 */
-	public function get_discourse_groups( $group_list ) {
-		$discourse_groups = get_transient( 'wpds_selected_groups_data' );
+	public function get_discourse_groups( $args ) {
 
-		if ( empty( $discourse_groups || is_wp_error( $discourse_groups ) ) ) {
-			$all_groups = $this->get_non_automatic_groups();
+		// The wpds_groups transient stores an array of groups - one for each discourse_groups shortcode id.
+		$groups = get_transient( 'wpds_groups' );
+		$groups_key = $args['id'] ? 'groups_' . $args['id'] : 'groups';
 
-			if ( empty( $all_groups || is_wp_error( $all_groups ) ) ) {
+		if ( empty( $groups[ $groups_key ] ) || is_wp_error( $groups[ $groups_key ] ) ) {
+
+			$raw_groups_data = $this->get_non_automatic_groups();
+
+			if ( empty( $raw_groups_data || is_wp_error( $raw_groups_data ) ) ) {
 
 				return new \WP_Error( 'wpds_response_error', 'The Discourse groups could not be retrieved.' );
 			}
 
-			if ( ! empty( $group_list ) ) {
+			if ( ! empty( $args['group_list'] ) ) {
 				$chosen_groups = [];
-				$selected      = array_map( 'trim', explode( ',', $group_list ) );
+				$selected      = array_map( 'trim', explode( ',', $args['group_list'] ) );
 
-				foreach ( $all_groups as $group ) {
-					if ( ! empty( $group['name'] ) && in_array( $group['name'], $selected, true ) ) {
-						$chosen_groups[] = $group;
+				foreach ( $raw_groups_data as $group_data ) {
+					if ( ! empty( $group_data['name'] ) && in_array( $group_data['name'], $selected, true ) ) {
+						$chosen_groups[] = $group_data;
 					}
 				}
-				$discourse_groups = $chosen_groups;
+
+				$groups[ $groups_key ] = $chosen_groups;
 			} else {
-				$discourse_groups = $all_groups;
+				// No group_list was provided - save all groups.
+				$groups[ $groups_key ] = $raw_groups_data;
 			}
 
-			set_transient( 'wpds_selected_groups_data', DAY_IN_SECONDS, $discourse_groups );
+			set_transient( 'wpds_groups', $groups, DAY_IN_SECONDS );
 		}
 
-		return $discourse_groups;
+		return $groups[ $groups_key ];
 	}
 
 	/**
+	 * Create the formated groups HTML.
+	 *
+	 * There's a lot of string concatenation in here! It's not that efficient, but it's easier to read for now.
+	 * The formatted HTML is cached for 24 hours.
+	 *
 	 * @param  array $groups An array of Discourse group data.
 	 * @param array $args The shortcode args.
 	 *
@@ -145,9 +156,10 @@ class DiscourseGroups {
 			return new \WP_Error( 'wpds_error', 'The groups array was empty.' );
 		}
 
-		$output = get_transient( 'wpds_formatted_groups' );
+		$formatted_groups = get_transient( 'wpds_formatted_groups' );
+		$groups_key = $args['id'] ? 'groups_' . $args['id'] : 'groups';
 
-		if ( empty( $output ) ) {
+		if ( empty( $formatted_groups[ $groups_key ] ) ) {
 			$link_open_text  = ! empty( $args['link_open_text'] ) ? $args['link_open_text'] . ' ' : '';
 			$link_close_text = ! empty( $args['link_close_text'] ) ? ' ' . $args['link_close_text'] : '';
 			$tile_class      = 'true' === $args['tile'] ? 'wpds-tile' : 'wpds-no-tile';
@@ -186,7 +198,7 @@ class DiscourseGroups {
 				$output .= '<div class="wpds-group-clamp">';
 				$output = apply_filters( 'wpds_group_above_header', $output, $group, $args );
 
-				if ( 'true' === $args['display_images'] && $group_image ) {
+				if ( 'true' === $args['show_images'] && $group_image ) {
 					$output .= '<div class="wpds-group-image">' . wp_kses_post( $group_image ) . '</div>';
 				}
 
@@ -206,7 +218,7 @@ class DiscourseGroups {
 
 				$output .= '</header>';
 
-				if ( 'true' === $args['display_description'] ) {
+				if ( 'true' === $args['show_description'] ) {
 					$output .= '<div class="wpds-group-description">' . wp_kses_post( $group_description ) . '</div>';
 				}
 
@@ -227,10 +239,12 @@ class DiscourseGroups {
 
 			$output .= '</div></div>';
 
-			set_transient( 'wpds_formatted_groups', $output, DAY_IN_SECONDS );
+			$formatted_groups[ $groups_key] = $output;
+
+			set_transient( 'wpds_formatted_groups', $formatted_groups, DAY_IN_SECONDS );
 		}
 
-		return apply_filters( 'wpds_formatted_groups', $output, $groups, $args );
+		return apply_filters( 'wpds_formatted_groups', $formatted_groups[ $groups_key ], $groups, $args );
 	}
 
 	protected function member_text( $members ) {
@@ -243,6 +257,8 @@ class DiscourseGroups {
 
 	/**
 	 * Retrieves the groups from Discourse.
+	 *
+	 * The wpds_discourse_groups option is deleted and then refreshed when the shortcode options tab is saved.
 	 *
 	 * @return array|mixed|null|object
 	 */
