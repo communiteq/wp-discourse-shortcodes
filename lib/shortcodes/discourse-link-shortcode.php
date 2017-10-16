@@ -42,6 +42,13 @@ class DiscourseLinkShortcode {
 	 */
 	public function discourse_link( $args ) {
 
-		return $this->discourse_link->get_discourse_link( $args );
+		$discourse_link = $this->discourse_link->get_discourse_link( $args );
+
+		if ( is_wp_error( $discourse_link ) ) {
+
+			return '';
+		}
+
+		return $discourse_link;
 	}
 }
