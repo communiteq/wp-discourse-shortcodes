@@ -58,7 +58,9 @@ class Admin {
 		add_action( 'wpdc_options_page_append_settings_tabs', array( $this, 'settings_tab' ), 5, 1 );
 		add_action( 'wpdc_options_page_after_tab_switch', array( $this, 'wpds_settings_fields' ) );
 		add_action( 'save_post', array( $this, 'clear_post_topics_cache' ) );
+		add_action( 'save_post', array( $this, 'clear_post_groups_cache' ) );
 		add_action( 'update_option_wpds_options', array( $this, 'clear_topics_cache' ) );
+		add_action( 'update_option_wpds_options', array( $this, 'clear_groups_cache' ) );
 	}
 
 	public function clear_post_topics_cache( $post_id ) {
@@ -68,6 +70,16 @@ class Admin {
         }
 
         return null;
+    }
+
+    public function clear_post_groups_cache( $post_id ) {
+	    $current_post = get_post( $post_id );
+	    if ( ! empty( $current_post-> post_content ) && has_shortcode( $current_post->post_content, 'discourse_groups' ) ) {
+		    delete_transient( 'wpds_selected_groups_data' );
+		    delete_transient( 'wpds_formatted_groups' );
+	    }
+
+	    return null;
     }
 
 	/**
@@ -89,6 +101,12 @@ class Admin {
 			delete_transient( 'wpds_yearly_topics' );
 			delete_transient( 'wpds_yearly_topics_html' );
 	}
+
+	public function clear_groups_cache() {
+	    delete_transient( 'wpds_selected_groups_data' );
+	    delete_transient( 'wpds_formatted_groups' );
+	    delete_option( 'wpds_discourse_groups');
+    }
 
 	/**
 	 * Setup the plugin options.
