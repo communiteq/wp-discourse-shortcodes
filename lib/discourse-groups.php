@@ -170,7 +170,7 @@ class DiscourseGroups {
 		if ( empty( $output ) ) {
 			$link_open_text  = ! empty( $args['link_open_text'] ) ? $args['link_open_text'] . ' ' : '';
 			$link_close_text = ! empty( $args['link_close_text'] ) ? ' ' . $args['link_close_text'] : '';
-			$tile_class      = 'true' === $args['tile'] ? ' wpds-tile' : 'wpds-no-tile';
+			$tile_class      = 'true' === $args['tile'] ? 'wpds-tile' : 'wpds-no-tile';
 
 			$output = '<div class="wpds-groups wpds-tile-wrapper"><div class="' . esc_attr( $tile_class ) . '">';
 			foreach ( $groups as $group ) {
