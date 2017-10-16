@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: WP Discourse Shortcodes
- * Version: 0.1
+ * Version: 0.2
  * Author: scossar
  */
 

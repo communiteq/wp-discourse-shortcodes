@@ -1,4 +1,7 @@
 <?php
+/**
+ * Creates a Discourse link that opens a prefilled message.
+ */
 
 namespace WPDiscourse\Shortcodes;
 
@@ -12,6 +15,11 @@ class DiscoursePrefilledMessage {
 
 	protected $discourse_link;
 
+	/**
+	 * DiscoursePrefilledMessage constructor.
+	 *
+	 * @param DiscourseLink $discourse_link
+	 */
 	public function __construct( $discourse_link ) {
 		$this->discourse_link = $discourse_link;
 
@@ -40,20 +48,20 @@ class DiscoursePrefilledMessage {
 		$title     = ! empty( $attributes['title'] ) ? $attributes['title'] : null;
 		$message   = ! empty( $attributes['message'] ) ? $attributes['message'] : null;
 		// If a comma separated list is being passed, just take the first item.
-		$username  = ! empty( $attributes['username'] ) ? explode( ',', $attributes['username'] )[0] : '';
-		$groupname = ! empty( $attributes['groupname'] ) ? explode( ',', $attributes['groupname'] )[0] : '';
+		$username  = ! empty( $attributes['username'] ) ? array_map( 'trim', explode( ',', $attributes['username'] ) )[0] : '';
+		$groupname = ! empty( $attributes['groupname'] ) ? array_map( 'trim', explode( ',', $attributes['groupname'] ) )[0] : '';
 
 		if ( empty( $this->options['enable-sso'] ) ) {
 
 			return new \WP_Error(
-				'discourse_shortcode_configuration_error', 'The Discourse Prefilled Message shortcode
+				'wpds_configuration_error', 'The Discourse Prefilled Message shortcode
 			requires WordPress to be enabled as the SSO Provider for your Discourse forum.'
 			);
 		}
 
 		if ( empty( $username ) && empty( $groupname ) ) {
 
-			return new \WP_Error( 'discourse_shortcode_configuration_error', 'Either the username or the groupname must be supplied.' );
+			return new \WP_Error( 'wpds_configuration_error', 'Either the username or the groupname must be supplied.' );
 		}
 
 		if ( $username && $groupname ) {
@@ -61,25 +69,25 @@ class DiscoursePrefilledMessage {
 			$groupname = '';
 		}
 
-		$message_url = $this->base_url . '/new-message';
+		$message_path = '/new-message';
 		if ( $username ) {
-			$message_url = urlencode(
+			$message_path = urlencode(
 				add_query_arg(
 					array(
 						'username' => $username,
 						'title' => $title,
 						'body' => $message,
-					), $message_url
+					), $message_path
 				)
 			);
 		} else {
-			$message_url = urlencode(
+			$message_path = urlencode(
 				add_query_arg(
 					array(
 						'groupname' => $groupname,
 						'title' => $title,
 						'body' => $message,
-					), $message_url
+					), $message_path
 				)
 			);
 		}
@@ -87,9 +95,10 @@ class DiscoursePrefilledMessage {
 		$message_attributes = array(
 			'link_text' => $link_text,
 			'classes' => $classes,
-			'login' => 'true',
-			'return_path' => $message_url,
+			'path' => $message_path,
+			'sso' => 'true',
 		);
+
 
 		return $this->discourse_link->get_discourse_link( $message_attributes );
 	}
