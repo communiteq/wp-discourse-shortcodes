@@ -78,7 +78,54 @@ i.icon-heart {
 	padding-left: 2px;
 }
 
-/* Tiled topic list. */
+/********************
+ *
+ * Base Group styles.
+ *
+ ********************/
+
+/* Could be overwritten to be a multiple of the line-height. */
+.wpds-group {
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.wpds-group-image {
+    padding-bottom: 0.75rem;
+}
+
+img.wpds-group-avatar {
+    max-height: 38px;
+    width: auto;
+    float: left;
+    padding-right: 6px;
+}
+
+/* Vertically center the text. */
+span.wpds-member-number {
+    line-height: 38px;
+}
+
+/* Clearfix for floated avatar. */
+.wpds-metadata:after {
+    display: table;
+    content: "";
+    clear: both;
+}
+
+.wpds-group-description {
+    margin-bottom: 1.5rem;
+>>>>>>> 475d86b121c4b92b595a66d28762f3a93fd9faaa
+}
+
+/**************************************************
+ *
+ * Tiles - tiled styles for topic lists and groups.
+ *
+ **************************************************/
+
+/* Tile base styles. */
+
 /* Allows left and right margins on the tiles to be ignored on wrappers edge. */
 .wpds-tile-wrapper {
 	margin-left: -20px;

@@ -30,7 +30,7 @@ class DiscourseTopics {
 	protected $options;
 
 	/**
-	 * The Discourse forum url.
+	 * The Discourse forum URL.
 	 *
 	 * @access protected
 	 * @var string
