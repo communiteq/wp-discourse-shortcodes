@@ -37,7 +37,6 @@ a.wpds-button:active {
 	color: #ffffff;
 }
 
-
 /* Topic list styles */
 .wpds-topiclist {
 	list-style: none;
@@ -188,7 +187,7 @@ ul.wpds-tile {
 	justify-content: center;
 }
 
-ul.wpds-tile li.wpds-topic {
+.wpds-tile .wpds-topic {
 	position: relative;
 	padding-left: 12px;
 	padding-right: 12px;
@@ -197,16 +196,16 @@ ul.wpds-tile li.wpds-topic {
 	border-bottom: 1px solid #c3c3c3;
 }
 
-ul.wpds-tile .wpds-topiclist header {
+.wpds-tile .wpds-topiclist header {
 	line-height: 1.35;
 	margin-bottom: 7px;
 }
 
-ul.wpds-tile .wpds-topiclist-footer-meta {
+.wpds-tile .wpds-topiclist-footer-meta {
 	line-height: 44px;
 }
 
-ul.wpds-tile .wpds-topiclist-footer-meta:after {
+.wpds-tile .wpds-topiclist-footer-meta:after {
 	content: "";
 	display: table;
 	clear: both;
@@ -230,12 +229,12 @@ ul.wpds-tile .wpds-topiclist-footer-meta:after {
 		position: relative;
 		padding-left: 12px;
 		padding-right: 12px;
-		/*padding-bottom: 1.5rem;*/
 	}
 
 	.wpds-tile .wpds-topic {
-		padding-top: 12px;
 		height: 300px;
+		padding-bottom: 18px;
+		padding-top: 18px;
 	}
 
 	/* This is a hack to force items in an incomplete row to align left. */
@@ -257,12 +256,13 @@ ul.wpds-tile .wpds-topiclist-footer-meta:after {
 	}
 
 	/* Vertically center the text. */
-	.wpds-tile .wpds-topic footer .wpds-topiclist-username {
+	.wpds-tile .wpds-topiclist-footer-meta {
 		line-height: 38px;
 	}
 
-	.wpds-tile .wpds-topic footer .wpds-likes-and-replies {
-		line-height: 38px;
+	.wpds-tile .wpds-topiclist-clamp {
+		padding-bottom: 0.75em;
+		overflow: hidden;
 	}
 
 	.wpds-tile .wpds-topic footer {
@@ -271,9 +271,17 @@ ul.wpds-tile .wpds-topiclist-footer-meta:after {
 		bottom: 0;
 		left: 12px;
 		right: 12px;
-		font-size: 0.8125em;
-		padding-top: 1.5em;
-		padding-bottom: 1.5em;
+		padding-top: 0;
+		padding-bottom: 12px;
+	}
+
+	/* Add colors again here to attempt to keep them from being overridden. */
+	i.icon-heart {
+		color: #c8c8c8;
+	}
+
+	.wpds-has-likes i.icon-heart {
+		color: #fa6c8d;
 	}
 
 	/* Groups */
