@@ -166,7 +166,7 @@ trait Formatter {
 	/**
 	 * Returns either the full topic content, or an excerpt of a given length.
 	 *
-	 * @param string $html The topic html.
+	 * @param string     $html The topic html.
 	 * @param int|string $excerpt_length The excerpt length to return.
 	 *
 	 * @return null|string
@@ -223,12 +223,15 @@ trait Formatter {
 		if ( 'full' === $excerpt_length ) {
 			$excerpt = wp_strip_all_tags( $html );
 		} else {
-			$excerpt = wp_trim_words( wp_strip_all_tags( $html), $excerpt_length );
+			$excerpt = wp_trim_words( wp_strip_all_tags( $html ), $excerpt_length );
 		}
 
 		unset( $doc );
 
-		return array( 'images' => $images, 'description' => $excerpt );
+		return array(
+			'images' => $images,
+			'description' => $excerpt,
+		);
 	}
 
 	/**
@@ -245,7 +248,7 @@ trait Formatter {
 		if ( $image_tags->length ) {
 			foreach ( $image_tags as $image_tag ) {
 				$images[] = $doc->saveHTML( $image_tag );
-				$image_tag->parentNode->removeChild( $image_tag);
+				$image_tag->parentNode->removeChild( $image_tag );
 			}
 		}
 

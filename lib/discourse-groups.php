@@ -88,20 +88,22 @@ class DiscourseGroups {
 	 * @return mixed|string
 	 */
 	public function get_formatted_groups( $args ) {
-		$args   = shortcode_atts( array(
-			'group_list'           => '',
-			'link_open_text'       => 'Join the',
-			'link_close_text'      => '',
-			'sso'                  => 'false',
-			'tile'                 => 'false',
-			'show_description'  => 'true',
-			'show_images'       => 'true',
-			'excerpt_length'       => 55,
-			'show_header_metadata' => 'true',
-			'show_join_link'        => 'true',
-			'add_button_styles' => 'true',
-			'id' => null,
-		), $args );
+		$args   = shortcode_atts(
+			array(
+				'group_list'           => '',
+				'link_open_text'       => 'Join the',
+				'link_close_text'      => '',
+				'sso'                  => 'false',
+				'tile'                 => 'false',
+				'show_description'  => 'true',
+				'show_images'       => 'true',
+				'excerpt_length'       => 55,
+				'show_header_metadata' => 'true',
+				'show_join_link'        => 'true',
+				'add_button_styles' => 'true',
+				'id' => null,
+			), $args
+		);
 		$groups = $this->get_discourse_groups( $args );
 
 		if ( empty( $groups ) || is_wp_error( $groups ) ) {

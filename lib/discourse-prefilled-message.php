@@ -102,7 +102,6 @@ class DiscoursePrefilledMessage {
 			'sso' => 'true',
 		);
 
-
 		return $this->discourse_link->get_discourse_link( $message_attributes );
 	}
 

@@ -29,7 +29,7 @@ class DiscourseGroupsShortcode {
 
 		$groups = $this->discourse_groups->get_formatted_groups( $args );
 
-		if ( is_wp_error( $groups )) {
+		if ( is_wp_error( $groups ) ) {
 
 			return '';
 		}

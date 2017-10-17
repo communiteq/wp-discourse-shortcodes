@@ -57,12 +57,14 @@ class DiscourseLink {
 	 * @return string
 	 */
 	public function get_discourse_link( $args ) {
-		$args = shortcode_atts( array(
-			'link_text' => 'Visit our Forum',
-			'path'      => '/',
-			'classes'   => '',
-			'sso'       => 'false',
-		), $args );
+		$args = shortcode_atts(
+			array(
+				'link_text' => 'Visit our Forum',
+				'path'      => '/',
+				'classes'   => '',
+				'sso'       => 'false',
+			), $args
+		);
 
 		$url = $this->get_url( $args['path'], $args['sso'] );
 

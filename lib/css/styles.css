@@ -1,23 +1,23 @@
 /* General styles. */
 a.wpds-button {
-    background: #3498db;
-    background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
-    background-image: -moz-linear-gradient(top, #3498db, #2980b9);
-    background-image: -ms-linear-gradient(top, #3498db, #2980b9);
-    background-image: -o-linear-gradient(top, #3498db, #2980b9);
-    background-image: linear-gradient(to bottom, #3498db, #2980b9);
-    border-radius: 3px;
-    color: #ffffff;
-    font-size: 1rem;
-    padding-top: 0.75rem;
-    padding-right: 1.5rem;
-    padding-bottom: 0.75rem;
-    width: 100%;
-    padding-left: 1.5rem;
-    text-align: center;
-    text-decoration: none;
-    box-shadow: none;
-    display: inline-block;
+	background: #3498db;
+	background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
+	background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+	background-image: -ms-linear-gradient(top, #3498db, #2980b9);
+	background-image: -o-linear-gradient(top, #3498db, #2980b9);
+	background-image: linear-gradient(to bottom, #3498db, #2980b9);
+	border-radius: 3px;
+	color: #ffffff;
+	font-size: 1rem;
+	padding-top: 0.75rem;
+	padding-right: 1.5rem;
+	padding-bottom: 0.75rem;
+	width: 100%;
+	padding-left: 1.5rem;
+	text-align: center;
+	text-decoration: none;
+	box-shadow: none;
+	display: inline-block;
 }
 
 .entry-content a.wpds-button:focus,
@@ -26,15 +26,15 @@ a.wpds-button {
 a.wpds-button:focus,
 a.wpds-button:hover,
 a.wpds-button:active {
-    background: #3cb0fd;
-    background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
-    background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
-    background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
-    background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
-    background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
-    text-decoration: none;
-    box-shadow: none;
-    color: #ffffff;
+	background: #3cb0fd;
+	background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+	background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+	background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
+	background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+	background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+	text-decoration: none;
+	box-shadow: none;
+	color: #ffffff;
 }
 
 
@@ -126,35 +126,35 @@ i.icon-heart {
 
 /* Could be overwritten to be a multiple of the line-height. */
 .wpds-group {
-    padding-bottom: 1.5rem;
-    margin-bottom: 1.5rem;
+	padding-bottom: 1.5rem;
+	margin-bottom: 1.5rem;
 }
 
 .wpds-group-image {
-    padding-bottom: 0.75rem;
+	padding-bottom: 0.75rem;
 }
 
 img.wpds-group-avatar {
-    max-height: 38px;
-    width: auto;
-    float: left;
-    padding-right: 6px;
+	max-height: 38px;
+	width: auto;
+	float: left;
+	padding-right: 6px;
 }
 
 /* Vertically center the text. */
 span.wpds-member-number {
-    line-height: 38px;
+	line-height: 38px;
 }
 
 /* Clearfix for floated avatar. */
 .wpds-metadata:after {
-    display: table;
-    content: "";
-    clear: both;
+	display: table;
+	content: "";
+	clear: both;
 }
 
 .wpds-group-description {
-    margin-bottom: 1.5rem;
+	margin-bottom: 1.5rem;
 }
 
 /**************************************************
@@ -174,18 +174,18 @@ span.wpds-member-number {
 /* The flex container. */
 div.wpds-tile,
 ul.wpds-tile {
-    margin: 0;
-    padding: 0;
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-orient: horizontal;
-    -webkit-box-direction: normal;
-    -ms-flex-flow: row wrap;
-    flex-flow: row wrap;
-    -webkit-box-pack: center;
-    -ms-flex-pack: center;
-    justify-content: center;
+	margin: 0;
+	padding: 0;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: horizontal;
+	-webkit-box-direction: normal;
+	-ms-flex-flow: row wrap;
+	flex-flow: row wrap;
+	-webkit-box-pack: center;
+	-ms-flex-pack: center;
+	justify-content: center;
 }
 
 ul.wpds-tile li.wpds-topic {
@@ -215,90 +215,90 @@ ul.wpds-tile .wpds-topiclist-footer-meta:after {
 /* Create tiles for widths > 370px. */
 @media screen and (min-width: 370px) {
 
-    /*The width height and margin values set here are fairly arbitrary - can be overridden in a separate stylesheet. */
-    .wpds-tile .wpds-group,
-    ul.wpds-tile li.wpds-topic {
-        -webkit-box-flex: 0;
-        -ms-flex: none;
-        flex: none;
-        width: 300px;
-        margin-left: 20px;
-        margin-right: 20px;
-        margin-bottom: 40px;
-        border: 1px solid #cccccc;
-        border-radius: 3px;
-        position: relative;
-        padding-left: 12px;
-        padding-right: 12px;
-        /*padding-bottom: 1.5rem;*/
-    }
+	/*The width height and margin values set here are fairly arbitrary - can be overridden in a separate stylesheet. */
+	.wpds-tile .wpds-group,
+	ul.wpds-tile li.wpds-topic {
+		-webkit-box-flex: 0;
+		-ms-flex: none;
+		flex: none;
+		width: 300px;
+		margin-left: 20px;
+		margin-right: 20px;
+		margin-bottom: 40px;
+		border: 1px solid #cccccc;
+		border-radius: 3px;
+		position: relative;
+		padding-left: 12px;
+		padding-right: 12px;
+		/*padding-bottom: 1.5rem;*/
+	}
 
-    .wpds-tile .wpds-topic {
-        padding-top: 12px;
-        height: 300px;
-    }
+	.wpds-tile .wpds-topic {
+		padding-top: 12px;
+		height: 300px;
+	}
 
-    /* This is a hack to force items in an incomplete row to align left. */
-    .wpds-tile:after {
-        content: "";
-        -webkit-box-flex: 0;
-        -ms-flex: 0 0 680px;
-        flex: 0 0 680px;
-    }
+	/* This is a hack to force items in an incomplete row to align left. */
+	.wpds-tile:after {
+		content: "";
+		-webkit-box-flex: 0;
+		-ms-flex: 0 0 680px;
+		flex: 0 0 680px;
+	}
 
-    /* Topic Lists */
+	/* Topic Lists */
 
-    .wpds-tile .wpds-latest-avatar {
-        position: static;
-        float: left;
-        width: 38px;
-        height: 38px;
-        margin-right: 6px;
-    }
+	.wpds-tile .wpds-latest-avatar {
+		position: static;
+		float: left;
+		width: 38px;
+		height: 38px;
+		margin-right: 6px;
+	}
 
-    /* Vertically center the text. */
-    .wpds-tile .wpds-topic footer .wpds-topiclist-username {
-        line-height: 38px;
-    }
+	/* Vertically center the text. */
+	.wpds-tile .wpds-topic footer .wpds-topiclist-username {
+		line-height: 38px;
+	}
 
-    .wpds-tile .wpds-topic footer .wpds-likes-and-replies {
-        line-height: 38px;
-    }
+	.wpds-tile .wpds-topic footer .wpds-likes-and-replies {
+		line-height: 38px;
+	}
 
-    .wpds-tile .wpds-topic footer {
-        background-color: #ffffff;
-        position: absolute;
-        bottom: 0;
-        left: 12px;
-        right: 12px;
-        font-size: 0.8125em;
-        padding-top: 1.5em;
-        padding-bottom: 1.5em;
-    }
+	.wpds-tile .wpds-topic footer {
+		background-color: #ffffff;
+		position: absolute;
+		bottom: 0;
+		left: 12px;
+		right: 12px;
+		font-size: 0.8125em;
+		padding-top: 1.5em;
+		padding-bottom: 1.5em;
+	}
 
-    /* Groups */
-    .wpds-tile .wpds-group-image {
-        /* Extend the image past the tile's padding. */
-        margin-left: -12px;
-        margin-right: -12px;
-        margin-bottom: 0.75rem;
-        max-height: 185px;
-        overflow: hidden;
-    }
+	/* Groups */
+	.wpds-tile .wpds-group-image {
+		/* Extend the image past the tile's padding. */
+		margin-left: -12px;
+		margin-right: -12px;
+		margin-bottom: 0.75rem;
+		max-height: 185px;
+		overflow: hidden;
+	}
 
-    .wpds-tile .wpds-group-description {
-        /* The footer is positioned absolutely, give it some room. */
-        padding-bottom: 2.5rem;
-        overflow: hidden;
-    }
+	.wpds-tile .wpds-group-description {
+		/* The footer is positioned absolutely, give it some room. */
+		padding-bottom: 2.5rem;
+		overflow: hidden;
+	}
 
-    .wpds-tile .wpds-group footer {
-        background-color: #ffffff;
-        position: absolute;
-        bottom: 1.5rem;
-        left: 12px;
-        right: 12px;
-    }
+	.wpds-tile .wpds-group footer {
+		background-color: #ffffff;
+		position: absolute;
+		bottom: 1.5rem;
+		left: 12px;
+		right: 12px;
+	}
 }
 
 .wpds-tile .wpds-likes-and-replies {
