@@ -114,6 +114,8 @@ class DiscourseTopicFormatter {
 									// For forums hosted by discourse.org the letter avatar template is an absolute link.
 									if ( ! preg_match( '/^http/', $avatar_template ) ) {
 										$poster_avatar_url = $this->options['url'] . $avatar_template;
+									} else {
+										$poster_avatar_url = $avatar_template;
 									}
 								}
 							}
@@ -154,9 +156,9 @@ class DiscourseTopicFormatter {
 					$output .= '<footer>';
 					$output .= '<div class="wpds-topiclist-footer-meta">';
 					if ( 'true' === $args['display_avatars'] ) {
-						$avatar_image = '<img class="wpds-latest-avatar" src="' . esc_url( $poster_avatar_url ) . '">';
+						$avatar_image = '<img class="wpds-latest-avatar" src="' . esc_url_raw( $poster_avatar_url ) . '">';
 
-						$output .= apply_filters( 'wpds_topiclist_avatar', $avatar_image, esc_url( $poster_avatar_url ) );
+						$output .= apply_filters( 'wpds_topiclist_avatar', $avatar_image, esc_url_raw( $poster_avatar_url ) );
 					}
 					if ( 'bottom' === $args['username_position'] ) {
 						$output .= '<span class="wpds-topiclist-username">' . esc_html( $poster_username ) . '</span>';
