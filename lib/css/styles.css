@@ -1,0 +1,320 @@
+/* General styles. */
+a.wpds-button {
+    background: #3498db;
+    background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
+    background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+    background-image: -ms-linear-gradient(top, #3498db, #2980b9);
+    background-image: -o-linear-gradient(top, #3498db, #2980b9);
+    background-image: linear-gradient(to bottom, #3498db, #2980b9);
+    border-radius: 3px;
+    color: #ffffff;
+    font-size: 1rem;
+    padding-top: 0.75rem;
+    padding-right: 1.5rem;
+    padding-bottom: 0.75rem;
+    width: 100%;
+    padding-left: 1.5rem;
+    text-align: center;
+    text-decoration: none;
+    box-shadow: none;
+    display: inline-block;
+}
+
+.entry-content a.wpds-button:focus,
+.entry-content a.wpds-button:hover,
+.entry-content a.wpds-button:active,
+a.wpds-button:focus,
+a.wpds-button:hover,
+a.wpds-button:active {
+    background: #3cb0fd;
+    background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+    background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+    background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
+    background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+    background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+    text-decoration: none;
+    box-shadow: none;
+    color: #ffffff;
+}
+
+
+/* Topic list styles */
+.wpds-topiclist {
+	list-style: none;
+}
+
+/* Left padding gives space for the avatar. */
+.wpds-topiclist .wpds-topic {
+	position: relative;
+	padding-left: 56px;
+	padding-bottom: 1.5em;
+}
+/* Position absolutely in space added by .wpds-topic padding. */
+.wpds-latest-avatar {
+	border-radius: 50%;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.wpds-topic {
+	font-size: 0.8125em;
+}
+
+/* Used for terms like 'posted on'. */
+.wpds-term {
+	font-style: italic;
+}
+
+.wpds-topiclist header {
+	margin-bottom: 4px;
+}
+
+/* Remove margin and padding so meta-data can go directly above and beneath title. */
+.wpds-topiclist .wpds-topic h4.wpds-topic-title {
+	margin-bottom: 0;
+	padding-top: 0;
+}
+
+/* Remove any default decoration on the title link. */
+.wpds-topiclist .wpds-topic h4.wpds-topic-title a,
+.wpds-topiclist .wpds-topic a.wpds-topiclist-reply-link {
+	text-decoration: none;
+	box-shadow: none;
+}
+
+.wpds-topiclist .wpds-topic h4.wpds-topic-title a:hover {
+	text-decoration: inherit;
+	box-shadow: inherit;
+}
+
+.wpds-topiclist-content {
+	padding-bottom: 8px;
+}
+
+.wpds-topiclist-footer-meta {
+	line-height: 1.35;
+}
+
+span.wpds-likes-and-replies {
+	display: inline-block;
+}
+
+.wpds-topiclist .wpds-topic a.wpds-topiclist-reply-link {
+	padding-left: 4px;
+	padding-right: 4px;
+}
+
+i.icon-heart {
+	color: #c8c8c8;
+}
+
+.wpds-has-likes i.icon-heart {
+	color: #fa6c8d;
+}
+
+/* Some padding before the category badge. */
+.wpds-shortcode-category {
+	padding-left: 2px;
+}
+
+/********************
+ *
+ * Base Group styles.
+ *
+ ********************/
+
+/* Could be overwritten to be a multiple of the line-height. */
+.wpds-group {
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.wpds-group-image {
+    padding-bottom: 0.75rem;
+}
+
+img.wpds-group-avatar {
+    max-height: 38px;
+    width: auto;
+    float: left;
+    padding-right: 6px;
+}
+
+/* Vertically center the text. */
+span.wpds-member-number {
+    line-height: 38px;
+}
+
+/* Clearfix for floated avatar. */
+.wpds-metadata:after {
+    display: table;
+    content: "";
+    clear: both;
+}
+
+.wpds-group-description {
+    margin-bottom: 1.5rem;
+}
+
+/**************************************************
+ *
+ * Tiles - tiled styles for topic lists and groups.
+ *
+ **************************************************/
+
+/* Tile base styles. */
+
+/* Allows left and right margins on the tiles to be ignored on wrappers edge. */
+.wpds-tile-wrapper {
+	margin-left: -20px;
+	margin-right: -20px;
+}
+
+/* The flex container. */
+div.wpds-tile,
+ul.wpds-tile {
+    margin: 0;
+    padding: 0;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -ms-flex-flow: row wrap;
+    flex-flow: row wrap;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+}
+
+ul.wpds-tile li.wpds-topic {
+	position: relative;
+	padding-left: 12px;
+	padding-right: 12px;
+	padding-bottom: 1.5em;
+	padding-top: 1.5em;
+	border-bottom: 1px solid #c3c3c3;
+}
+
+ul.wpds-tile .wpds-topiclist header {
+	line-height: 1.35;
+	margin-bottom: 7px;
+}
+
+ul.wpds-tile .wpds-topiclist-footer-meta {
+	line-height: 44px;
+}
+
+ul.wpds-tile .wpds-topiclist-footer-meta:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+/* Create tiles for widths > 370px. */
+@media screen and (min-width: 370px) {
+
+    /*The width height and margin values set here are fairly arbitrary - can be overridden in a separate stylesheet. */
+    .wpds-tile .wpds-group,
+    ul.wpds-tile li.wpds-topic {
+        -webkit-box-flex: 0;
+        -ms-flex: none;
+        flex: none;
+        width: 300px;
+        margin-left: 20px;
+        margin-right: 20px;
+        margin-bottom: 40px;
+        border: 1px solid #cccccc;
+        border-radius: 3px;
+        position: relative;
+        padding-left: 12px;
+        padding-right: 12px;
+        /*padding-bottom: 1.5rem;*/
+    }
+
+    .wpds-tile .wpds-topic {
+        padding-top: 12px;
+        height: 300px;
+    }
+
+    /* This is a hack to force items in an incomplete row to align left. */
+    .wpds-tile:after {
+        content: "";
+        -webkit-box-flex: 0;
+        -ms-flex: 0 0 680px;
+        flex: 0 0 680px;
+    }
+
+    /* Topic Lists */
+
+    .wpds-tile .wpds-latest-avatar {
+        position: static;
+        float: left;
+        width: 38px;
+        height: 38px;
+        margin-right: 6px;
+    }
+
+    /* Vertically center the text. */
+    .wpds-tile .wpds-topic footer .wpds-topiclist-username {
+        line-height: 38px;
+    }
+
+    .wpds-tile .wpds-topic footer .wpds-likes-and-replies {
+        line-height: 38px;
+    }
+
+    .wpds-tile .wpds-topic footer {
+        background-color: #ffffff;
+        position: absolute;
+        bottom: 0;
+        left: 12px;
+        right: 12px;
+        font-size: 0.8125em;
+        padding-top: 1.5em;
+        padding-bottom: 1.5em;
+    }
+
+    /* Groups */
+    .wpds-tile .wpds-group-image {
+        /* Extend the image past the tile's padding. */
+        margin-left: -12px;
+        margin-right: -12px;
+        margin-bottom: 0.75rem;
+        max-height: 185px;
+        overflow: hidden;
+    }
+
+    .wpds-tile .wpds-group-description {
+        /* The footer is positioned absolutely, give it some room. */
+        padding-bottom: 2.5rem;
+        overflow: hidden;
+    }
+
+    .wpds-tile .wpds-group footer {
+        background-color: #ffffff;
+        position: absolute;
+        bottom: 1.5rem;
+        left: 12px;
+        right: 12px;
+    }
+}
+
+.wpds-tile .wpds-likes-and-replies {
+	float: right;
+}
+
+.wpds-tile .wpds-latest-avatar {
+	position: static;
+	float: left;
+}
+
+.wpds-tile .wpds-topiclist-username {
+	padding-left: 6px;
+}
+
+/* Ajax loader. Added when topics are being loaded with ajax. */
+.wpds-topic-list-wrapper.wpds-ajax-loading {
+	/* Do something... */
+}
