@@ -308,7 +308,7 @@ ul.wpds-tile .wpds-topiclist-footer-meta:after {
 	float: left;
 }
 
-.wpds-topiclist-username {
+.wpds-tile .wpds-topiclist-username {
 	padding-left: 6px;
 }
 

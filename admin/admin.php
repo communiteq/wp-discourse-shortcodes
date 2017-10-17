@@ -265,7 +265,7 @@ class Admin {
 		<ul>
              <li><code>[discourse_topics]</code> <em> - displays a Discourse topic list</em></li>
 			<br>
-            <li><code>[discourse_groups]</code> <em> - displays a Discourse groups</em></li>
+            <li><code>[discourse_groups]</code> <em> - displays a list of Discourse groups</em></li>
             <br>
             <li><code>[discourse_link]</code> <em>- links to a Discourse route</em></li>
             <br>
