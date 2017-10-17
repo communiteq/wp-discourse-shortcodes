@@ -162,9 +162,9 @@ class Admin {
 
 		add_settings_field(
 			'wpds_topic_content', __( 'Retrieve Post Content', 'wpds' ), array(
-			$this,
-			'topic_content_checkbox',
-		), 'wpds_options', 'wpds_settings_section'
+				$this,
+				'topic_content_checkbox',
+			), 'wpds_options', 'wpds_settings_section'
 		);
 
 		add_settings_field(
@@ -263,31 +263,31 @@ class Admin {
 			<em>The following shortcodes are available:</em>
 		</p>
 		<ul>
-             <li><code>[discourse_topics]</code> <em> - displays a Discourse topic list</em></li>
+			 <li><code>[discourse_topics]</code> <em> - displays a Discourse topic list</em></li>
 			<br>
-            <li><code>[discourse_groups]</code> <em> - displays a list of Discourse groups</em></li>
-            <br>
-            <li><code>[discourse_link]</code> <em>- links to a Discourse route</em></li>
-            <br>
+			<li><code>[discourse_groups]</code> <em> - displays a list of Discourse groups</em></li>
+			<br>
+			<li><code>[discourse_link]</code> <em>- links to a Discourse route</em></li>
+			<br>
 		</ul>
 
-        <p><em>
-                As long as you have configured the WP Discourse plugin's Connection settings, all of the shortcodes
-                will give some output without your having to supply any attributes. See the <a href="https://github.com/scossar/wp-discourse-shortcodes">docs</a>
-                for details about the attributes available for each shortcode.
-            </em>
-        </p>
-        <p>
-            <em>
-                Feel free to raise any issues you have with the plugin on <a href="https://github.com/scossar/wp-discourse-shortcodes/issues">GitHub</a>.
-            </em>
-        </p>
-        <p>
-            <em>
-                The settings below are all for the discourse_topics shortcode
-            </em>
-        </p>
-        <h3>Discourse Topics Shortcode options</h3>
+		<p><em>
+				As long as you have configured the WP Discourse plugin's Connection settings, all of the shortcodes
+				will give some output without your having to supply any attributes. See the <a href="https://github.com/scossar/wp-discourse-shortcodes">docs</a>
+				for details about the attributes available for each shortcode.
+			</em>
+		</p>
+		<p>
+			<em>
+				Feel free to raise any issues you have with the plugin on <a href="https://github.com/scossar/wp-discourse-shortcodes/issues">GitHub</a>.
+			</em>
+		</p>
+		<p>
+			<em>
+				The settings below are all for the discourse_topics shortcode
+			</em>
+		</p>
+		<h3>Discourse Topics Shortcode options</h3>
 		<?php
 	}
 
@@ -336,44 +336,58 @@ class Admin {
 	 * Displays the ajax_load_checkbox field.
 	 */
 	public function ajax_load_checkbox() {
-		$this->form_helper->checkbox_input( 'wpds_ajax_refresh', 'wpds_options', __( 'Use an ajax request to load topics on the front end.', 'wpds' ),
-            __( "Enable this if caching on your WordPress site is preventing the 'latest' topic list from being updated.", 'wpds' ) );
+		$this->form_helper->checkbox_input(
+			'wpds_ajax_refresh', 'wpds_options', __( 'Use an ajax request to load topics on the front end.', 'wpds' ),
+			__( "Enable this if caching on your WordPress site is preventing the 'latest' topic list from being updated.", 'wpds' )
+		);
 	}
 
 	/**
 	 * Displays the display_private_topics checkbox field.
 	 */
 	public function display_private_topics_checkbox() {
-		$this->form_helper->checkbox_input( 'wpds_display_private_topics', 'wpds_options', __( 'Display private topics in topic list.', 'wpds' ),
-            __( 'By default, private topics are ignored.', 'wpds' ) );
+		$this->form_helper->checkbox_input(
+			'wpds_display_private_topics', 'wpds_options', __( 'Display private topics in topic list.', 'wpds' ),
+			__( 'By default, private topics are ignored.', 'wpds' )
+		);
 	}
 
 	/**
 	 * Displays the use_default_styles_checkbox field.
 	 */
 	public function use_default_styles_checkbox() {
-		$this->form_helper->checkbox_input( 'wpds_use_default_styles', 'wpds_options', __( 'Use the default plugin styles.', 'wpds' ),
-            __( "The plugin comes with some basic styles that can be used as a starting point for your site. If enabled, adding the attribute
-            'tile=true' to either the discourse_topics or discourse_groups shortcode will cause their output to be displayed as a tiled grid.", 'wpds') );
+		$this->form_helper->checkbox_input(
+			'wpds_use_default_styles', 'wpds_options', __( 'Use the default plugin styles.', 'wpds' ),
+			__(
+				"The plugin comes with some basic styles that can be used as a starting point for your site. If enabled, adding the attribute
+            'tile=true' to either the discourse_topics or discourse_groups shortcode will cause their output to be displayed as a tiled grid.", 'wpds'
+			)
+		);
 	}
 
 	/**
 	 * Displays the vertical_ellipsis checkbox field.
 	 */
 	public function vertical_ellipsis_checkbox() {
-		$this->form_helper->checkbox_input( 'wpds_vertical_ellipsis', 'wpds_options', __( "Use the plugin's vertical_ellipsis javascript to truncate overflowing text content", 'wpds' ),
-            "The height of the output from the Discourse topic list is unpredictable. If you give the 'li.wpds-topic' a fixed height, or use the default
+		$this->form_helper->checkbox_input(
+			'wpds_vertical_ellipsis', 'wpds_options', __( "Use the plugin's vertical_ellipsis javascript to truncate overflowing text content", 'wpds' ),
+			"The height of the output from the Discourse topic list is unpredictable. If you give the 'li.wpds-topic' a fixed height, or use the default
              css with 'tile=true' as an attribute, this javascript will truncate the text so that it fits in the container. For efficiency reasons,
-             it's best to try and get the excerpt length to match it's containers height.");
+             it's best to try and get the excerpt length to match it's containers height."
+		);
 	}
 
 	/**
 	 * Displays the max_topics input field.
 	 */
 	public function max_topics_input() {
-		$this->form_helper->input( 'wpds_max_topics', 'wpds_options', __( 'Maximum number of topics to retrieve post content for. Set it to the
+		$this->form_helper->input(
+			'wpds_max_topics', 'wpds_options', __(
+				'Maximum number of topics to retrieve post content for. Set it to the
 		largest max_topics value that you are using in any discourse_topics shortcodes on your site. (This setting can be ignored
-		if Retrieve Post Content is not enabled.)', 'wpds' ), 'number', 0 );
+		if Retrieve Post Content is not enabled.)', 'wpds'
+			), 'number', 0
+		);
 	}
 
 	/**
@@ -382,8 +396,10 @@ class Admin {
 	public function topic_content_checkbox() {
 		$this->form_helper->checkbox_input(
 			'wpds_topic_content', 'wpds_options', __( "Retrieve the topic's post content from Discourse.", 'wpds' ),
-			__( "The Discourse topic list doesn't return any post content for a topic. To get the content requires making extra HTTP requests to Discourse.
-			Enabling this setting will allow you to display an excerpt along with each topic in the topic list.", 'wpds' )
+			__(
+				"The Discourse topic list doesn't return any post content for a topic. To get the content requires making extra HTTP requests to Discourse.
+			Enabling this setting will allow you to display an excerpt along with each topic in the topic list.", 'wpds'
+			)
 		);
 	}
 }
