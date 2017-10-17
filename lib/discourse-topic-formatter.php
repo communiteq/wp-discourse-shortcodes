@@ -111,7 +111,10 @@ class DiscourseTopicFormatter {
 								if ( $original_poster_id === $user['id'] ) {
 									$poster_username   = $user['username'];
 									$avatar_template   = str_replace( '{size}', 44, $user['avatar_template'] );
-									$poster_avatar_url = $this->options['url'] . $avatar_template;
+									// For forums hosted by discourse.org the letter avatar template is an absolute link.
+									if ( ! preg_match( '/^http/', $avatar_template ) ) {
+										$poster_avatar_url = $this->options['url'] . $avatar_template;
+									}
 								}
 							}
 						}
