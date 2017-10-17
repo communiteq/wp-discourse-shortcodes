@@ -14,7 +14,7 @@ on your WordPress site. It currently has the following shortcodes:
 
 - `source` - 'latest' or 'top'. Defaults to 'top'.
 - `period` - if 'top' is the source, gives the period for which you would like the top topics. The options are
-'all', 'yearly', 'quarterly', 'monthly', 'weekly', 'daily'. Defaults to 'daily'.
+'all', 'yearly', 'quarterly', 'monthly', 'weekly', 'daily'. Defaults to 'all'.
 - `max_topics` - the maximun number of topics to display. Defaults to 6.
 - `cache_duration` - how long in minutes to cache the topics. Defaults to 10. Overridden for the 'latest'
 route if a webhook is enabled.
