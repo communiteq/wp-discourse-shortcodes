@@ -18,7 +18,6 @@ use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
  * @package WPDiscourse\Shortcodes
  */
 class DiscourseTopics {
-
 	/**
 	 * The merged options from WP Discourse and WP Discourse Shortcodes.
 	 *
@@ -219,7 +218,7 @@ class DiscourseTopics {
 	public function get_topics( $args ) {
 		$args   = shortcode_atts(
 			array(
-				'max_topics'        => 5,
+				'max_topics'        => 6,
 				'cache_duration'    => 10,
 				'display_avatars'   => 'true',
 				'source'            => 'latest',
