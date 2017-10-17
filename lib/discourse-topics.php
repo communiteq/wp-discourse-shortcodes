@@ -222,7 +222,7 @@ class DiscourseTopics {
 				'cache_duration'    => 10,
 				'display_avatars'   => 'true',
 				'source'            => 'latest',
-				'period'            => 'daily',
+				'period'            => 'all',
 				'tile'              => 'false',
 				'excerpt_length'    => null,
 				'username_position' => 'top',
