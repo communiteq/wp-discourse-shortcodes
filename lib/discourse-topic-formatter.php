@@ -60,7 +60,7 @@ class DiscourseTopicFormatter {
 	 */
 	public function format_topics( $discourse_topics, $args ) {
 
-		if ( empty( $this->discourse_url ) || empty( $discourse_topics['topic_list'] ) ) {
+		if ( empty( $this->discourse_url ) || empty( $discourse_topics['topic_list'] || empty( $discourse_topics['topic_list']['topics'] ) ) ) {
 
 			return '';
 		}
