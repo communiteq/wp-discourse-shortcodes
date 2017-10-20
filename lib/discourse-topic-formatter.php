@@ -153,7 +153,7 @@ class DiscourseTopicFormatter {
 					$output = apply_filters( 'wpds_topiclist_above_footer', $output, $topic, $category, $poster_avatar_url, $args );
 					$output .= '</div>'; // End of .wpds-topiclist-clamp.
 
-					$output .= '<footer>';
+					$output .= '<div class="wpds-above-footer"></div><footer>';
 					$output .= '<div class="wpds-topiclist-footer-meta">';
 					if ( 'true' === $args['display_avatars'] ) {
 						$avatar_image = '<img class="wpds-latest-avatar" src="' . esc_url_raw( $poster_avatar_url ) . '">';
