@@ -42,6 +42,7 @@ class DiscourseShortcodes {
 	 */
 	protected $wpds_options = array(
 		'wpds_max_topics' => 6,
+		'wpds_clear_cache' => 0,
 		'wpds_topic_content' => 1,
 		'wpds_display_private_topics' => 0,
 		'wpds_use_default_styles'     => 1,

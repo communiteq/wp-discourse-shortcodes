@@ -58,6 +58,7 @@ class SettingsValidator {
 		add_filter( 'wpdc_validate_wpds_vertical_ellipsis', array( $this, 'validate_checkbox' ) );
 		add_filter( 'wpdc_validate_wpds_topic_webhook_refresh', array( $this, 'validate_webhook_refresh' ) );
 		add_filter( 'wpdc_validate_wpds_ajax_refresh', array( $this, 'validate_ajax_refresh' ) );
+		add_filter( 'wpdc_validate_wpds_clear_cache', array( $this, 'validate_clear_cache' ) );
 	}
 
 	/**
@@ -120,5 +121,21 @@ class SettingsValidator {
 		$this->ajax_refresh = $this->validate_checkbox( $input );
 
 		return $this->ajax_refresh;
+	}
+
+	/**
+	 * Validates the clear_cache checkbox.
+	 *
+	 * The point of this option is to clear the cache for a single request, this function calls an action to
+	 * clear the cache and then returns 0.
+	 *
+	 * @param string|int $input The input to be validated.
+	 *
+	 * @return int
+	 */
+	public function validate_clear_cache( $input ) {
+		do_action( 'wpds_clear_topics_cache' );
+
+		return 0;
 	}
 }
