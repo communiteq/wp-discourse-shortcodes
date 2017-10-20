@@ -167,7 +167,7 @@ class DiscourseTopicFormatter {
 						$output .= '<span class="wpds-shortcode-category">' . $this->discourse_category_badge( $category ) . '</span>';
 					}
 					$output .= '<span class="wpds-likes-and-replies">';
-					$output .= '<span class="wpds-topiclist-likes' . esc_attr( $likes_class ) . '"><i class="icon-heart" aria-hidden="true"></i><span class="wpds-topiclist-like-count">' . esc_attr( $like_count ) . '</span></span>';
+					$output .= '<a class="wpds-topiclist-like-link' . esc_attr( $likes_class ) . '" href="' . esc_url( $topic_url ) . '"><i class="icon-heart" aria-hidden="true"></i><span class="wpds-topiclist-like-count">' . esc_attr( $like_count ) . '</span></a>';
 					$output .= '<a class="wpds-topiclist-reply-link" href="' . esc_url( $topic_url ) . '"><i class="icon-reply" aria-hidden="true"></i><span class="wpds-topiclist-replies">' . esc_attr( $reply_count ) . '</span></a>';
 					$output .= '</div>';
 					$output .= '</footer>';
