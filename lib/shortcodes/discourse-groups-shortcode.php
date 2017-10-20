@@ -1,10 +1,23 @@
 <?php
+/**
+ * Outputs the discourse_groups shortcode.
+ *
+ * @package WPDiscourse\Shortcodes
+ */
 
 namespace WPDiscourse\Shortcodes;
 
+/**
+ * Class DiscourseGroupsShortcode
+ *
+ * @package WPDiscourse\Shortcodes
+ */
 class DiscourseGroupsShortcode {
 
 	/**
+	 * The DiscourseGroups object.
+	 *
+	 * @access protected
 	 * @var DiscourseGroups An instance of DiscourseGroups.
 	 */
 	protected $discourse_groups;
@@ -23,6 +36,7 @@ class DiscourseGroupsShortcode {
 	/**
 	 * Returns the output for the 'discourse_groups' shortcode.
 	 *
+	 * @param array $args The shortcode arguments.
 	 * @return string
 	 */
 	public function discourse_groups( $args ) {

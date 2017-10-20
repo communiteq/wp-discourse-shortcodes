@@ -1,7 +1,17 @@
 <?php
+/**
+ * Outputs the discourse_topics shortcode.
+ *
+ * @package WPDiscourse\Shortcodes
+ */
 
 namespace WPDiscourse\Shortcodes;
 
+/**
+ * Class DiscourseTopicsShortcode
+ *
+ * @package WPDiscourse\Shortcodes
+ */
 class DiscourseTopicsShortcode {
 
 	/**

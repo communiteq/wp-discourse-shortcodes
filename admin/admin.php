@@ -213,9 +213,9 @@ class Admin {
 
 		add_settings_field(
 			'wpds_clear_cache', __( 'Clear Cache', 'wpds' ), array(
-			$this,
-			'ajax_clear_cache_checkbox',
-		), 'wpds_options', 'wpds_settings_section'
+				$this,
+				'ajax_clear_cache_checkbox',
+			), 'wpds_options', 'wpds_settings_section'
 		);
 
 		register_setting( 'wpds_options', 'wpds_options', array( $this->form_helper, 'validate_options' ) );
@@ -416,7 +416,9 @@ class Admin {
 	 * Displays the clear_cache checkbox field.
 	 */
 	public function ajax_clear_cache_checkbox() {
-	    $this->form_helper->checkbox_input( 'wpds_clear_cache', 'wpds_options', __( 'Clear the cached HTML.', 'wpds' ),
-            __( 'The shorcodes plugin caches the HTML that it generates. Checking this box and saving the options will clear the cache.', 'wpds' ) );
-    }
+		$this->form_helper->checkbox_input(
+			'wpds_clear_cache', 'wpds_options', __( 'Clear the cached HTML.', 'wpds' ),
+			__( 'The shorcodes plugin caches the HTML that it generates. Checking this box and saving the options will clear the cache.', 'wpds' )
+		);
+	}
 }

@@ -153,7 +153,7 @@ trait Formatter {
 	 *
 	 * Hook into the 'safe_style_css' filter.
 	 *
-	 * @param $styles
+	 * @param array $styles The array of safe styles.
 	 *
 	 * @return array
 	 */
