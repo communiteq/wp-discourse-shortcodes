@@ -230,6 +230,7 @@ ul.wpds-tile {
 		position: relative;
 		padding-left: 12px;
 		padding-right: 12px;
+		overflow: hidden;
 	}
 
 	.wpds-tile .wpds-topic {
@@ -272,7 +273,7 @@ ul.wpds-tile {
 		bottom: 0;
 		left: 12px;
 		right: 12px;
-		padding-top: 0;
+		padding-top: 12px;
 		padding-bottom: 12px;
 	}
 
