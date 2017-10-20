@@ -15,7 +15,7 @@ namespace WPDiscourse\Shortcodes;
 use \WPDiscourse\Admin\OptionsPage as OptionsPage;
 use \WPDiscourse\Admin\FormHelper as FormHelper;
 
-define( 'WPDS_VERSION', '0.1' );
+define( 'WPDS_VERSION', '0.2' );
 
 add_action( 'plugins_loaded', __NAMESPACE__ . '\\init' );
 /**
