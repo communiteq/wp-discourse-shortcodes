@@ -74,10 +74,10 @@ class DiscourseShortcodes {
 	 */
 	public function plugin_scripts() {
 		if ( ! empty( $this->options['wpds_use_default_styles'] ) ) {
-			wp_register_style( 'wpds_styles', plugins_url( '/css/styles.css', __FILE__ ) );
+			wp_register_style( 'wpds_styles', plugins_url( '/css/styles.css', __FILE__ ), array(), WPDS_VERSION );
 			wp_enqueue_style( 'wpds_styles' );
 
-			wp_register_style( 'fontello_styles', plugins_url( '../assets/fontello/css/fontello.css', __FILE__ ) );
+			wp_register_style( 'fontello_styles', plugins_url( '../assets/fontello/css/fontello.css', __FILE__ ), array(), WPDS_VERSION );
 			wp_enqueue_style( 'fontello_styles' );
 		}
 
