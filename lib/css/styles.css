@@ -105,11 +105,11 @@ a.wpds-likes-and-replies {
 	padding-right: 4px;
 }
 
-.wpds-topiclist .wpds-topic a.wpds-topiclist-like-link i.icon-heart {
+.wpds-topiclist .wpds-topic a.wpds-topiclist-like-link i.iconFT-heart {
 	color: #c8c8c8;
 }
 
-.wpds-topiclist .wpds-topic a.wpds-topiclist-like-link.wpds-has-likes i.icon-heart {
+.wpds-topiclist .wpds-topic a.wpds-topiclist-like-link.wpds-has-likes i.iconFT-heart {
 	color: #fa6c8d;
 }
 
@@ -278,11 +278,11 @@ ul.wpds-tile {
 	}
 
 	/* Add colors again here to attempt to keep them from being overridden. */
-	i.icon-heart {
+	i.iconFT-heart {
 		color: #c8c8c8;
 	}
 
-	.wpds-has-likes i.icon-heart {
+	.wpds-has-likes i.iconFT-heart {
 		color: #fa6c8d;
 	}
 
