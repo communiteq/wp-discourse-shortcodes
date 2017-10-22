@@ -20,7 +20,7 @@
 }
 */
  
- [class^="icon-"]:before, [class*=" icon-"]:before {
+ [class^="iconFT-"]:before, [class*=" iconFT-"]:before {
   font-family: "fontello";
   font-style: normal;
   font-weight: normal;
@@ -55,5 +55,5 @@
   /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
 }
  
-.icon-heart:before { content: '\e800'; } /* '' */
-.icon-reply:before { content: '\f112'; } /* '' */
+.iconFT-heart:before { content: '\e800'; } /* '' */
+.iconFT-reply:before { content: '\f112'; } /* '' */
