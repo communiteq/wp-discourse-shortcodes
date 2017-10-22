@@ -48,7 +48,6 @@ class DiscourseShortcodes {
 		'wpds_use_default_styles'     => 1,
 		'wpds_topic_webhook_refresh'  => 0,
 		'wpds_ajax_refresh'           => 0,
-		'wpds_vertical_ellipsis'      => 0,
 	);
 
 	/**
@@ -81,18 +80,10 @@ class DiscourseShortcodes {
 			wp_enqueue_style( 'fontello_styles' );
 		}
 
-		$ellipsis_js = ! empty( $this->options['wpds_vertical_ellipsis'] );
-
-		if ( $ellipsis_js ) {
-			wp_register_script( 'wpds_ellipsis', plugins_url( '/js/vertical-ellipsis.js', __FILE__ ), array( 'jquery' ), WPDS_VERSION, true );
-			wp_enqueue_script( 'wpds_ellipsis' );
-		}
-
 		if ( ! empty( $this->options['wpds_ajax_refresh'] ) ) {
 			wp_register_script( 'wpds_js', plugins_url( '/js/discourse-latest.js', __FILE__ ), array( 'jquery' ), WPDS_VERSION, true );
 			$data = array(
 				'latestURL' => home_url( '/wp-json/wp-discourse/v1/latest-topics' ),
-				'verticalEllipsis' => $ellipsis_js,
 			);
 			wp_enqueue_script( 'wpds_js' );
 			wp_localize_script( 'wpds_js', 'wpds', $data );

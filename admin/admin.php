@@ -191,13 +191,6 @@ class Admin {
 		);
 
 		add_settings_field(
-			'wpds_vertical_ellipsis', __( 'Truncate Topic Content', 'wpds' ), array(
-				$this,
-				'vertical_ellipsis_checkbox',
-			), 'wpds_options', 'wpds_settings_section'
-		);
-
-		add_settings_field(
 			'wpds_topic_webhook_refresh', __( 'Enable Discourse Webhook', 'wpds' ), array(
 				$this,
 				'webhook_refresh_checkbox',
@@ -371,18 +364,6 @@ class Admin {
 				"The plugin comes with some basic styles that can be used as a starting point for your site. If enabled, adding the attribute
             'tile=true' to either the discourse_topics or discourse_groups shortcode will cause their output to be displayed as a tiled grid.", 'wpds'
 			)
-		);
-	}
-
-	/**
-	 * Displays the vertical_ellipsis checkbox field.
-	 */
-	public function vertical_ellipsis_checkbox() {
-		$this->form_helper->checkbox_input(
-			'wpds_vertical_ellipsis', 'wpds_options', __( "Use the plugin's vertical_ellipsis javascript to truncate overflowing text content", 'wpds' ),
-			"The height of the output from the Discourse topic list is unpredictable. If you give the 'li.wpds-topic' a fixed height, or use the default
-             css with 'tile=true' as an attribute, this javascript will truncate the text so that it fits in the container. For efficiency reasons,
-             it's best to try and get the excerpt length to match it's containers height."
 		);
 	}
 
