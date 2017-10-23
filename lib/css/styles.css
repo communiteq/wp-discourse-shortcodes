@@ -163,14 +163,6 @@ span.wpds-member-number {
  *
  **************************************************/
 
-/* Tile base styles. */
-
-/* Allows left and right margins on the tiles to be ignored on wrappers edge. */
-.wpds-tile-wrapper {
-	margin-left: -20px;
-	margin-right: -20px;
-}
-
 /* The flex container. */
 div.wpds-tile,
 ul.wpds-tile {
@@ -212,6 +204,19 @@ ul.wpds-tile {
 	clear: both;
 }
 
+.wpds-tile .wpds-likes-and-replies {
+	float: right;
+}
+
+.wpds-tile .wpds-latest-avatar {
+	position: static;
+	float: left;
+}
+
+.wpds-tile .wpds-topiclist-username {
+	padding-left: 6px;
+}
+
 /* Create tiles for widths > 370px. */
 @media screen and (min-width: 370px) {
 
@@ -234,12 +239,13 @@ ul.wpds-tile {
 	}
 
 	.wpds-tile .wpds-topic {
-		height: 300px;
-		padding-bottom: 18px;
+		min-height: 300px;
+		/* Give room for the absolutely positioned footer (50px height). */
+		padding-bottom: 50px;
 		padding-top: 18px;
 	}
 
-	/* This is a hack to force items in an incomplete row to align left. */
+	/* This is a hack to force items in an incomplete row to align left. The 680px value will need to be adjusted for specific themes. */
 	.wpds-tile:after {
 		content: "";
 		-webkit-box-flex: 0;
@@ -262,9 +268,8 @@ ul.wpds-tile {
 		line-height: 38px;
 	}
 
-	.wpds-tile .wpds-topiclist-clamp {
-		padding-bottom: 0.75em;
-		overflow: hidden;
+	.wpds-topiclist-content {
+	/*	padding-bottom: 0; */
 	}
 
 	.wpds-tile .wpds-topic footer {
@@ -273,7 +278,6 @@ ul.wpds-tile {
 		bottom: 0;
 		left: 12px;
 		right: 12px;
-		padding-top: 12px;
 		padding-bottom: 12px;
 	}
 
@@ -309,19 +313,6 @@ ul.wpds-tile {
 		left: 12px;
 		right: 12px;
 	}
-}
-
-.wpds-tile .wpds-likes-and-replies {
-	float: right;
-}
-
-.wpds-tile .wpds-latest-avatar {
-	position: static;
-	float: left;
-}
-
-.wpds-tile .wpds-topiclist-username {
-	padding-left: 6px;
 }
 
 /* Ajax loader. Added when topics are being loaded with ajax. */
