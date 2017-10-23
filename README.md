@@ -1,5 +1,11 @@
 ## WP Discourse Shortcodes
 
+
+**Note:** If you are setting the `tile` attribute to 'true' on the `discourse_topics`
+or `discourse_groups` shortcode, expect to see some changes to the default styles
+over the next couple of releases. As of version 0.23, a fixed height is no longer being
+set on the tiles.
+
 The WP Discourse Shortcodes plugin provides a few shortcodes for displaying Discourse content
 on your WordPress site. It currently has the following shortcodes:
 
