@@ -94,8 +94,7 @@ class DiscourseTopicFormatter {
 			foreach ( $topics as $topic ) {
 				if ( $topic_count < $args['max_topics'] && $this->display_topic( $topic ) ) {
 					$topic_url            = $this->options['url'] . "/t/{$topic['slug']}/{$topic['id']}";
-					$created_at           = date_create( get_date_from_gmt( $topic['created_at'] ) );
-					$created_at_formatted = date_format( $created_at, $date_format );
+					$created_at_formatted = mysql2date( $date_format, $topic['created_at'] );
 					$category             = $this->find_discourse_category( $topic );
 					$category_class       = ! empty( $category ) ? ' ' . $category['slug'] : '';
 					$like_count           = $topic['like_count'];
