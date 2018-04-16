@@ -294,9 +294,9 @@ class DiscourseGroups {
 	 * @return array|mixed|null|object
 	 */
 	protected function get_non_automatic_groups() {
-		$groups = get_option( 'wpds_discourse_groups' );
+		$non_automatic_groups = get_option( 'wpds_discourse_groups' );
 
-		if ( empty( $groups ) ) {
+		if ( empty( $non_automatic_groups ) ) {
 
 			if ( empty( $this->base_url ) || empty( $this->api_key ) || empty( $this->api_username ) ) {
 
@@ -306,7 +306,7 @@ class DiscourseGroups {
 				);
 			}
 
-			$groups_url = $this->base_url . '/admin/groups.json';
+			$groups_url = $this->base_url . '/groups.json';
 			$groups_url = esc_url_raw(
 				add_query_arg(
 					array(
@@ -323,20 +323,26 @@ class DiscourseGroups {
 				return new \WP_Error( 'wpds_invalid_response', 'An invalid response was returned when retrieving the Discourse groups.' );
 			}
 
-			$groups               = json_decode( wp_remote_retrieve_body( $response ), true );
-			$non_automatic_groups = [];
+			$body               = json_decode( wp_remote_retrieve_body( $response ), true );
+			if ( ! empty( $body['groups'] ) ) {
+				$groups = $body['groups'];
+				$non_automatic_groups = [];
 
-			foreach ( $groups as $group ) {
-				if ( ! empty( $group ) && empty( $group['automatic'] ) ) {
-					$non_automatic_groups[] = $group;
+				foreach ( $groups as $group ) {
+					if ( ! empty( $group ) && empty( $group['automatic'] ) ) {
+						$non_automatic_groups[] = $group;
+					}
 				}
+
+
+				update_option( 'wpds_discourse_groups', $non_automatic_groups );
+
+				return $non_automatic_groups;
 			}
 
-			$groups = $non_automatic_groups;
-
-			update_option( 'wpds_discourse_groups', $groups );
+			return new \WP_Error( 'wpds_invalid_response', 'An invalid response was returned when trying to retrieve the Discourse groups.' );
 		}
 
-		return $groups;
+		return $non_automatic_groups;
 	}
 }

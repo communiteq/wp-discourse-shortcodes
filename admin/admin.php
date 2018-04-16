@@ -102,8 +102,7 @@ class Admin {
 	public function clear_post_groups_cache( $post_id ) {
 		$current_post = get_post( $post_id );
 		if ( ! empty( $current_post-> post_content ) && has_shortcode( $current_post->post_content, 'discourse_groups' ) ) {
-			delete_transient( 'wpds_groups' );
-			delete_transient( 'wpds_formatted_groups' );
+            $this->clear_groups_cache();
 		}
 
 		return null;
