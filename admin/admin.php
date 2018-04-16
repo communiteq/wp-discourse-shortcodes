@@ -217,7 +217,7 @@ class Admin {
 	 * Adds the latest_topics sub-menu page to the 'wp_discourse_options' menu page.
 	 */
 	public function add_latest_topics_page() {
-		$latest_topics_settings = add_submenu_page(
+		add_submenu_page(
 			// The parent page from the wp-discourse plugin.
 			'wp_discourse_options',
 			__( 'Shortcodes', 'wpds' ),
@@ -265,11 +265,8 @@ class Admin {
 		</p>
 		<ul>
 			 <li><code>[discourse_topics]</code> <em> - displays a Discourse topic list</em></li>
-			<br>
 			<li><code>[discourse_groups]</code> <em> - displays a list of Discourse groups</em></li>
-			<br>
 			<li><code>[discourse_link]</code> <em>- links to a Discourse route</em></li>
-			<br>
 		</ul>
 
 		<p><em>
