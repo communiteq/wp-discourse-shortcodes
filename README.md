@@ -18,7 +18,7 @@ on your WordPress site. It currently has the following shortcodes:
 #### Discourse Topics
 #### Available Attributes
 
-- `source` - 'latest' or 'top'. Defaults to 'top'.
+- `source` - 'latest' or 'top'. Defaults to 'latest'.
 - `period` - if 'top' is the source, gives the period for which you would like the top topics. The options are
 'all', 'yearly', 'quarterly', 'monthly', 'weekly', 'daily'. Defaults to 'all'.
 - `max_topics` - the maximun number of topics to display. Defaults to 6.
