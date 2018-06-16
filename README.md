@@ -38,20 +38,3 @@ period with which topics will be refreshed. Defaults to 2 minutes.
 than one 'discourse_topics' shortcode on your site, and the shortcodes are unique, you need to give
 each 'discourse_topics' shortcode a unique id. Any string will work for the ID. Numbering them is
 probably the most sensible approach. Defaults to 'null'.
-
-
-By default, the `[discourse_topics]` shortcode should produce something like this (with the plugin's
-default styles enabled.)
-
-(Image comming soon)
-
-With the `tile` attribute set to 'true' (`[discourse_topics tile=true]`) it should give you something
-like this.
-
-(Image comming soon)
-
-
-
-
-
-
