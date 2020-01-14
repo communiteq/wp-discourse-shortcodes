@@ -380,19 +380,15 @@ class DiscourseTopics {
 			return new \WP_Error( 'wpds_configuration_error', 'The WP Discourse plugin is not properly configured.' );
 		}
 
-		$topic_url = "{$this->discourse_url}/t/{$topic_id}.json";
-		$topic_url = esc_url_raw(
-			add_query_arg(
-				array(
-					'api_key'      => $this->api_key,
-					'api_username' => $this->api_username,
-				), $topic_url
-			)
-		);
+		$topic_url = esc_url_raw( "{$this->discourse_url}/t/{$topic_id}.json" );
 
 		$response = wp_remote_get(
 			$topic_url, array(
 				'timeout' => 60,
+				'headers' => array(
+					'Api-Key'      => $this->api_key,
+					'Api-Username' => $this->api_username,
+				),
 			)
 		);
 
