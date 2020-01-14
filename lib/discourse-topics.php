@@ -318,21 +318,17 @@ class DiscourseTopics {
 		}
 
 		$topics_url = esc_url_raw( $this->discourse_url . $path );
+		$headers = array();
 
 		if ( ! empty( $this->options['wpds_display_private_topics'] ) ) {
-			$topics_url = esc_url_raw(
-				add_query_arg(
-					array(
-						'api_key'      => $this->api_key,
-						'api_username' => $this->api_username,
-					), $topics_url
-				)
-			);
+			$headers['Api-Key'] = $this->api_key;
+			$headers['Api-Username'] = $this->api_username;
 		}
 
 		$response = wp_remote_get(
 			$topics_url, array(
 				'timeout' => 60,
+				'headers' => $headers,
 			)
 		);
 
