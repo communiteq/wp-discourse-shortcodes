@@ -306,17 +306,17 @@ class DiscourseGroups {
 				);
 			}
 
-			$groups_url = $this->base_url . '/groups.json';
-			$groups_url = esc_url_raw(
-				add_query_arg(
-					array(
-						'api_key'      => $this->api_key,
-						'api_username' => $this->api_username,
-					), $groups_url
-				)
-			);
+			$groups_url = esc_url_raw( $this->base_url . '/groups.json' );
 
-			$response = wp_remote_get( $groups_url );
+			$response = wp_remote_get(
+				$groups_url,
+			    array(
+			    	'headers' => array(
+			    		'Api-Key'      => $this->api_key,
+					    'Api-Username' => $this->api_username,
+				    ),
+			    )
+			);
 
 			if ( ! DiscourseUtilities::validate( $response ) ) {
 
