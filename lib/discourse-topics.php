@@ -197,6 +197,10 @@ class DiscourseTopics {
 			$args['ajax_timeout'] = esc_attr( wp_unslash( $request['ajax_timeout'] ) );
 		}
 
+		if ( ! empty( $request['category'] ) ) {
+			$args['category'] = esc_attr( wp_unslash( $request['category'] ) );
+		}
+
 		// Returns the HTML.
 		$topics = $this->get_topics( $args );
 
@@ -229,6 +233,7 @@ class DiscourseTopics {
 				'category_position' => 'top',
 				'date_position'     => 'top',
 				'ajax_timeout'      => 2,
+				'category'					=> null,
 				'id'                => null,
 			), $args
 		);
@@ -242,8 +247,25 @@ class DiscourseTopics {
 			$period = 'yearly';
 		}
 
-		$source_key = 'latest' === $source ? 'latest' : $period;
-		$path       = 'latest' === $source ? '/latest.json' : "/top/{$period}.json";
+		$source_key 						= 'latest' === $source ? 'latest' : $period;
+		$path       						= 'latest' === $source ? '/latest.json' : "/top/{$period}.json";
+		$supported_query_params = array( 'category' ); 
+		$query_param_args 			= array_filter( $args, function ( $key ) use ( $supported_query_params ) {
+      return in_array($key, $supported_query_params);
+    }, ARRAY_FILTER_USE_KEY);
+
+		if ( count( $query_param_args ) > 0 ) {
+			$path	.= "?";
+			$index = 0;
+			foreach( $query_param_args as $param => $value ) {
+				if ( $index > 0) {
+					$path .= "&";
+				}
+				$path .= "$param=$value";
+				$index++;
+			}
+		}
+
 		// $id is used so that more than one shortcode for a given source can be stored as a transient.
 		$id         = $args['id'] ? $args['id'] : $source_key;
 		// The key under which the topic data transient is saved.
