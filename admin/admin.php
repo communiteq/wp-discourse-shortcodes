@@ -395,7 +395,7 @@ class Admin {
 	public function ajax_clear_cache_checkbox() {
 		$this->form_helper->checkbox_input(
 			'wpds_clear_cache', 'wpds_options', __( 'Clear the cached HTML.', 'wpds' ),
-			__( 'The shorcodes plugin caches the HTML that it generates. Checking this box and saving the options will clear the cache.', 'wpds' )
+			__( 'The shortcodes plugin caches the HTML that it generates. Checking this box and saving the options will clear the cache.', 'wpds' )
 		);
 	}
 }
