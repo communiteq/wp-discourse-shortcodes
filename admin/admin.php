@@ -72,8 +72,8 @@ class Admin {
 		add_action( 'save_post', array( $this, 'clear_post_groups_cache' ) );
 		add_action( 'update_option_wpds_options', array( $this, 'clear_topics_cache' ) );
 		add_action( 'update_option_wpds_options', array( $this, 'clear_groups_cache' ) );
-		// Called from settings-validator.php.
-		add_action( 'wpds_clear_topics_cache', array( $this, 'clear_topics_cache' ) );
+		add_action( 'wpds_clear_topics_cache', array( $this, 'clear_topics_cache' ) ); // Called from settings-validator.php
+		add_action( 'wpds_clear_groups_cache', array( $this, 'clear_groups_cache' ) ); // Called from settings-validator.php
 	}
 
 	/**

@@ -134,7 +134,7 @@ class SettingsValidator {
 	 */
 	public function validate_clear_cache( $input ) {
 		do_action( 'wpds_clear_topics_cache' );
-
+		do_action( 'wpds_clear_groups_cache' );
 		return 0;
 	}
 }
