@@ -31,6 +31,8 @@ class DiscourseTopicsShortcode {
 		$this->discourse_topics = $discourse_topics;
 
 		add_shortcode( 'discourse_topics', array( $this, 'discourse_topics' ) );
+		add_action( 'save_post', array( $this, 'clear_post_topics_cache' ), 1, 3 );
+		add_action( 'wpds_clear_topics_cache', array( $this, 'clear_topics_cache' ) ); // Called from settings-validator.php
 	}
 
 	/**
@@ -49,5 +51,40 @@ class DiscourseTopicsShortcode {
 		}
 
 		return $discourse_topics;
+	}
+
+	/**
+	 * Checks if a discourse_topics shortcode exists in a post that is saved, if so, it calls clear_topics_cache.
+	 *
+	 * @param int $post_id The post_id to check.
+	 *
+	 * @return null
+	 */
+	public function clear_post_topics_cache( $post_id, $post, $update ) {
+		if ( ! empty( $post-> post_content ) && has_shortcode( $post->post_content, 'discourse_topics' ) ) {
+			$this->clear_topics_cache();
+		}
+
+		return null;
+	}
+
+	/**
+	 * Clear topics caches.
+	 *
+	 * Called directly when the wpds options page is saved.
+	 */
+	public function clear_topics_cache() {
+		delete_transient( 'wpds_latest_topics' );
+		delete_transient( 'wpds_latest_topics_html' );
+		delete_transient( 'wpds_all_topics' );
+		delete_transient( 'wpds_all_topics_html' );
+		delete_transient( 'wpds_daily_topics' );
+		delete_transient( 'wpds_daily_topics_html' );
+		delete_transient( 'wpds_monthly_topics' );
+		delete_transient( 'wpds_monthly_topics_html' );
+		delete_transient( 'wpds_quarterly_topics' );
+		delete_transient( 'wpds_quarterly_topics_html' );
+		delete_transient( 'wpds_yearly_topics' );
+		delete_transient( 'wpds_yearly_topics_html' );
 	}
 }
