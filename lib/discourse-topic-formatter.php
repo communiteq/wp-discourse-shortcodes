@@ -129,10 +129,11 @@ class DiscourseTopicFormatter {
 					$output .= '<header>';
 
 					if ( 'top' === $args['username_position'] ) {
-						$output .= '<span class="wpds-topiclist-username">' . esc_html( $poster_username ) . '</span> <span class="wpds-topiclist-username"><span class="wpds-term">' . __( 'posted on ', 'wpds' ) . '</span>';
+						$output .= '<span class="wpds-topiclist-username">' . esc_html( $poster_username ) . '</span> ';
 					}
 
 					if ( 'top' === $args['date_position'] ) {
+						$output .= '<span class="wpds-term">' . __( 'posted on ', 'wpds' ) . '</span>';
 						$output .= '<span class="wpds-created-at">' . esc_html( $created_at_formatted ) . '</span>';
 					}
 
@@ -157,7 +158,11 @@ class DiscourseTopicFormatter {
 						$output .= apply_filters( 'wpds_topiclist_avatar', $avatar_image, esc_url_raw( $poster_avatar_url ) );
 					}
 					if ( 'bottom' === $args['username_position'] ) {
-						$output .= '<span class="wpds-topiclist-username">' . esc_html( $poster_username ) . '</span>';
+						$output .= '<span class="wpds-topiclist-username">' . esc_html( $poster_username ) . '</span> ';
+					}
+					if ( 'bottom' === $args['date_position'] ) {
+						$output .= '<span class="wpds-term">' . __( 'posted on ', 'wpds' ) . '</span>';
+						$output .= '<span class="wpds-created-at">' . esc_html( $created_at_formatted ) . '</span>';
 					}
 					if ( 'bottom' === $args['category_position'] ) {
 						$output .= '<span class="wpds-shortcode-category">' . $this->discourse_category_badge( $category ) . '</span>';
