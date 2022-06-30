@@ -30,22 +30,28 @@ function init() {
 		require_once( __DIR__ . '/lib/discourse-prefilled-message.php' );
 		require_once( __DIR__ . '/lib/discourse-topics.php' );
 		require_once( __DIR__ . '/lib/discourse-groups.php' );
+		require_once( __DIR__ . '/lib/discourse-user.php' );
 		require_once( __DIR__ . '/lib/discourse-topic-formatter.php' );
+		require_once( __DIR__ . '/lib/discourse-user-formatter.php' );
 		require_once( __DIR__ . '/lib/shortcodes/discourse-topics-shortcode.php' );
 		require_once( __DIR__ . '/lib/shortcodes/discourse-groups-shortcode.php' );
 		require_once( __DIR__ . '/lib/shortcodes/discourse-link-shortcode.php' );
 		require_once( __DIR__ . '/lib/shortcodes/discourse-prefilled-message-shortcode.php' );
+		require_once( __DIR__ . '/lib/shortcodes/discourse-user-shortcode.php' );
 
 		new DiscourseShortcodes();
 		$topic_formatter   = new DiscourseTopicFormatter();
+		$user_formatter    = new DiscourseUserFormatter();
 		$discourse_topics  = new DiscourseTopics( $topic_formatter );
 		$discourse_link    = new DiscourseLink();
 		$prefilled_message = new DiscoursePrefilledMessage( $discourse_link );
 		$discourse_groups  = new DiscourseGroups( $discourse_link );
+		$discourse_user    = new DiscourseUser( $user_formatter );
 		new DiscourseLinkShortcode( $discourse_link );
 		new DiscoursePrefilledMessageShortcode( $prefilled_message );
 		new DiscourseTopicsShortcode( $discourse_topics );
 		new DiscourseGroupsShortcode( $discourse_groups );
+		new DiscourseUserShortcode( $discourse_user );
 
 		if ( is_admin() ) {
 			require_once( __DIR__ . '/admin/admin.php' );
