@@ -65,6 +65,7 @@ The WP Discourse Shortcodes plugin provides a few shortcodes for displaying Disc
 | `user` | string | `system` | Discourse username.
 | `avatar_size` | integer | 120 | Avatar size in pixels.
 | `show_name` | boolean | `true` | Show the users name.
+| `show_username` | boolean | `true` | Show the users username.
 
 ### [discourse_users]
 
@@ -77,7 +78,7 @@ The WP Discourse Shortcodes plugin provides a few shortcodes for displaying Disc
 | `asc` | boolean | | Return user list in ascending order.
 | `name` | string | | Filter user list by user name.
 | `username` | string | | Filter user list by user username.
-| `user_field_ids` | string | | Filter user list by user filed ids.
+| `user_field_ids` | string | | Filter user list by user field ids.
 | `plugin_column_ids` | string | | Filter user list by plugin column ids.
 | `page` | integer | | Return page of user list.
 
