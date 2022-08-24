@@ -69,6 +69,8 @@ The WP Discourse Shortcodes plugin provides a few shortcodes for displaying Disc
 
 ### [discourse_users]
 
+All ``discourse_user`` parameters also work with `discourse_users`.
+
 | Parameter  | Type | Default | Description |
 | ------------- | ---- | ---- | ----- |
 | `period` | string | `weekly` | User list period.
