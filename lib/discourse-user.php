@@ -163,7 +163,7 @@ class DiscourseUser {
 
 		if ( $user_atts['avatar_size'] ) {
 			$avatar_path = str_replace( '{size}', $user_atts['avatar_size'], $raw_user->avatar_template );
-			$user_data['avatar_url'] = $this->options['url'] . $avatar_path;
+			$user_data['avatar_url'] = $this->ensure_absolute_url( $avatar_path );
 		}
 
 		if ( $user_atts['show_name'] === "true" ) {
@@ -238,6 +238,14 @@ class DiscourseUser {
 			return array_slice( $users_data, 0, $limit );
 		} else {
 			return $users_data;
+		}
+	}
+
+	protected function ensure_absolute_url( $path_or_url ) {
+		if ( isset( parse_url( $path_or_url )['host'] ) ) {
+			return $path_or_url;
+		} else {
+			return $this->options['url'] . $path_or_url;
 		}
 	}
 }
