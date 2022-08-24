@@ -54,7 +54,9 @@ class DiscourseUserFormatter {
 				$output .= "<img src={$user_data['avatar_url']} class='wpds-avatar'>";
 			}
 
-			$output .= "<div class='wpds-username'>{$user_data['username']}</div>";
+			if ( isset( $user_data['username'] ) ) {
+				$output .= "<div class='wpds-username'>{$user_data['username']}</div>";
+			}
 
 			if ( isset( $user_data['name'] ) ) {
 				$output .= "<span class='wpds-name'>{$user_data['name']}</span>";

@@ -82,9 +82,10 @@ class DiscourseUser {
 	protected function get_user_atts( $args ) {
 		return shortcode_atts(
 			array(
-				'user'        => 'system',
-				'avatar_size' => 120,
-				'show_name'   => true
+				'user'        	=> 'system',
+				'avatar_size' 	=> 120,
+				'show_name'   	=> 'true',
+				'show_username'	=> 'true'
 			), $args
 		);
 	}
@@ -149,16 +150,19 @@ class DiscourseUser {
 
 	protected function map_user_data( $raw_user, $user_atts ) {
 		$user_data = array(
-			'id'       => $raw_user->id,
-			'username' => $raw_user->username
+			'id' => $raw_user->id
 		);
+
+		if ( $user_atts['show_username'] === "true" ) {
+			$user_data['username'] = $raw_user->username;
+		}
 
 		if ( $user_atts['avatar_size'] ) {
 			$avatar_path = str_replace( '{size}', $user_atts['avatar_size'], $raw_user->avatar_template );
 			$user_data['avatar_url'] = $this->options['url'] . $avatar_path;
 		}
 
-		if ( $user_atts['show_name'] ) {
+		if ( $user_atts['show_name'] === "true" ) {
 			$user_data['name'] = $raw_user->name;
 		}
 
