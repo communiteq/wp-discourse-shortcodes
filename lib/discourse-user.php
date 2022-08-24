@@ -102,7 +102,8 @@ class DiscourseUser {
 				'username'            => null,
 				'user_field_ids'      => null,
 				'plugin_column_ids'   => null,
-				'page'                => null
+				'page'                => null,
+				'limit'               => null
 			), $args
 		);
 	}
@@ -111,6 +112,7 @@ class DiscourseUser {
 		$cached_usernames = $this->get_cached_directory_usernames( $users_atts );
 
 		if ( $cached_usernames ) {
+			$cached_usernames = $this->apply_users_limit( $cached_usernames, $users_atts );
 			$cached_users_data = $this->get_cached_users_data( $cached_usernames );
 			$cached_users_data_usernames = array_map( function( $user ) { return $user['username']; }, $cached_users_data );
 			$missing_usernames = array_diff( $cached_usernames, $cached_users_data_usernames );
@@ -123,6 +125,8 @@ class DiscourseUser {
 		}
 
 		$raw_users = $this->request_users_data( $users_atts );
+		$raw_users = $this->apply_users_limit( $raw_users, $users_atts );
+
 		$users_data = array_map( function( $raw_user ) use ( $user_atts ) {
 			return $this->map_user_data( $raw_user, $user_atts );
 		}, $raw_users );
@@ -226,5 +230,14 @@ class DiscourseUser {
 			}
 		}
 		return $suffix;
+	}
+
+	protected function apply_users_limit( $users_data, $users_atts ) {
+		if ( ! empty( $users_atts['limit'] ) ) {
+			$limit = (int) $users_atts['limit'];
+			return array_slice( $users_data, 0, $limit );
+		} else {
+			return $users_data;
+		}
 	}
 }
