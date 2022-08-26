@@ -249,7 +249,7 @@ class DiscourseTopics {
 
 		$source_key 						= 'latest' === $source ? 'latest' : $period;
 		$path       						= 'latest' === $source ? '/latest.json' : "/top/{$period}.json";
-		$supported_query_params = array( 'category' ); 
+		$supported_query_params = array( 'category' );
 		$query_param_args 			= array_filter( $args, function ( $key ) use ( $supported_query_params ) {
       return in_array($key, $supported_query_params);
     }, ARRAY_FILTER_USE_KEY);
