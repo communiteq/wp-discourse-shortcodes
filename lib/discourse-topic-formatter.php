@@ -81,10 +81,11 @@ class DiscourseTopicFormatter {
 			$ajax_class        = $use_ajax ? ' wpds-topiclist-refresh' : '';
 			$tile_class        = 'true' === $args['tile'] ? ' wpds-tile' : '';
 			$source_class      = 'latest' === $source ? ' wpds-latest-topics' : ' wpds-' . $source . '-' . $args['period'] . '-topics';
+			$extra_class       = ' '.$args['class'];
 			$date_format       = ! empty( $this->options['custom-datetime-format'] ) ? $this->options['custom-datetime-format'] : 'Y/m/d';
 
-			$output = '<div class="wpds-tile-wrapper' . esc_attr( $ajax_class ) . '" data-wpds-shortcode-id="' . esc_attr( $args['id'] ) .
-					  '"><ul class="wpds-topiclist' . esc_attr( $tile_class ) . esc_attr( $source_class ) . '">';
+			$output = '<div class="wpds-tile-wrapper' . esc_attr( $ajax_class ) . '" data-wpds-ts="'. time() . '" data-wpds-shortcode-id="' . esc_attr( $args['id'] ) .
+					  '"><ul class="wpds-topiclist' . esc_attr( $tile_class ) . esc_attr( $source_class ) . esc_attr($extra_class) . '">';
 
 			// Renders a div with data attributes that are retrieved by the client.
 			if ( $use_ajax ) {
