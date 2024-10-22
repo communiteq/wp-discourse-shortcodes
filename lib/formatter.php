@@ -128,23 +128,11 @@ trait Formatter {
 	 * @return string
 	 */
 	public function render_topics_shortcode_options( $args ) {
-		$max_topics        = ' data-wpds-maxtopics="' . esc_attr( $args['max_topics'] ) . '"';
-		$cache_duration    = ' data-wpds-cache-duration="' . esc_attr( $args['cache_duration'] ) . '"';
-		$display_avatars   = ' data-wpds-display-avatars="' . esc_attr( $args['display_avatars'] ) . '"';
-		$source            = ' data-wpds-source="' . esc_attr( $args['source'] ) . '"';
-		$period            = ' data-wpds-period="' . esc_attr( $args['period'] ) . '"';
-		$tile              = ' data-wpds-tile="' . esc_attr( $args['tile'] ) . '"';
-		$excerpt_length    = ' data-wpds-excerpt-length="' . esc_attr( $args['excerpt_length'] ) . '"';
-		$username_position = ' data-wpds-username-position="' . esc_attr( $args['username_position'] ) . '"';
-		$category_position = ' data-wpds-category-position="' . esc_attr( $args['category_position'] ) . '"';
-		$date_position     = ' data-wpds-date-position="' . esc_attr( $args['date_position'] ) . '"';
-		$ajax_timeout      = ' data-wpds-ajax-timeout="' . esc_attr( $args['ajax_timeout'] ) . '"';
-		$id                = ' data-wpds-id="' . esc_attr( $args['id'] ) . '"';
-
-		$output = '<div class="wpds-topic-shortcode-options" ' . $max_topics . $cache_duration . $display_avatars . $source .
-				  $period . $tile . $excerpt_length . $username_position . $category_position . $date_position . $ajax_timeout .
-				  $id . '></div>';
-
+		$output = '<div class="wpds-topic-shortcode-options" ';
+		foreach ($args as $argname => $argval) {
+			$output .= sprintf('data-wpds-%s="%s" ', str_replace('_', '-', $argname), esc_attr($argval));
+		}
+		$output .= "></div>";
 		return $output;
 	}
 
