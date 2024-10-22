@@ -233,13 +233,18 @@ class DiscourseTopics {
 				'category_position' => 'top',
 				'date_position'     => 'top',
 				'ajax_timeout'      => 2,
-				'category'					=> null,
+				'category'          => null,
+				'q'                 => null,
 				'id'                => null,
+				'class'             => null,
 			), $args
 		);
 		$time   = time();
-		// The source can be set to either 'latest' or 'top'. If set to anything else it will return topics based on the period.
+
+		// The source can be set to either 'latest' or 'top' or 'filter'.
+		// If set to 'top' it will return topics based on the period.
 		$source = $args['source'];
+
 		// If top is the source, the period is used to select the top correct top page.
 		$period = $args['period'];
 		// Just in case it's been set incorrectly.
@@ -247,12 +252,30 @@ class DiscourseTopics {
 			$period = 'yearly';
 		}
 
-		$source_key 						= 'latest' === $source ? 'latest' : $period;
-		$path       						= 'latest' === $source ? '/latest.json' : "/top/{$period}.json";
 		$supported_query_params = array( 'category' );
-		$query_param_args 			= array_filter( $args, function ( $key ) use ( $supported_query_params ) {
-      return in_array($key, $supported_query_params);
-    }, ARRAY_FILTER_USE_KEY);
+		switch($source) {
+			case 'top':
+				$path = "/top/{$period}.json";
+				$source_key = $period;
+				$topics_data_key = "wpds_{$period}_topics";
+				break;
+			case 'filter':
+				$path = '/filter.json';
+				$supported_query_params = [ 'q' ];
+				$source_key = 'filter';
+				$topics_data_key = 'wpds_filter_topics';
+				break;
+			case 'latest':
+			default:
+				$path = '/latest.json';
+				$source_key = 'latest';
+				$topics_data_key = 'wpds_latest_topics';
+				break;
+		}
+
+		$query_param_args = array_filter( $args, function ( $key ) use ( $supported_query_params ) {
+			return in_array($key, $supported_query_params);
+		}, ARRAY_FILTER_USE_KEY);
 
 		if ( count( $query_param_args ) > 0 ) {
 			$path	.= "?";
@@ -266,13 +289,13 @@ class DiscourseTopics {
 			}
 		}
 
-		// $id is used so that more than one shortcode for a given source can be stored as a transient.
-		$id         = $args['id'] ? $args['id'] : $source_key;
-		// The key under which the topic data transient is saved.
-		$topics_data_key = 'latest' === $source ? 'wpds_latest_topics' : 'wpds_' . $period . '_topics';
-		// The key under which the formatted topics transient is saved.
+		ksort($args);
+		$id = md5(serialize($args));
+		$topics_data_key = "wpds_{$id}";
+		$args['id'] = $id;
 		$formatted_html_key = $topics_data_key . '_html';
 		$sync_key           = $topics_data_key . '_last_sync';
+
 		$last_sync      = get_option( $sync_key );
 		$cache_duration = $args['cache_duration'] * 60;
 
@@ -296,18 +319,15 @@ class DiscourseTopics {
 			}
 
 			set_transient( $topics_data_key, $topics_data, DAY_IN_SECONDS );
-			// It's safe to delete this here, the topics_data has been successfully returned.
-			// Deletes the entire formated_html transient array, so subsequent shortcodes of same type will also be refreshed.
 			delete_transient( $formatted_html_key );
 			update_option( $sync_key, $time );
 			update_option( 'wpds_update_latest', 0 );
 		}
 
-		// The formatted topics are stored in an array. Allows for caching topics for more than one shortcode.
-		$formatted_topics_array = get_transient( $formatted_html_key );
-
 		// Will be empty after either saving a post that contains a discourse_topics shortcode, or updating topics_data.
-		if ( empty( $formatted_topics_array[ $id ] ) ) {
+		$formatted_topics  = get_transient( $formatted_html_key ) ?: [];
+
+		if ( empty( $formatted_topics ) ) {
 
 			$formatted_topics = $this->topic_formatter->format_topics( $topics_data, $args );
 
@@ -316,11 +336,7 @@ class DiscourseTopics {
 				return new \WP_Error( 'wpds_topics_formatting_error', 'An error was returned from the topics_formatter' );
 			}
 
-			$formatted_topics_array[ $id ] = $formatted_topics;
-
-			set_transient( $formatted_html_key, $formatted_topics_array, DAY_IN_SECONDS );
-		} else {
-			$formatted_topics = $formatted_topics_array[ $id ];
+			set_transient( $formatted_html_key, $formatted_topics, DAY_IN_SECONDS );
 		}
 
 		return $formatted_topics;
