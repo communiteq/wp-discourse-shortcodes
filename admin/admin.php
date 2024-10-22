@@ -202,13 +202,13 @@ class Admin {
 
 		<p><em>
 				As long as you have configured the WP Discourse plugin's Connection settings, all of the shortcodes
-				will give some output without your having to supply any attributes. See the <a href="https://github.com/scossar/wp-discourse-shortcodes">docs</a>
+				will give some output without your having to supply any attributes. See the <a href="https://github.com/communiteq/wp-discourse-shortcodes">docs</a>
 				for details about the attributes available for each shortcode.
 			</em>
 		</p>
 		<p>
 			<em>
-				Feel free to raise any issues you have with the plugin on <a href="https://github.com/scossar/wp-discourse-shortcodes/issues">GitHub</a>.
+				Feel free to raise any issues you have with the plugin on <a href="https://github.com/communiteq/wp-discourse-shortcodes/issues">GitHub</a>.
 			</em>
 		</p>
 		<p>
