@@ -73,18 +73,23 @@ class DiscourseTopicsShortcode {
 	 *
 	 * Called directly when the wpds options page is saved.
 	 */
+	function list_all_transients() {
+		global $wpdb;
+
+		// Query for all transients in the wp_options table
+		$transients = $wpdb->get_results(
+			"SELECT option_name, option_value
+			FROM {$wpdb->options}
+			WHERE option_name LIKE '_transient_wpds_%'
+			ORDER BY option_name"
+		);
+
+		return $transients;
+	}
+
 	public function clear_topics_cache() {
-		delete_transient( 'wpds_latest_topics' );
-		delete_transient( 'wpds_latest_topics_html' );
-		delete_transient( 'wpds_all_topics' );
-		delete_transient( 'wpds_all_topics_html' );
-		delete_transient( 'wpds_daily_topics' );
-		delete_transient( 'wpds_daily_topics_html' );
-		delete_transient( 'wpds_monthly_topics' );
-		delete_transient( 'wpds_monthly_topics_html' );
-		delete_transient( 'wpds_quarterly_topics' );
-		delete_transient( 'wpds_quarterly_topics_html' );
-		delete_transient( 'wpds_yearly_topics' );
-		delete_transient( 'wpds_yearly_topics_html' );
+		foreach ($this->list_all_transients() as $transient) {
+			delete_transient($transient->option_name);
+		}
 	}
 }
