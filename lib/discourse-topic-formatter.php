@@ -104,20 +104,18 @@ class DiscourseTopicFormatter {
 					$posters              = $topic['posters'];
 					$cooked               = ! empty( $topic['cooked'] ) ? $this->get_topic_content( $topic['cooked'], $args['excerpt_length'] ) : null;
 
-					foreach ( $posters as $poster ) {
-						if ( preg_match( '/Original Poster/', $poster['description'] ) ) {
-							$original_poster_id = $poster['user_id'];
-							foreach ( $users as $user ) {
-								if ( $original_poster_id === $user['id'] ) {
-									$poster_username   = $user['username'];
-									$avatar_template   = str_replace( '{size}', 44, $user['avatar_template'] );
-									// For forums hosted by discourse.org the letter avatar template is an absolute link.
-									if ( ! preg_match( '/^http/', $avatar_template ) ) {
-										$poster_avatar_url = $this->options['url'] . $avatar_template;
-									} else {
-										$poster_avatar_url = $avatar_template;
-									}
-								}
+					// a previous version of the code looked for "Original Poster" in the description, but that fails when the forum is in another language.
+					// it turns out the OP is always listed first TopicPostersSummary.user_ids
+					$original_poster_id = $posters[0]['user_id'];
+					foreach ( $users as $user ) {
+						if ( $original_poster_id === $user['id'] ) {
+							$poster_username   = $user['username'];
+							$avatar_template   = str_replace( '{size}', 44, $user['avatar_template'] );
+							// For forums hosted by discourse.org the letter avatar template is an absolute link.
+							if ( ! preg_match( '/^http/', $avatar_template ) ) {
+								$poster_avatar_url = $this->options['url'] . $avatar_template;
+							} else {
+								$poster_avatar_url = $avatar_template;
 							}
 						}
 					}
