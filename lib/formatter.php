@@ -15,6 +15,17 @@ use WPDiscourse\Utilities\Utilities as DiscourseUtilities;
  * @package WPDiscourse\Shortcodes
  */
 trait Formatter {
+	// because wp-discourse (or WP) sometimes does not cache this correctly, the get_discourse_categories() call
+	// could request site.json up to 20 times per page
+	// https://meta.discourse.org/t/wp-discourse-performing-a-lot-of-requests-to-site-json/332287
+	protected $categories = null;
+
+	protected function get_discourse_categories() {
+		if ($this->categories == null) {
+			$this->categories = DiscourseUtilities::get_discourse_categories();
+		}
+		return $this->categories;
+	}
 
 	/**
 	 * Gets a Discourse category from its name.
@@ -24,7 +35,7 @@ trait Formatter {
 	 * @return null
 	 */
 	public function find_discourse_category_by_name( $name ) {
-		$categories = DiscourseUtilities::get_discourse_categories();
+		$categories = $this->get_discourse_categories();
 		foreach ( $categories as $category ) {
 			if ( $name === $category['name'] ) {
 
@@ -43,7 +54,7 @@ trait Formatter {
 	 * @return null
 	 */
 	public function find_discourse_category( $topic ) {
-		$categories = DiscourseUtilities::get_discourse_categories();
+		$categories = $this->get_discourse_categories();
 		if ( empty( $topic['category_id'] ) ) {
 
 			return new \WP_Error( 'wpdc_topic_error', 'The Discourse topic did not have a category_id set.' );
